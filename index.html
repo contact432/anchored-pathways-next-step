@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Anchored Pathways</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Questrial&family=Poppins:wght@400;500;600;700&display=swap');
+
+  :root {
+    --teal-deep: #1A5F6E;
+    --teal-navy: #14505E;
+    --teal-mid: #2A8A96;
+    --teal-bright: #3AABB8;
+    --gold: #F5A623;
+    --amber: #E8832A;
+    --burnt: #C4612A;
+    --white: #FFFFFF;
+    --ink: #16323A;
+    --ink-soft: #4A6B72;
+    --bg: #F7F5F0;
+    --card: #FFFFFF;
+    --radius: 20px;
+    --font-head: 'Avenir', 'Avenir Next', 'Poppins', sans-serif;
+    --font-body: 'Questrial', 'Avenir', 'Avenir Next', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); font-family:var(--font-body); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  #app { max-width:440px; margin:0 auto; min-height:100vh; background:var(--bg); display:flex; flex-direction:column; position:relative; padding-bottom:84px; }
+
+  .topbar { background:var(--teal-navy); padding:16px 20px 22px; color:var(--white); position:relative; overflow:hidden; }
+  .topbar::after { content:""; position:absolute; right:-40px; top:-40px; width:140px; height:140px; border-radius:50%; background:radial-gradient(circle, var(--teal-bright) 0%, transparent 70%); opacity:0.35; }
+  .topbar-row { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-mark { width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, var(--gold), var(--amber)); display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .brand-name { font-family:var(--font-head); font-weight:600; font-size:14.5px; }
+  .lang-toggle { display:flex; background:rgba(255,255,255,0.14); border-radius:999px; padding:3px; font-size:12px; font-weight:600; }
+  .lang-toggle button { border:none; background:transparent; color:rgba(255,255,255,0.75); padding:6px 12px; border-radius:999px; cursor:pointer; font-family:var(--font-body); font-weight:600; font-size:12px; }
+  .lang-toggle button.active { background:var(--gold); color:var(--teal-navy); }
+  .greeting { margin-top:16px; position:relative; z-index:1; }
+  .greeting h1 { font-family:var(--font-head); font-weight:600; font-size:20px; line-height:1.25; margin:0 0 4px; }
+  .greeting p { margin:0; font-size:13px; color:rgba(255,255,255,0.8); line-height:1.4; }
+  .stage-crumb { display:flex; align-items:center; gap:6px; margin-top:14px; position:relative; z-index:1; flex-wrap:wrap; }
+  .crumb-chip { font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:999px; background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.65); letter-spacing:0.3px; }
+  .crumb-chip.active { background:var(--gold); color:var(--teal-navy); }
+  .crumb-arrow { color:rgba(255,255,255,0.35); font-size:11px; }
+
+  .content { padding:16px 18px 8px; flex:1; }
+  .section-label { font-size:12px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--ink-soft); margin:20px 2px 10px; }
+  .section-label:first-child { margin-top:2px; }
+
+  .triage-grid { display:flex; flex-direction:column; gap:10px; }
+  .triage-card { background:var(--card); border:1px solid #E7E2D6; border-radius:var(--radius); padding:15px 16px; display:flex; align-items:center; gap:13px; cursor:pointer; text-align:left; width:100%; font-family:var(--font-body); box-shadow:0 1px 2px rgba(20,80,94,0.04); }
+  .triage-card:active { transform:scale(0.98); }
+  .triage-card .emoji { width:42px; height:42px; border-radius:12px; background:#EEF6F5; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+  .triage-card .txt-en { font-weight:600; font-size:14px; color:var(--ink); line-height:1.3; }
+  .triage-card .txt-es { font-style:italic; font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+  .triage-card .chev { margin-left:auto; color:var(--ink-soft); font-size:18px; }
+
+  .stage-banner { border-radius:var(--radius); padding:16px; color:var(--white); display:flex; align-items:center; gap:12px; margin-bottom:10px; cursor:pointer; }
+  .stage-banner .ic { font-size:24px; width:44px; text-align:center; }
+  .stage-banner h3 { margin:0 0 2px; font-family:var(--font-head); font-size:14.5px; font-weight:600; }
+  .stage-banner p { margin:0; font-size:11.5px; opacity:0.88; line-height:1.35; }
+  .stage-banner .chev { margin-left:auto; font-size:16px; opacity:0.7; }
+
+  .bottomnav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:440px; background:var(--white); border-top:1px solid #E7E2D6; display:flex; justify-content:space-around; padding:9px 4px calc(9px + env(safe-area-inset-bottom)); }
+  .navbtn { background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-soft); font-family:var(--font-body); font-size:9.5px; font-weight:600; padding:3px 6px; }
+  .navbtn.active { color:var(--teal-deep); }
+  .navbtn .ic { font-size:18px; }
+
+  .screen-header { display:flex; align-items:center; gap:12px; padding:16px 18px 6px; }
+  .back-btn { width:34px; height:34px; border-radius:10px; border:1px solid #E7E2D6; background:var(--white); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; color:var(--teal-deep); flex-shrink:0; }
+  .screen-title { font-family:var(--font-head); font-weight:600; font-size:17px; color:var(--ink); }
+
+  .card { background:var(--card); border:1px solid #E7E2D6; border-radius:var(--radius); padding:18px; margin:12px 18px; }
+  .pill { display:inline-block; background:#EEF6F5; color:var(--teal-deep); font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:999px; margin-bottom:10px; letter-spacing:0.3px; }
+  .card h2 { font-family:var(--font-head); font-weight:600; font-size:16.5px; margin:0 0 8px; line-height:1.3; }
+  .card p { font-size:13.5px; line-height:1.55; color:var(--ink-soft); margin:0 0 10px; }
+  .card p.es { font-style:italic; }
+  .divider { height:1px; background:#EFEAE0; margin:14px 0; }
+
+  .step-list { list-style:none; padding:0; margin:0; }
+  .step-list li { display:flex; gap:10px; font-size:13px; color:var(--ink); padding:8px 0; border-bottom:1px solid #F3EFE6; }
+  .step-list li:last-child { border-bottom:none; }
+  .step-num { width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--teal-navy); font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  .primary-btn { width:100%; background:var(--amber); color:var(--white); border:none; border-radius:14px; padding:14px; font-weight:700; font-size:14px; font-family:var(--font-body); cursor:pointer; margin-top:4px; }
+  .primary-btn:disabled { opacity:0.4; }
+  .secondary-btn { width:100%; background:transparent; color:var(--teal-deep); border:1.5px solid var(--teal-deep); border-radius:14px; padding:12px; font-weight:700; font-size:13.5px; font-family:var(--font-body); cursor:pointer; margin-top:8px; }
+
+  .field { margin-bottom:14px; }
+  .field label { display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+  .field input, .field select, .field textarea { width:100%; padding:12px 13px; border-radius:12px; border:1.5px solid #E7E2D6; font-family:var(--font-body); font-size:14px; background:var(--white); color:var(--ink); }
+  .field textarea { min-height:70px; resize:vertical; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:var(--teal-mid); }
+
+  .confirm-box { text-align:center; padding:10px 6px 6px; }
+  .confirm-icon { width:52px; height:52px; border-radius:50%; background:#EEF6F5; color:var(--teal-deep); font-size:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+
+  .choice-opt { display:block; width:100%; text-align:left; background:var(--white); border:1.5px solid #E7E2D6; border-radius:14px; padding:13px 15px; font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:9px; cursor:pointer; font-family:var(--font-body); }
+  .choice-opt:active { background:#F5FAFA; border-color:var(--teal-mid); }
+  .choice-opt.picked { background:var(--teal-deep); border-color:var(--teal-deep); color:var(--white); }
+
+  .chip-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  .chip { padding:9px 13px; border-radius:999px; border:1.5px solid #E7E2D6; font-size:12.5px; font-weight:600; cursor:pointer; background:var(--white); color:var(--ink); }
+  .chip.picked { background:var(--gold); border-color:var(--gold); color:var(--teal-navy); }
+  .chip-counter { font-size:12px; color:var(--ink-soft); font-weight:600; margin:8px 2px 14px; }
+
+  .rank-item { display:flex; align-items:center; gap:10px; background:var(--white); border:1.5px solid #E7E2D6; border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:13.5px; font-weight:600; }
+  .rank-item .rank-badge { width:24px; height:24px; border-radius:50%; background:var(--teal-deep); color:var(--white); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .rank-btns { display:flex; gap:4px; margin-left:auto; }
+  .rank-btns button { border:none; background:#EEF6F5; color:var(--teal-deep); width:26px; height:26px; border-radius:8px; font-size:13px; cursor:pointer; }
+
+  .progress-dots { display:flex; gap:6px; padding:0 18px 4px; }
+  .progress-dots span { height:4px; flex:1; background:#E7E2D6; border-radius:2px; }
+  .progress-dots span.done { background:var(--teal-deep); }
+
+  .tag-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .tag { background:#FCEFDD; color:var(--burnt); font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:999px; }
+
+  .locked-card { background:repeating-linear-gradient(135deg, #F1EDE3, #F1EDE3 10px, #EDE8DB 10px, #EDE8DB 20px); border-radius:var(--radius); margin:12px 18px; padding:16px; text-align:center; color:var(--ink-soft); border:1px dashed #D8D0BE; }
+  .locked-card .lock-ic { font-size:19px; margin-bottom:5px; }
+  .locked-card p { font-size:12px; margin:0; }
+
+  .explore-grid { display:flex; flex-direction:column; gap:10px; }
+  .assess-card { background:var(--card); border:1px solid #E7E2D6; border-radius:16px; padding:14px 15px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .assess-card .ic { width:40px; height:40px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+  .assess-card .info { flex:1; }
+  .assess-card h4 { margin:0 0 2px; font-size:13.5px; font-weight:700; font-family:var(--font-body); }
+  .assess-card .es-sub { font-size:11px; font-style:italic; color:var(--ink-soft); }
+  .assess-card .status { font-size:16px; }
+
+  .profile-summary-card { background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); border-radius:var(--radius); padding:18px; margin:12px 18px; color:var(--white); }
+  .profile-summary-card h3 { font-family:var(--font-head); font-size:15px; margin:0 0 10px; font-weight:600; }
+  .summary-row { display:flex; justify-content:space-between; font-size:12.5px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.15); }
+  .summary-row:last-child { border-bottom:none; }
+  .summary-row b { font-weight:700; }
+
+  .career-card { background:var(--white); border:1px solid #E7E2D6; border-radius:14px; padding:13px 14px; margin-bottom:9px; }
+  .career-card h4 { margin:0 0 3px; font-size:13.5px; font-family:var(--font-head); font-weight:600; }
+  .career-card p { margin:0; font-size:12px; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============ STRINGS ============ */
+const T = {
+  en: {
+    hello: "Hi, we're glad you're here.",
+    sub: "You don't need to know anything about college to start. Just tell us what's going on.",
+    todaySection: "What brings you here today?",
+    resourcesSection: "Or start with a stage",
+    navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navMe:"Family",
+    back:"Back",
+    stages: [
+      {key:'explore', ic:'🧭', c1:'#2A8A96', en:'Explore', es:'Explorar', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
+      {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decidir', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
+      {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Apply', es:'Aplicar', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
+      {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Stay', es:'Quédate', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
+      {key:'shift', ic:'🔄', c1:'#C4612A', en:'Shift', es:'Cambia', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
+    ],
+    triage: [
+      {emoji:"📝", en:"My child needs to apply for financial aid", es:"Mi hijo/a necesita solicitar ayuda financiera", key:'fafsa'},
+      {emoji:"🧭", en:"They don't know what to study", es:"No sabe qué estudiar", key:'explore'},
+      {emoji:"💬", en:"I don't know if college is worth it for us", es:"No sé si vale la pena la universidad", key:'worthit'},
+      {emoji:"🛡️", en:"We're an undocumented or mixed-status family", es:"Somos una familia indocumentada o de estatus mixto", key:'undoc'},
+      {emoji:"🎓", en:"I want to go back to school myself", es:"Yo quiero volver a estudiar", key:'adult'},
+      {emoji:"💰", en:"I need help finding scholarships", es:"Necesito ayuda para encontrar becas", key:'scholarships'},
+    ],
+  },
+  es: {
+    hello: "Hola, qué bueno que estás aquí.",
+    sub: "No necesitas saber nada sobre la universidad para empezar. Solo cuéntanos qué está pasando.",
+    todaySection: "¿Qué te trae por aquí hoy?",
+    resourcesSection: "O empieza por una etapa",
+    navHome:"Inicio", navExplore:"Explorar", navClinica:"Clínica", navMe:"Familia",
+    back:"Atrás",
+    stages: null, // filled below to mirror EN structurally
+    triage: [
+      {emoji:"📝", en:"Mi hijo/a necesita solicitar ayuda financiera", es:"My child needs financial aid", key:'fafsa'},
+      {emoji:"🧭", en:"No sabe qué estudiar", es:"They don't know what to study", key:'explore'},
+      {emoji:"💬", en:"No sé si vale la pena la universidad", es:"Is college worth it", key:'worthit'},
+      {emoji:"🛡️", en:"Somos una familia indocumentada o de estatus mixto", es:"Undocumented or mixed-status", key:'undoc'},
+      {emoji:"🎓", en:"Yo quiero volver a estudiar", es:"I want to return to school", key:'adult'},
+      {emoji:"💰", en:"Necesito ayuda para encontrar becas", es:"I need scholarship help", key:'scholarships'},
+    ],
+  }
+};
+T.es.stages = T.en.stages;
+
+/* ============ DISCOVER YOUR PATH — ASSESSMENT CONTENT ============ */
+const VALUES = [
+  {id:'family', en:'Family', es:'Familia', tags:['connection','loyalty']}, {id:'creativity', en:'Creativity', es:'Creatividad', tags:['creativity','expression']},
+  {id:'justice', en:'Justice', es:'Justicia', tags:['service']}, {id:'freedom', en:'Freedom', es:'Libertad', tags:['freedom','self-direction']},
+  {id:'stability', en:'Stability', es:'Estabilidad', tags:['stability','reliability']}, {id:'helping', en:'Helping Others', es:'Ayudar a Otros', tags:['service','empathy']},
+  {id:'achievement', en:'Achievement', es:'Logro', tags:['achievement','mastery']}, {id:'faith', en:'Faith', es:'Fe', tags:['belonging','steadfastness']},
+  {id:'loyalty', en:'Loyalty', es:'Lealtad', tags:['loyalty','reliability']}, {id:'growth', en:'Growth', es:'Crecimiento', tags:['growth','curiosity']},
+  {id:'independence', en:'Independence', es:'Independencia', tags:['independence','self-direction']}, {id:'community', en:'Community', es:'Comunidad', tags:['connection','belonging']},
+];
+const STRENGTHS = [
+  {id:'leadership', en:'Leadership', es:'Liderazgo', tags:['leadership','influence']}, {id:'creativity2', en:'Creativity', es:'Creatividad', tags:['creativity','originality']},
+  {id:'empathy', en:'Empathy', es:'Empatía', tags:['empathy','connection']}, {id:'organization', en:'Organization', es:'Organización', tags:['order','planning']},
+  {id:'communication', en:'Communication', es:'Comunicación', tags:['connection','influence']}, {id:'problem-solving', en:'Problem-Solving', es:'Resolución de Problemas', tags:['curiosity','mastery']},
+  {id:'patience', en:'Patience', es:'Paciencia', tags:['patience','steadfastness']}, {id:'curiosity', en:'Curiosity', es:'Curiosidad', tags:['curiosity','discovery']},
+  {id:'resilience', en:'Resilience', es:'Resiliencia', tags:['endurance','steadfastness']}, {id:'teamwork', en:'Teamwork', es:'Trabajo en Equipo', tags:['connection','service']},
+  {id:'focus', en:'Focus', es:'Enfoque', tags:['precision','mastery']}, {id:'adaptability', en:'Adaptability', es:'Adaptabilidad', tags:['adaptability','novelty']},
+];
+// Personality: 4 dimensions, 2 forced-choice questions each (demo subset of full 20-question bank)
+const PERSONALITY_Q = [
+  {dim:'EI', A:'E', textA_en:'At a gathering, you talk with lots of people', textA_es:'En una reunión, hablas con mucha gente', B:'I', textB_en:'At a gathering, you stick with one or two people', textB_es:'En una reunión, te quedas con una o dos personas'},
+  {dim:'EI', textA_en:'Recharge by being around others', textA_es:'Te recargas estando con otros', A:'E', textB_en:'Recharge by having quiet time alone', textB_es:'Te recargas con tiempo tranquilo a solas', B:'I'},
+  {dim:'SN', textA_en:'You trust facts and direct experience', textA_es:'Confías en los hechos y la experiencia directa', A:'S', textB_en:'You trust patterns and possibilities', textB_es:'Confías en los patrones y posibilidades', B:'N'},
+  {dim:'SN', textA_en:'You prefer clear, step-by-step instructions', textA_es:'Prefieres instrucciones claras y paso a paso', A:'S', textB_en:'You prefer figuring things out your own way', textB_es:'Prefieres resolverlo a tu manera', B:'N'},
+  {dim:'TF', textA_en:'You make decisions with logic first', textA_es:'Decides primero con lógica', A:'T', textB_en:'You make decisions with your values first', textB_es:'Decides primero con tus valores', B:'F'},
+  {dim:'TF', textA_en:'Being right matters more to you', textA_es:'Te importa más tener la razón', A:'T', textB_en:'Being kind matters more to you', textB_es:'Te importa más ser amable', B:'F'},
+  {dim:'JP', textA_en:'You like having a plan', textA_es:'Te gusta tener un plan', A:'J', textB_en:'You like keeping options open', textB_es:'Te gusta mantener opciones abiertas', B:'P'},
+  {dim:'JP', textA_en:'Deadlines motivate you early', textA_es:'Las fechas límite te motivan con tiempo', A:'J', textB_en:'You do your best work under pressure', textB_es:'Trabajas mejor bajo presión', B:'P'},
+];
+const TYPE_NAMES = {ENFJ:'The Mentor',ENFP:'The Inspirer',ENTJ:'The Commander',ENTP:'The Innovator',ESFJ:'The Caregiver',ESFP:'The Performer',ESTJ:'The Director',ESTP:'The Doer',INFJ:'The Counselor',INFP:'The Idealist',INTJ:'The Architect',INTP:'The Thinker',ISFJ:'The Protector',ISFP:'The Artist',ISTJ:'The Inspector',ISTP:'The Craftsperson'};
+const TYPE_NAMES_ES = {ENFJ:'El Mentor',ENFP:'El Inspirador',ENTJ:'El Comandante',ENTP:'El Innovador',ESFJ:'El Cuidador',ESFP:'El Animador',ESTJ:'El Director',ESTP:'El Ejecutor',INFJ:'El Consejero',INFP:'El Idealista',INTJ:'El Arquitecto',INTP:'El Pensador',ISFJ:'El Protector',ISFP:'El Artista',ISTJ:'El Inspector',ISTP:'El Artesano'};
+// Interests: RIASEC — demo subset (2 activities per category, full bank has 24)
+const RIASEC = [
+  {code:'R', en:'Realistic', es:'Realista', descEn:'Hands-on, mechanical, outdoors', descEs:'Práctico, mecánico, al aire libre', tags:['craft','practicality'], acts:[{en:'Fix or build something with your hands',es:'Arreglar o construir algo con tus manos'},{en:'Work outdoors',es:'Trabajar al aire libre'}]},
+  {code:'I', en:'Investigative', es:'Investigador', descEn:'Research, analysis, science', descEs:'Investigación, análisis, ciencia', tags:['curiosity','discovery'], acts:[{en:'Solve a tricky puzzle or problem',es:'Resolver un problema complicado'},{en:'Do a science experiment',es:'Hacer un experimento científico'}]},
+  {code:'A', en:'Artistic', es:'Artístico', descEn:'Creative, expressive, design', descEs:'Creativo, expresivo, diseño', tags:['creativity','expression'], acts:[{en:'Draw, design, or make music',es:'Dibujar, diseñar o hacer música'},{en:'Write a story or poem',es:'Escribir un cuento o poema'}]},
+  {code:'S', en:'Social', es:'Social', descEn:'Helping, teaching, counseling', descEs:'Ayudar, enseñar, aconsejar', tags:['connection','service'], acts:[{en:'Tutor or teach someone',es:'Dar tutoría o enseñar a alguien'},{en:'Help a friend through a hard time',es:'Ayudar a un amigo en un momento difícil'}]},
+  {code:'E', en:'Enterprising', es:'Emprendedor', descEn:'Leading, selling, persuading', descEs:'Liderar, vender, persuadir', tags:['leadership','initiative'], acts:[{en:'Start your own project or business idea',es:'Iniciar tu propio proyecto o idea de negocio'},{en:'Convince a group to try your idea',es:'Convencer a un grupo de intentar tu idea'}]},
+  {code:'C', en:'Conventional', es:'Convencional', descEn:'Organizing, data, systems', descEs:'Organizar, datos, sistemas', tags:['order','reliability'], acts:[{en:'Organize a schedule or budget',es:'Organizar un horario o presupuesto'},{en:'Keep detailed, accurate records',es:'Llevar registros detallados y precisos'}]},
+];
+// Career + credential recommendations keyed by RIASEC top code (simplified mapping for demo)
+const CAREER_MAP = {
+  R:[{en:'HVAC Technician',es:'Técnico de HVAC',credEn:'Certificate, 6–12 months',credEs:'Certificado, 6–12 meses'},{en:'Electrician',es:'Electricista',credEn:'Apprenticeship, 4 years paid',credEs:'Aprendizaje, 4 años pagado'}],
+  I:[{en:'Registered Nurse',es:'Enfermero/a Registrado/a',credEn:'Associate or Bachelor\'s degree',credEs:'Título asociado o licenciatura'},{en:'Lab Technician',es:'Técnico de Laboratorio',credEn:'Associate degree',credEs:'Título asociado'}],
+  A:[{en:'Graphic Designer',es:'Diseñador/a Gráfico',credEn:'Bachelor\'s or portfolio-based',credEs:'Licenciatura o portafolio'},{en:'Radio/Media Production',es:'Producción de Medios',credEn:'Certificate or Associate',credEs:'Certificado o título asociado'}],
+  S:[{en:'Teacher',es:'Maestro/a',credEn:'Bachelor\'s degree + certification',credEs:'Licenciatura + certificación'},{en:'Social Worker',es:'Trabajador/a Social',credEn:'Bachelor\'s degree',credEs:'Licenciatura'}],
+  E:[{en:'Business / Sales',es:'Negocios / Ventas',credEn:'Associate or Bachelor\'s',credEs:'Título asociado o licenciatura'},{en:'Small Business Owner',es:'Dueño/a de Pequeño Negocio',credEn:'Certificate + on-the-job',credEs:'Certificado + experiencia laboral'}],
+  C:[{en:'Accounting Technician',es:'Técnico Contable',credEn:'Associate degree',credEs:'Título asociado'},{en:'Medical Records / Billing',es:'Registros / Facturación Médica',credEn:'Certificate, under 1 year',credEs:'Certificado, menos de 1 año'}],
+};
+
+/* ============ PHASE 4: SCHOLARSHIP & FUNDING NAVIGATOR — NORMALIZED DATA ============
+   Generated from AP_Navigator_Scholarship_Database.xlsx by parse.py (see delivered import
+   scripts). This block is the ONLY thing that changes when the workbook is updated — the
+   parser is separate from this data, and all rendering/filtering functions below read only
+   from this array, never from Excel structure. Sensitive Navigator-only content (contested
+   legal citations, internal staff directives, individual staffers' personal emails) was
+   deliberately excluded during normalization; see the accompanying write-up for why. */
+const SCHOLARSHIP_DATA = [{"id":"public-uni-58ba4bf8","category":"public_university","institution":"University of Houston (UH Main)","programName":"Transfer Excellence Scholarship; Dept./College Competitive Scholarships","organization":null,"awardAmountText":"$1,000/term","awardAmountMin":1000,"deadlineText":"May 15 (fall) June 30 (transcripts)","gpaText":"3.0 min (Transfer Excellence)","gpaMin":3.0,"awardAmountTextEs":"$1,000 por semestre","deadlineTextEs":"mayo 15 (fall) junio 30 (transcripts) (confirma esta fecha con la institución)","gpaTextEs":"3.0 min (Transfer Excellence) (confirma este requisito con la institución)","verificationStatus":"verify_directly","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"Varies by dept","lawfulPresenceNote":"Not explicit on page; state rule likely applies","contactPhone":"713-743-1010 opt 5","contactEmail":"sfa@central.uh.edu","urls":[{"label":null,"url":"https://www.uh.edu/financial/payment/fee-waivers/"}],"urlRaw":"uh.edu/financial/payment/Fee-Waivers/","priorityRaw":"⭐⭐⭐ HIGH (Top destination both ISDs)","priorityTag":"high","familyNote":"A common destination for East Harris County students, with scholarships awarded department by department.","familyNoteEs":"Un destino común para estudiantes del este del condado de Harris, con becas otorgadas departamento por departamento."},{"id":"public-uni-1a52f178","category":"public_university","institution":"University of Houston–Downtown (UHD)","programName":"College/Dept. Competitive Scholarships (UHD-recognized committees)","organization":null,"awardAmountText":"$1,000/term (single fund)","awardAmountMin":1000,"deadlineText":"Dept submissions March; Committee approves April","gpaText":"Varies by scholarship","gpaMin":null,"awardAmountTextEs":"$1,000 por semestre (un solo fondo)","deadlineTextEs":"Dept submissions marzo; Committee approves abril (confirma esta fecha con la institución)","gpaTextEs":"Varía según la beca","verificationStatus":"verify_directly","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"No combination — single fund","lawfulPresenceNote":"Not explicit; state rule likely applies","contactPhone":"713-221-8041","contactEmail":"uhdfinaid@uhd.edu","urls":[{"label":null,"url":"https://www.uhd.edu/financial/scholarships/competitive-scholarship-tuition-waiver.aspx"}],"urlRaw":"uhd.edu/financial/scholarships/competitive-scholarship-tuition-waiver.aspx","priorityRaw":"⭐⭐⭐ HIGH (Strong Galena Park pipeline)","priorityTag":"high","familyNote":"Has a strong pipeline from Galena Park ISD, with scholarships reviewed by department committees each spring.","familyNoteEs":"Tiene una fuerte conexión con Galena Park ISD, con becas revisadas por comités departamentales cada primavera."},{"id":"public-uni-c95218a7","category":"public_university","institution":"University of Houston–Clear Lake (UHCL)","programName":"Hawk Scholars ($2K 1st sem + $1K/term); President's Excellence ($3K/yr); New Hawk Scholarship","organization":null,"awardAmountText":"$1,000/yr","awardAmountMin":1000,"deadlineText":"Jan 15 priority (fall); Sept 15 priority (spring)","gpaText":"3.0–3.5+ depending on scholarship","gpaMin":3.5,"awardAmountTextEs":"$1,000 al año","deadlineTextEs":"enero 15 priority (fall); septiembre 15 priority (spring) (confirma esta fecha con la institución)","gpaTextEs":"3.0–3.5+ depending on scholarship (confirma este requisito con la institución)","verificationStatus":"verify_directly","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"Automatic once awarded","lawfulPresenceNote":"Not explicit; state rule likely applies","contactPhone":"281-283-2480","contactEmail":"uhcl_fao@uhcl.edu","urls":[{"label":null,"url":"https://www.uhcl.edu/costs-aid/scholarships/"}],"urlRaw":"uhcl.edu/costs-aid/scholarships/","priorityRaw":"⭐⭐ MEDIUM (Proximity to Pasadena)","priorityTag":"medium","familyNote":"A smaller UH campus close to Pasadena with several named scholarships.","familyNoteEs":"Un campus más pequeño de UH cerca de Pasadena con varias becas con nombre propio."},{"id":"public-uni-e9dafa30","category":"public_university","institution":"Texas Southern University (TSU)","programName":"Regents Scholarship (up to $14K/yr); Presidents Transformation (up to $10K); Tiger Genesis (up to $7K); Tiger P.A.W. ($1K)","organization":null,"awardAmountText":"$1,000/yr","awardAmountMin":1000,"deadlineText":"12th class day for waiver; Scholarship: varies","gpaText":"Regents: 3.75+ GPA, SAT 1370+ Presidents: 3.5+, SAT 1240+ Genesis: 3.0+, SAT 1050+ P.A.W.: 2.5+, SAT 900+","gpaMin":2.5,"awardAmountTextEs":"$1,000 al año","deadlineTextEs":"12th class day for waiver; Scholarship: varies (confirma esta fecha con la institución)","gpaTextEs":"Regents: 3.75+ GPA, SAT 1370+ Presidents: 3.5+, SAT 1240+ Genesis: 3.0+, SAT 1050+ P.A.W.: 2.5+, SAT 900+ (confirma este requisito con la institución)","verificationStatus":"uncertain","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain (historically accessible)","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"Not specified","lawfulPresenceNote":"Not explicit on page; state rule applies; historically more accessible","contactPhone":"713-313-7802","contactEmail":"financialaid@tsu.edu","urls":[{"label":null,"url":"https://www.tsu.edu/admissions/financial-aid/types-of-aid/scholarships/index.php"}],"urlRaw":"tsu.edu/admissions/financial-aid/types-of-aid/scholarships/","priorityRaw":"⭐⭐⭐ HIGH (HBCU, Houston location)","priorityTag":"high","familyNote":"An HBCU located in Houston, historically more accessible to students without full legal status, though policies can change.","familyNoteEs":"Una HBCU ubicada en Houston, históricamente más accesible para estudiantes sin estatus legal completo, aunque las políticas pueden cambiar."},{"id":"public-uni-6841d876","category":"public_university","institution":"Sam Houston State University (SHSU)","programName":"Bearkat Transfer Scholarship ($2K total); Phi Theta Kappa Transfer ($1K); Honors Scholarship (up to $40K); National Merit ($10K/yr)","organization":null,"awardAmountText":"$1,000 (SINGLE scholarship; no combining)","awardAmountMin":1000,"deadlineText":"Feb 15 preferred (general); June 1 (PTK Transfer); May 31 (National Merit)","gpaText":"PTK: 3.5 min; Bearkat Transfer: 2.75 min; Honors: 3.25 renewal","gpaMin":2.75,"awardAmountTextEs":"$1,000 (una sola beca; no se puede combinar)","deadlineTextEs":"febrero 15 preferred (general); junio 1 (PTK Transfer); mayo 31 (National Merit) (confirma esta fecha con la institución)","gpaTextEs":"PTK: 3.5 min; Bearkat Transfer: 2.75 min; Honors: 3.25 renewal (confirma este requisito con la institución)","verificationStatus":"uncertain","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"NOT ALLOWED — single scholarship only","lawfulPresenceNote":"Not explicit; state rule applies","contactPhone":"(936) 294-1774","contactEmail":"scholarships@shsu.edu","urls":[{"label":null,"url":"https://www.shsu.edu/cost-aid/types-of-aid/scholarships"}],"urlRaw":"shsu.edu/cost-aid/types-of-aid/scholarships","priorityRaw":"⭐ LOW–MEDIUM (Huntsville — distance from Houston)","priorityTag":"low","familyNote":"Several transfer-friendly scholarships. This school does not allow combining smaller awards to reach the funding threshold.","familyNoteEs":"Varias becas para estudiantes de transferencia. Esta escuela no permite combinar becas pequeñas para alcanzar el umbral de financiamiento."},{"id":"public-uni-845131d6","category":"public_university","institution":"Texas A&M University (College Station)","programName":"College/Dept. Competitive Scholarships","organization":null,"awardAmountText":"UG: $4,000/yr minimum (no single award under $1,000) Grad: $1,000/yr","awardAmountMin":1000,"deadlineText":"12th class day (fall/spring); 4th class day (summer)","gpaText":"No minimum for waiver; varies for scholarship","gpaMin":null,"awardAmountTextEs":"UG: $4,000/yr minimum (no single award under $1,000) Grad: $1,000/yr (confirma esta cantidad con la institución)","deadlineTextEs":"12th class day (fall/spring); 4th class day (summer) (confirma esta fecha con la institución)","gpaTextEs":"No minimum for waiver; varies for scholarship (confirma este requisito con la institución)","verificationStatus":"restricted","eligibilityRaw":"TPS ✅ DACA ⚠️ (w/ docs) Undoc: ❌ NO","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Requires lawful presence","es":"Requiere presencia legal"},{"en":"Not currently open to fully undocumented students","es":"Actualmente no está abierta a estudiantes totalmente indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned","lawful_presence_required","undocumented_not_eligible"],"combiningNote":"UG: can combine (min $1K each); Grad: no combining","lawfulPresenceNote":"✅ YES — EXPLICITLY STATED (TAC 13.465 cited on page)","contactPhone":"Howdy portal","contactEmail":"aggieonestop.tamu.edu","urls":[{"label":null,"url":"https://aggie.tamu.edu/paying-for-college/apply-for-financial-aid/competitive-scholarship-non-resident-tuition-waiver.html"}],"urlRaw":"aggie.tamu.edu/paying-for-college/apply-for-financial-aid/competitive-scholarship-non-resident-tuition-waiver.html","priorityRaw":"⭐⭐⭐ HIGH (Top destination both ISDs) ⚠️ RESTRICTED","priorityTag":"high","familyNote":"A top destination for both districts. This school currently requires documented lawful presence for this specific pathway.","familyNoteEs":"Un destino importante para ambos distritos. Esta escuela actualmente requiere presencia legal documentada para este camino específico."},{"id":"public-uni-2f063c77","category":"public_university","institution":"University of Texas at Austin (UT Austin)","programName":"College/Dept. Competitive Scholarships (no central list published)","organization":null,"awardAmountText":"$1,000 (state minimum; not stated on page)","awardAmountMin":1000,"deadlineText":"Census date / commencement; scholarship: varies by dept","gpaText":"Varies by scholarship","gpaMin":null,"awardAmountTextEs":"$1,000 (state minimum; not stated on page) (confirma esta cantidad con la institución)","deadlineTextEs":"Census date / commencement; scholarship: varies by dept (confirma esta fecha con la institución)","gpaTextEs":"Varía según la beca","verificationStatus":"uncertain","eligibilityRaw":"TPS ✅ DACA ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"Not specified","lawfulPresenceNote":"Not explicit (page predates Spring 2026); state rule applies","contactPhone":"(512) 475-6282","contactEmail":"onestop@utexas.edu","urls":[{"label":null,"url":"https://catalog.utexas.edu/general-information/registration-tuition-and-fees/tuition-and-fees/tuition-waivers/"}],"urlRaw":"catalog.utexas.edu/general-information/registration-tuition-and-fees/tuition-and-fees/tuition-waivers/","priorityRaw":"⭐⭐ MEDIUM (High interest Galena Park)","priorityTag":"medium","familyNote":"High interest among Galena Park families. Scholarships are awarded department by department rather than through one central list.","familyNoteEs":"Alto interés entre familias de Galena Park. Las becas se otorgan departamento por departamento, no por una lista central."},{"id":"public-uni-c1e77841","category":"public_university","institution":"Texas State University (San Marcos)","programName":"President's Honor ($12K/yr, SAT 1420+); TX Achievement ($8K/yr, SAT 1260+); TX Distinguished ($5K/yr, SAT 1160+); National Distinction ($10K/yr, NM finalist)","organization":null,"awardAmountText":"$1,000/yr","awardAmountMin":1000,"deadlineText":"12th class day for waiver form; scholarship: at admission","gpaText":"President's Honor: SAT 1420+ or ACT 32+ Achievement: SAT 1260–1410 Distinguished: SAT 1160+","gpaMin":null,"awardAmountTextEs":"$1,000 al año","deadlineTextEs":"12th class day for waiver form; scholarship: at admission (confirma esta fecha con la institución)","gpaTextEs":"President's Honor: SAT 1420+ or ACT 32+ Achievement: SAT 1260–1410 Distinguished: SAT 1160+ (confirma este requisito con la institución)","verificationStatus":"restricted","eligibilityRaw":"TPS ✅ DACA ⚠️ Undoc: ❌ NO","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Requires lawful presence","es":"Requiere presencia legal"},{"en":"Not currently open to fully undocumented students","es":"Actualmente no está abierta a estudiantes totalmente indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned","lawful_presence_required","undocumented_not_eligible"],"combiningNote":"Not specified","lawfulPresenceNote":"✅ YES — EXPLICITLY STATED (TAC 13.465 cited on page)","contactPhone":"512-245-TXST (8978)","contactEmail":"scholarships@txstate.edu","urls":[{"label":null,"url":"https://onestop.txst.edu/financial-aid/waivers-and-exemptions.html"}],"urlRaw":"onestop.txst.edu/financial-aid/waivers-and-exemptions.html","priorityRaw":"⭐⭐ MEDIUM (Galena Park interest)","priorityTag":"medium","familyNote":"Requires documented lawful presence for this pathway, and scholarship thresholds are academically competitive.","familyNoteEs":"Requiere presencia legal documentada para este camino, y los umbrales de las becas son académicamente competitivos."},{"id":"public-uni-0a8df24d","category":"public_university","institution":"University of North Texas (UNT)","programName":"Any competitively awarded UNT scholarship (applied through UNT scholarship portal)","organization":null,"awardAmountText":"$1,000/yr","awardAmountMin":1000,"deadlineText":"Census date","gpaText":"Varies by scholarship","gpaMin":null,"awardAmountTextEs":"$1,000 al año","deadlineTextEs":"Fecha de censo","gpaTextEs":"Varía según la beca","verificationStatus":"restricted","eligibilityRaw":"TPS ✅ DACA ⚠️ Undoc: ❌ NO","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Requires lawful presence","es":"Requiere presencia legal"},{"en":"Not currently open to fully undocumented students","es":"Actualmente no está abierta a estudiantes totalmente indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned","lawful_presence_required","undocumented_not_eligible"],"combiningNote":"Not specified","lawfulPresenceNote":"✅ YES — EXPLICITLY STATED (TAC 13.465 cited on page)","contactPhone":"(940) 565-2302","contactEmail":"financialaid@mail.unt.edu","urls":[{"label":null,"url":"https://financialaid.unt.edu/competitive-scholarship-waiver.html"}],"urlRaw":"financialaid.unt.edu/competitive-scholarship-waiver.html","priorityRaw":"⭐ LOW (Denton — distance)","priorityTag":"low","familyNote":"Requires documented lawful presence for this pathway. Distance from Houston is also worth factoring in.","familyNoteEs":"Requiere presencia legal documentada para este camino. La distancia desde Houston también es un factor a considerar."},{"id":"public-uni-124226ff","category":"public_university","institution":"Texas Tech University (TTU)","programName":"Any competitive TTU scholarship (apply via admission application)","organization":null,"awardAmountText":"$1,000/yr","awardAmountMin":1000,"deadlineText":"Feb 1 (freshmen/continuing); March 1 (transfers)","gpaText":"Varies by scholarship","gpaMin":null,"awardAmountTextEs":"$1,000 al año","deadlineTextEs":"febrero 1 (freshmen/continuing); marzo 1 (transfers) (confirma esta fecha con la institución)","gpaTextEs":"Varía según la beca","verificationStatus":"verify_directly","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"Not explicitly prohibited; confirm with FA office","lawfulPresenceNote":"Not explicit on page; state rule applies","contactPhone":"(806) 742-3681","contactEmail":"finaid.advisor@ttu.edu","urls":[{"label":null,"url":"https://www.depts.ttu.edu/admissions/OutofState/"}],"urlRaw":"depts.ttu.edu/admissions/OutofState/","priorityRaw":"⭐ LOW (Lubbock — distance)","priorityTag":"low","familyNote":"Offers competitive scholarships; distance from Houston is worth factoring in for East Harris County families.","familyNoteEs":"Ofrece becas competitivas; la distancia desde Houston vale la pena considerarla para familias del este del condado de Harris."},{"id":"public-uni-bd9b3769","category":"public_university","institution":"Lamar University (Beaumont)","programName":"Graduate Studies Scholarship ($500/semester disbursed; up to $3K master's, $5K doctoral)","organization":null,"awardAmountText":"$1,000/yr (grad focus)","awardAmountMin":1000,"deadlineText":"First day of classes; waiver posts within 48 hrs","gpaText":"Good academic standing; ≥9 SCH (fall/spring)","gpaMin":null,"awardAmountTextEs":"$1,000 al año (enfoque en posgrado)","deadlineTextEs":"First day of classes; waiver posts within 48 hrs (confirma esta fecha con la institución)","gpaTextEs":"Good academic standing; ≥9 SCH (fall/spring) (confirma este requisito con la institución)","verificationStatus":"uncertain","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"combiningNote":"Not specified","lawfulPresenceNote":"Not explicit on page; state rule applies","contactPhone":"(409) 880-8450","contactEmail":"financialaid@lamar.edu","urls":[{"label":null,"url":"https://www.lamar.edu/financial-aid/types-of-aid/exemptions-waivers.html"}],"urlRaw":"lamar.edu/finance-and-operations/financial-services/student-business-and-treasury/exemptions-waivers.html","priorityRaw":"⭐ LOW–MEDIUM (Beaumont — proximity to east Harris)","priorityTag":"low","familyNote":"Closer to east Harris County than most schools on this list. Current scholarship info is mainly for graduate students.","familyNoteEs":"Más cerca del este del condado de Harris que la mayoría de las escuelas en esta lista. La información actual es principalmente para estudiantes de posgrado."},{"id":"private-uni-21a21daf","category":"private_university","institution":"University of St. Thomas–Houston (UST-Houston)","programName":"Merit Scholarships (auto at admission): $10K (GPA 2.5–2.99) $13K (GPA 3.0–3.39) $16K (GPA 3.4–3.79) $18K (GPA 3.8–3.99) $20K (GPA 4.0+) St. Thomas Promise: full tuition (family income under $50K)","organization":null,"awardAmountText":"$10,000–$20,000/yr merit; Full tuition (Promise)","awardAmountMin":10000,"deadlineText":"At admission; FAFSA code: 003654","gpaText":"2.5 GPA min for any merit aid; 4.0 for max award","gpaMin":2.5,"awardAmountTextEs":"$10,000–$20,000/yr merit; Full tuition (Promise) (confirma esta cantidad con la institución)","deadlineTextEs":"At admission; FAFSA code: 003654 (confirma esta fecha con la institución)","gpaTextEs":"2.5 GPA min for any merit aid; 4.0 for max award (confirma este requisito con la institución)","verificationStatus":"confirmed","eligibilityRaw":"✅ ANY immigration status (explicitly welcomes undocumented)","eligibilityPlain":[{"en":"Open to any immigration status","es":"Abierta a cualquier estatus migratorio"}],"eligibilityTags":["any_status","undocumented_mentioned"],"dreamUsPartner":"✅ YES — Texas Partner (2026–27 cycle)","contactPhone":null,"contactEmail":"finaid@stthom.edu 713-525-2170","urls":[{"label":null,"url":"https://stthom.edu/tuition-aid/"}],"urlRaw":"stthom.edu/Admissions/Financial_Aid/","distanceText":"Houston (Montrose area) ~20 min from Pasadena","familyNote":"A top priority option for AP families. Over 90% of freshmen receive some scholarship, and this school explicitly welcomes students of any immigration status.","familyNoteEs":"Una opción prioritaria para familias de AP. Más del 90% de los estudiantes de primer año reciben alguna beca, y esta escuela explícitamente da la bienvenida a estudiantes de cualquier estatus migratorio."},{"id":"private-uni-02694b82","category":"private_university","institution":"Our Lady of the Lake University (OLLU — San Antonio)","programName":"Institutional Aid (avg $18,814/yr); TheDream.US National Scholarship (up to $33,000 total + $6,000 stipend)","organization":null,"awardAmountText":"Avg $18,814/yr institutional; + up to $33K TheDream.US","awardAmountMin":33,"deadlineText":"TheDream.US opens Nov 1, 2026; Institutional: at admission","gpaText":"2.5 GPA min (TheDream.US)","gpaMin":2.5,"awardAmountTextEs":"Avg $18,814/yr institutional; + up to $33K TheDream.US (confirma esta cantidad con la institución)","deadlineTextEs":"TheDream.US opens noviembre 1, 2026; Institutional: at admission (confirma esta fecha con la institución)","gpaTextEs":"2.5 GPA min (TheDream.US) (confirma este requisito con la institución)","verificationStatus":"confirmed","eligibilityRaw":"✅ ANY immigration status; TheDream.US: undoc/DACA/TPS, arrived before age 16 + before Nov 1 2020","eligibilityPlain":[{"en":"Open to any immigration status","es":"Abierta a cualquier estatus migratorio"},{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"}],"eligibilityTags":["any_status","daca","tps","undocumented_mentioned"],"dreamUsPartner":"✅ YES — Texas Partner (2026–27 cycle)","contactPhone":null,"contactEmail":"finaid@ollusa.edu 210-431-3960","urls":[{"label":null,"url":"https://www.ollusa.edu/costs-aid/index.html"}],"urlRaw":"ollusa.edu/financial-aid/","distanceText":"San Antonio ~3.5 hrs from Houston","familyNote":"A TheDream.US partner school in San Antonio. Distance from Houston is a real factor, though residential housing is available.","familyNoteEs":"Una escuela socia de TheDream.US en San Antonio. La distancia desde Houston es un factor real, aunque hay vivienda residencial disponible."},{"id":"private-uni-e928a423","category":"private_university","institution":"Rice University (Houston)","programName":"Need-Based Institutional Aid (meets 100% of demonstrated need); Need-blind admission policy","organization":null,"awardAmountText":"100% of demonstrated need met; average award varies by family income","awardAmountMin":null,"deadlineText":"Nov 1 (Early Decision); Jan 1 (Regular Decision)","gpaText":"Highly selective; median SAT ~1540","gpaMin":null,"awardAmountTextEs":"100% of demonstrated need met; average award varies by family income (confirma esta cantidad con la institución)","deadlineTextEs":"noviembre 1 (Early Decision); enero 1 (Regular Decision) (confirma esta fecha con la institución)","gpaTextEs":"Highly selective; median SAT ~1540 (confirma este requisito con la institución)","verificationStatus":"confirmed","eligibilityRaw":"✅ Treats undocumented as domestic for financial aid purposes","eligibilityPlain":[{"en":"Open to any immigration status","es":"Abierta a cualquier estatus migratorio"}],"eligibilityTags":["any_status","undocumented_mentioned"],"dreamUsPartner":"❌ Not a partner","contactPhone":null,"contactEmail":"financialaid@rice.edu 713-348-4958","urls":[{"label":null,"url":"https://financialaid.rice.edu/apply-aid/daca-undocumented-students"}],"urlRaw":"financialaid.rice.edu/","distanceText":"Houston (Medical Center) ~15 min from Pasadena","familyNote":"Highly selective, but need-blind and treats undocumented students the same as domestic students for financial aid. Located in Houston.","familyNoteEs":"Muy selectiva, pero sin considerar el estatus migratorio en las admisiones y trata a los estudiantes indocumentados igual que a los domésticos para ayuda financiera. Ubicada en Houston."},{"id":"private-uni-6f0737d2","category":"private_university","institution":"St. Edward's University (Austin)","programName":"Institutional Grant Aid; Hilltop Scholars Program; DREAMer resources page (explicit)","organization":null,"awardAmountText":"Varies; significant institutional aid available","awardAmountMin":null,"deadlineText":"Nov 1 (priority); Feb 1 (regular)","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"Varies; significant institutional aid available (confirma esta cantidad con la institución)","deadlineTextEs":"noviembre 1 (priority); febrero 1 (regular) (confirma esta fecha con la institución)","gpaTextEs":"Varía","verificationStatus":"verify_directly","eligibilityRaw":"✅ Explicitly welcomes undocumented (IDRA-identified as top TX private)","eligibilityPlain":[{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["undocumented_mentioned"],"dreamUsPartner":"❌ Not confirmed","contactPhone":null,"contactEmail":"finaid@stedwards.edu 512-448-8523","urls":[{"label":null,"url":"https://www.stedwards.edu/cost-aid/financial-aid/undergraduate/undocumented-students"}],"urlRaw":"stedwards.edu/cost-aid/financial-aid/undergraduate/undocumented-students","distanceText":"Austin ~2.5 hrs from Houston","familyNote":"Identified as one of the most immigrant-friendly private universities in Texas, with a dedicated page for undocumented students.","familyNoteEs":"Identificada como una de las universidades privadas más amigables con inmigrantes en Texas, con una página dedicada a estudiantes indocumentados."},{"id":"private-uni-c167e193","category":"private_university","institution":"St. Mary's University (San Antonio)","programName":"Institutional Grant Aid; DACА/Dreamer resources page exists; Scholarship portal open to undocumented","organization":null,"awardAmountText":"Varies; up to significant institutional aid","awardAmountMin":null,"deadlineText":"Varies","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"Varies; up to significant institutional aid (confirma esta cantidad con la institución)","deadlineTextEs":"Varía","gpaTextEs":"Varía","verificationStatus":"verify_directly","eligibilityRaw":"⚠️ DACA/Undoc resources page exists; verify citizenship req for each award","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","undocumented_uncertain"],"dreamUsPartner":"❌ Not confirmed","contactPhone":null,"contactEmail":"Marivel Ojeda 210-436-3141","urls":[{"label":null,"url":"https://www.stmarytx.edu/admission/cost-aid/financial-aid-resources/"}],"urlRaw":"stmarytx.edu","distanceText":"San Antonio ~3 hrs from Houston","familyNote":"Has existing support resources for DACA and undocumented students, including a named financial aid contact.","familyNoteEs":"Tiene recursos de apoyo existentes para estudiantes DACA e indocumentados, incluyendo un contacto de ayuda financiera designado."},{"id":"private-uni-b926cf29","category":"private_university","institution":"University of the Incarnate Word (UIW — San Antonio)","programName":"Institutional Aid; DACA resources page; Various scholarships","organization":null,"awardAmountText":"Varies","awardAmountMin":null,"deadlineText":"Varies","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"Varía","deadlineTextEs":"Varía","gpaTextEs":"Varía","verificationStatus":"verify_directly","eligibilityRaw":"⚠️ DACA resources page found; verify for undocumented without status","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","undocumented_uncertain"],"dreamUsPartner":"❌ Not confirmed","contactPhone":null,"contactEmail":"finaid@uiwtx.edu 210-829-6008","urls":[{"label":null,"url":"https://www.uiw.edu/finaid/"}],"urlRaw":"uiw.edu/financialaid/","distanceText":"San Antonio ~3 hrs from Houston","familyNote":"Has a DACA resources page. Worth a direct conversation to confirm options for fully undocumented students.","familyNoteEs":"Tiene una página de recursos para DACA. Vale la pena una conversación directa para confirmar opciones para estudiantes totalmente indocumentados."},{"id":"private-uni-88d43e8d","category":"private_university","institution":"University of Dallas (Irving/DFW)","programName":"Merit Scholarships: Crucible Scholars: $28K–$36K/yr; Presidential: up to full tuition; Other merit: various","organization":null,"awardAmountText":"$28K–$36K/yr (Crucible); up to full tuition (Presidential)","awardAmountMin":28,"deadlineText":"Jan 15 (priority); Feb 15 (regular)","gpaText":"Crucible: 3.5+ GPA, strong essays","gpaMin":3.5,"awardAmountTextEs":"$28K–$36K/yr (Crucible); up to full tuition (Presidential) (confirma esta cantidad con la institución)","deadlineTextEs":"enero 15 (priority); febrero 15 (regular) (confirma esta fecha con la institución)","gpaTextEs":"Crucible: 3.5+ GPA, strong essays (confirma este requisito con la institución)","verificationStatus":"uncertain","eligibilityRaw":"⚠️ TASFA accepted; verify citizenship req for merit awards; likely open to undocumented","eligibilityPlain":[{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["undocumented_uncertain"],"dreamUsPartner":"❌ Not confirmed","contactPhone":null,"contactEmail":"finaid@udallas.edu 972-721-5266","urls":[{"label":null,"url":"https://udallas.edu/admissions-aid/financial-aid/index.php"}],"urlRaw":"udallas.edu/financial-aid/","distanceText":"Irving/DFW ~4 hrs from Houston","familyNote":"A Catholic liberal arts college with strong merit aid, several hours from Houston.","familyNoteEs":"Una universidad católica de artes liberales con fuerte ayuda por mérito, a varias horas de Houston."},{"id":"private-uni-3a903e73","category":"private_university","institution":"Texas Lutheran University (Seguin)","programName":"Institutional Merit Aid: $12K–$17K/yr typical range; Various named scholarships","organization":null,"awardAmountText":"$12,000–$17,000/yr typical","awardAmountMin":12000,"deadlineText":"Feb 1 (priority)","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"$12,000–$17,000 al año, cifra típica","deadlineTextEs":"Febrero 1 (prioridad)","gpaTextEs":"Varía","verificationStatus":"uncertain","eligibilityRaw":"⚠️ No explicit policy found; verify for undocumented","eligibilityPlain":[{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["undocumented_uncertain"],"dreamUsPartner":"❌ Not confirmed","contactPhone":null,"contactEmail":"finaid@tlu.edu 830-372-8078","urls":[{"label":null,"url":"https://www.tlu.edu/admissions-aid/firstyear-applications/scholarships/types-of-financial-aid"}],"urlRaw":"tlu.edu/finaid/","distanceText":"Seguin ~3 hrs from Houston","familyNote":"A small liberal arts college. No explicit published policy on undocumented student aid, so worth a direct conversation.","familyNoteEs":"Una pequeña universidad de artes liberales. No hay política publicada explícita sobre ayuda para estudiantes indocumentados, así que vale la pena una conversación directa."},{"id":"private-uni-51e85186","category":"private_university","institution":"Schreiner University (Kerrville)","programName":"GRIT Scholarship (up to $25K/yr); HACU Member Scholarship (explicitly open to undocumented)","organization":null,"awardAmountText":"GRIT: up to $25K/yr; HACU: varies","awardAmountMin":25,"deadlineText":"Varies","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"GRIT: up to $25K/yr; HACU: varies (confirma esta cantidad con la institución)","deadlineTextEs":"Varía","gpaTextEs":"Varía","verificationStatus":"uncertain","eligibilityRaw":"HACU scholarship: ✅ undocumented eligible; GRIT/institutional: verify","eligibilityPlain":[{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["undocumented_uncertain"],"dreamUsPartner":"❌ Not confirmed","contactPhone":null,"contactEmail":"admissions@schreiner.edu 830-792-7217","urls":[{"label":null,"url":"https://schreiner.edu/admissions/financial-services/types-of-aid/grants-scholarships/"}],"urlRaw":"schreiner.edu/financial-aid/","distanceText":"Kerrville (Hill Country) ~4 hrs from Houston","familyNote":"Has a scholarship through HACU explicitly open to undocumented students, alongside other merit aid.","familyNoteEs":"Tiene una beca a través de HACU explícitamente abierta a estudiantes indocumentados, junto con otra ayuda por mérito."},{"id":"private-uni-1e16700e","category":"private_university","institution":"TheDream.US — National Scholarship (Texas Partners: UST, OLLU, San Antonio College, South Texas College)","programName":"TheDream.US National Scholarship: up to $33,000 total (bachelor's) up to $16,500 (associate's) + $6,000 stipend","organization":null,"awardAmountText":"Up to $33,000 total (bachelor's); $6,000 living stipend; ~$16,500 (associate's)","awardAmountMin":6000,"deadlineText":"Opens Nov 1, 2026; Closes Feb 28, 2027; Program key: 'Dream'","gpaText":"2.5 GPA minimum","gpaMin":2.5,"awardAmountTextEs":"Up to $33,000 total (bachelor's); $6,000 living stipend; ~$16,500 (associate's) (confirma esta cantidad con la institución)","deadlineTextEs":"Opens noviembre 1, 2026; Closes febrero 28, 2027; Program key: 'Dream' (confirma esta fecha con la institución)","gpaTextEs":"Promedio mínimo de 2.5","verificationStatus":"confirmed","eligibilityRaw":"Undocumented/DACA/TPS; arrived before age 16; before Nov 1, 2020; NOT Pell-eligible; first-gen immigrant; 2.5+ GPA; significant unmet financial need","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned"],"dreamUsPartner":"✅ THIS IS THE PROGRAM (4 TX partners)","contactPhone":null,"contactEmail":"thedream.us help@thedream.us","urls":[{"label":null,"url":"https://www.thedream.us/scholarships/national-scholarship/"}],"urlRaw":"thedream.us/scholarships/national-scholarship/","distanceText":"Multiple TX locations (UST = Houston)","familyNote":"A national scholarship for undocumented and DACA/TPS students. Applications open November 1 each year, so it helps to prepare in the months before.","familyNoteEs":"Una beca nacional para estudiantes indocumentados y DACA/TPS. Las solicitudes abren el 1 de noviembre cada año, así que ayuda prepararse con meses de anticipación."},{"id":"cc-59537ff8","category":"community_college","institution":"San Jacinto College ⭐ AP PRIMARY PARTNER","programName":"Last Step Scholarship: $1,500–$3,000; Chevron-CPET: $5,000; ACIT: $2,500; 10+ foundation scholarships ≥$1,000","organization":null,"awardAmountText":"$1,500–$5,000/yr depending on scholarship","awardAmountMin":1500,"awardAmountTextEs":"$1,500–$5,000/yr depending on scholarship (confirma esta cantidad con la institución)","deadlineText":"Foundation: sjcd.academicworks.com Priority deadline: April 15 (check each cycle)","deadlineTextEs":"Foundation: sjcd.academicworks.com Priority deadline: abril 15 (check each cycle) (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"verify_directly","eligibilityRaw":"TPS ✅ DACA ✅ (EAD accepted) Undoc: ❌ post-Spring 2026 (lawful presence documents required)","eligibilityPlain":[{"en":"Requires lawful presence","es":"Requiere presencia legal"},{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned","lawful_presence_required"],"contactPhone":null,"contactEmail":"FinAid@sjcd.edu 281-998-6150 Mon–Thu 8am–6pm; Fri 8am–5pm","urls":[{"label":null,"url":"https://www.sanjac.edu/admissions/paying-for-college/tuition-costs/tuition-exemption"},{"label":"Foundation","url":"https://www.sanjac.edu/about/foundation/index.php"}],"urlRaw":"sanjac.edu/admissions/paying-for-college/tuition-exemption.php Foundation: sjcdfoundation.org","priorityRaw":"⭐⭐⭐ HIGHEST (Pasadena ISD = #1 feeder; within Pasadena taxing district)","priorityTag":"high","familyNote":"Anchored Pathways' primary partner institution, and the top feeder school for Pasadena ISD. Over 10 foundation scholarships of $1,000 or more.","familyNoteEs":"El socio institucional principal de Anchored Pathways, y la escuela de origen número uno para Pasadena ISD. Más de 10 becas de fundación de $1,000 o más."},{"id":"cc-efacd90d","category":"community_college","institution":"Houston Community College (HCC)","programName":"Waiver Code W018; Chancellor Scholarship (4.0 GPA, auto); Impact Scholarship (>2.74 GPA, auto); HCC Foundation scholarships (opens June 15)","organization":null,"awardAmountText":"Chancellor: auto (4.0 GPA); Impact: varies; Foundation: $1,000+","awardAmountMin":1000,"awardAmountTextEs":"Chancellor: auto (4.0 GPA); Impact: varies; Foundation: $1,000+ (confirma esta cantidad con la institución)","deadlineText":"Chancellor/Impact: automatic; HCC Foundation: June 15 – Dec 15, 2026; Eagle Promise: Sept 30, 2026","deadlineTextEs":"Chancellor/Impact: automatic; HCC Foundation: junio 15 – diciembre 15, 2026; Eagle Promise: septiembre 30, 2026 (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"verify_directly","eligibilityRaw":"DACA/TPS ⚠️ verify Undoc: ⚠️ verify (Foundation historically stated no immigration restriction for academic scholarships)","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"contactPhone":null,"contactEmail":"713-718-8490 finaid.district@hccs.edu (option 2 for financial aid)","urls":[{"label":null,"url":"https://www.hccs.edu/paying-for-college/financial-aid--scholarships/scholarships/"},{"label":"Foundation","url":"https://www.hccsfoundation.org/hccf-scholarships"}],"urlRaw":"hccs.edu/resources/students/financial-aid/scholarships/ Foundation: hccsfoundation.org","priorityRaw":"⭐⭐⭐ HIGH (Multiple campuses; Northeast campus near GP ISD)","priorityTag":"high","familyNote":"The largest community college in Houston, with multiple scholarship pathways including a foundation scholarship that opens June 15.","familyNoteEs":"El colegio comunitario más grande de Houston, con varios caminos de becas, incluyendo una beca de fundación que abre el 15 de junio."},{"id":"cc-2bba5cdf","category":"community_college","institution":"Lee College (Baytown)","programName":"Lee College Foundation scholarships; 'Open to all students' language (no citizenship requirement stated); Good Neighbor Scholarship (F-1/J-1 only — NOT for undocumented US residents)","organization":null,"awardAmountText":"Varies by scholarship; (no $1,000+ confirmed)","awardAmountMin":1000,"awardAmountTextEs":"Varies by scholarship; (no $1,000+ confirmed) (confirma esta cantidad con la institución)","deadlineText":"Varies; check lee.edu/financialaid each cycle","deadlineTextEs":"Varies; check lee.edu/financialaid each cycle (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"verify_directly","eligibilityRaw":"Foundation scholarships: likely open to all; Undoc: ⚠️ verify Good Neighbor: ❌ (international visa only)","eligibilityPlain":[{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["undocumented_uncertain"],"contactPhone":null,"contactEmail":"281-425-6885 lee.edu/financialaid/","urls":[{"label":null,"url":"https://www.lee.edu/financialaid/exemptions-and-waivers/index.php"}],"urlRaw":"lee.edu/financialaid/exemptions-and-waivers/index.php","priorityRaw":"⭐⭐ MEDIUM (Baytown — serves east Harris/ Galena Park corridor)","priorityTag":"medium","familyNote":"Located in Baytown, serving the east Harris County / Galena Park corridor. Foundation scholarships are described as open to all students.","familyNoteEs":"Ubicado en Baytown, sirviendo al corredor del este del condado de Harris / Galena Park. Las becas de fundación se describen como abiertas a todos los estudiantes."},{"id":"cc-7d6bf6bd","category":"community_college","institution":"Lone Star College System","programName":"Honors Chancellor's Fellows; LSC Foundation competitive scholarships; Honors College Merit Scholarships","organization":null,"awardAmountText":"$1,000+ (Foundation); Chancellor's Fellows: tuition equiv.","awardAmountMin":1000,"awardAmountTextEs":"$1,000+ (Foundation); Chancellor's Fellows: tuition equiv. (confirma esta cantidad con la institución)","deadlineText":"Chancellor's Fellows Fall 2026: June 1 (CLOSED); monitor for next cycle; documents: 1 week before classes","deadlineTextEs":"Chancellor's Fellows Fall 2026: junio 1 (CLOSED); monitor for next cycle; documents: 1 week before classes (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"verify_directly","eligibilityRaw":"DACA/TPS ⚠️ Undoc: Uncertain (TASFA page uses 'legal TX residency' language)","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"contactPhone":null,"contactEmail":"281-290-2700 FACC@LoneStar.edu","urls":[{"label":null,"url":"https://www.lonestar.edu/scholarships.htm"}],"urlRaw":"lonestar.edu/scholarships.htm","priorityRaw":"⭐⭐ MEDIUM (North Houston campuses; some Pasadena/GP students)","priorityTag":"medium","familyNote":"Serves North Houston with some reach into the Pasadena/Galena Park area. Scholarship cycles and deadlines vary by program.","familyNoteEs":"Sirve al norte de Houston con cierto alcance hacia el área de Pasadena/Galena Park. Los ciclos de becas y fechas límite varían según el programa."},{"id":"cc-820669f0","category":"community_college","institution":"Galveston College","programName":"Universal Access Scholarship: $500–$2,500 (up to $6,624 lifetime; 60 SCH limit); Norma Rubin Nursing Scholarship (no citizenship/PR req stated)","organization":null,"awardAmountText":"$500–$2,500 depending on hours; up to $6,624 lifetime","awardAmountMin":500,"awardAmountTextEs":"$500–$2,500 depending on hours; up to $6,624 lifetime (confirma esta cantidad con la institución)","deadlineText":"Varies; check gc.edu/admissions/financial-aid/","deadlineTextEs":"Varies; check gc.edu/admissions/financial-aid/ (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"uncertain","eligibilityRaw":"Universal Access: no citizenship req stated; Norma Rubin Nursing: explicitly no citizenship req; Note: GC taxing district residency req for Universal Access","eligibilityPlain":[{"en":"Eligibility details not fully confirmed","es":"Detalles de elegibilidad no confirmados del todo"}],"eligibilityTags":[],"contactPhone":null,"contactEmail":"Kyla Kennedy kkennedy@gc.edu 409-944-1303","urls":[{"label":null,"url":"https://gc.edu/financial-aid/index.php"}],"urlRaw":"gc.edu/admissions/financial-aid/","priorityRaw":"⭐ LOW (Galveston Island — not in Pasadena/GP ISD area)","priorityTag":"low","familyNote":"On Galveston Island. Has a scholarship with no stated citizenship requirement, though it's a bit further from the Pasadena/Galena Park area.","familyNoteEs":"En la isla de Galveston. Tiene una beca sin requisito de ciudadanía declarado, aunque está un poco más lejos del área de Pasadena/Galena Park."},{"id":"cc-a8f32ba5","category":"community_college","institution":"College of the Mainland (La Marque/Texas City)","programName":"COM Foundation scholarships; most awards $500/semester; no $1,000+ award confirmed","organization":null,"awardAmountText":"~$500/semester typical; (below $1,000 threshold)","awardAmountMin":500,"awardAmountTextEs":"~$500/semester typical; (below $1,000 threshold) (confirma esta cantidad con la institución)","deadlineText":"Varies; check com.edu/financial-aid/","deadlineTextEs":"Varies; check com.edu/financial-aid/ (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"uncertain","eligibilityRaw":"⚠️ Uncertain (no public policy on undocumented found)","eligibilityPlain":[{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["undocumented_uncertain"],"contactPhone":null,"contactEmail":"Carmen Franco cfranco@com.edu 409-933-8655","urls":[{"label":null,"url":"https://www.com.edu/paying-for-college/index.html"}],"urlRaw":"com.edu/financial-aid/","priorityRaw":"⭐ LOW (La Marque — Galveston County; distance from Pasadena/GP ISD)","priorityTag":"low","familyNote":"In Galveston County. Most awards here are smaller, around $500 per semester.","familyNoteEs":"En el condado de Galveston. La mayoría de las becas aquí son más pequeñas, alrededor de $500 por semestre."},{"id":"cc-d21bb880","category":"community_college","institution":"Alvin Community College","programName":"ACC Foundation scholarships; $1,000 threshold language found on page","organization":null,"awardAmountText":"$1,000+ (threshold language found; specific amounts unconfirmed)","awardAmountMin":1000,"awardAmountTextEs":"$1,000+ (threshold language found; specific amounts unconfirmed) (confirma esta cantidad con la institución)","deadlineText":"Varies; check alvincollege.edu/financial-aid","deadlineTextEs":"Varies; check alvincollege.edu/financial-aid (confirma esta fecha con la institución)","gpaText":null,"gpaMin":null,"gpaTextEs":null,"verificationStatus":"verify_directly","eligibilityRaw":"⚠️ Uncertain (no explicit policy found)","eligibilityPlain":[{"en":"Eligibility details not fully confirmed","es":"Detalles de elegibilidad no confirmados del todo"}],"eligibilityTags":[],"contactPhone":null,"contactEmail":"FA@alvincollege.edu 281-756-3500","urls":[{"label":null,"url":"https://www.alvincollege.edu/financial-aid/"}],"urlRaw":"alvincollege.edu/financial-aid","priorityRaw":"⭐ LOW–MEDIUM (Alvin — south of Pasadena; not primary service area)","priorityTag":"low","familyNote":"South of Pasadena. Has scholarship language suggesting awards of $1,000 or more.","familyNoteEs":"Al sur de Pasadena. Tiene lenguaje de becas que sugiere montos de $1,000 o más."},{"id":"private-scholarship-7655d4a4","category":"private_scholarship","institution":null,"organization":"Azteca Scholarship (Houston Community Services)","programName":"Azteca Scholarship (Houston Community Services)","awardAmountText":"Varies by cycle; (confirm if ≥$1,000)","awardAmountMin":1000,"deadlineText":"Check each cycle; (713-926-8771 to confirm dates)","gpaText":"2.0 GPA minimum","gpaMin":2.0,"awardAmountTextEs":"Varies by cycle; (confirm if ≥$1,000) (confirma esta cantidad con la institución)","deadlineTextEs":"Check each cycle; (713-926-8771 to confirm dates) (confirma esta fecha con la institución)","gpaTextEs":"Promedio mínimo de 2.0","verificationStatus":"verify_directly","eligibilityRaw":"Undocumented encouraged; DACA/TPS; U.S. citizens also eligible","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned"],"geographyText":"Houston Metro Area ✅ Local","contactPhone":null,"contactEmail":"Houston Community Services 713-926-8771 houstoncommunityservices.org","urls":[{"label":null,"url":"https://www.houstoncommunityservices.com/scholarships-becas"}],"urlRaw":"houstoncommunityservices.org","familyNote":"A Houston-based scholarship that explicitly encourages undocumented students to apply.","familyNoteEs":"Una beca con base en Houston que explícitamente anima a estudiantes indocumentados a aplicar."},{"id":"private-scholarship-36ee3612","category":"private_scholarship","institution":null,"organization":"IHCH Scholarship (Immigrants Rising / Houston area)","programName":"IHCH Scholarship (Immigrants Rising / Houston area)","awardAmountText":"Varies; $1,000+ reported","awardAmountMin":1000,"deadlineText":"Check immigrantsrising.org for current cycle","gpaText":"3.0 GPA required; community college eligible","gpaMin":3.0,"awardAmountTextEs":"Varies; $1,000+ reported (confirma esta cantidad con la institución)","deadlineTextEs":"Check immigrantsrising.org for current cycle (confirma esta fecha con la institución)","gpaTextEs":"3.0 GPA required; community college eligible (confirma este requisito con la institución)","verificationStatus":"uncertain","eligibilityRaw":"DACA/TPS; Houston Metro area; (undocumented verify)","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"geographyText":"Houston Metro Area ✅ Local","contactPhone":null,"contactEmail":"immigrantsrising.org","urls":[{"label":null,"url":"https://ihch.org/scholarship/"}],"urlRaw":"immigrantsrising.org/resource/scholarships/","familyNote":"A Houston-area scholarship, open to community college students, connected to the Immigrants Rising network.","familyNoteEs":"Una beca del área de Houston, abierta a estudiantes de colegios comunitarios, conectada con la red de Immigrants Rising."},{"id":"private-scholarship-5f474223","category":"private_scholarship","institution":null,"organization":"Immigrants Rising Scholarship Directory","programName":"Immigrants Rising Scholarship Directory","awardAmountText":"Varies — $500 to $40,000+ depending on program","awardAmountMin":500,"deadlineText":"Ongoing — directory is curated and updated","gpaText":"Varies by scholarship","gpaMin":null,"awardAmountTextEs":"Varies — $500 to $40,000+ depending on program (confirma esta cantidad con la institución)","deadlineTextEs":"Ongoing — directory is curated and updated (confirma esta fecha con la institución)","gpaTextEs":"Varía según la beca","verificationStatus":"directory_only","eligibilityRaw":"Undocumented/DACA/TPS; (varies by individual scholarship)","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned"],"geographyText":"Some TX-specific; some national","contactPhone":null,"contactEmail":"info@immigrantsrising.org immigrantsrising.org","urls":[{"label":null,"url":"https://immigrantsrising.org/resource/list-of-scholarships-and-fellowships/"}],"urlRaw":"immigrantsrising.org/resource/scholarships/","familyNote":"A curated, regularly updated directory of scholarships for undocumented students, covering both national and Texas-specific programs.","familyNoteEs":"Un directorio curado y actualizado regularmente de becas para estudiantes indocumentados, que cubre programas nacionales y específicos de Texas."},{"id":"private-scholarship-11ffea4c","category":"private_scholarship","institution":null,"organization":"United We Dream Scholarship Resource Hub","programName":"United We Dream Scholarship Resource Hub","awardAmountText":"Varies — aggregates multiple programs","awardAmountMin":null,"deadlineText":"Varies by program","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"Varies — aggregates multiple programs (confirma esta cantidad con la institución)","deadlineTextEs":"Varies by program (confirma esta fecha con la institución)","gpaTextEs":"Varía","verificationStatus":"directory_only","eligibilityRaw":"Undocumented/DACA/TPS","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned"],"geographyText":"National + state-by-state","contactPhone":null,"contactEmail":"unitedwedream.org","urls":[{"label":null,"url":"https://unitedwedream.org/resources/scholarships/"}],"urlRaw":"unitedwedream.org/resources/scholarships/","familyNote":"A national resource hub that aggregates scholarships state by state, alongside broader support resources.","familyNoteEs":"Un centro de recursos nacional que agrupa becas estado por estado, junto con recursos de apoyo más amplios."},{"id":"private-scholarship-cfce94a0","category":"private_scholarship","institution":null,"organization":"MALDEF Education Scholarship Fund","programName":"MALDEF Education Scholarship Fund","awardAmountText":"Varies by cycle; ($1,000–$5,000 historically)","awardAmountMin":1000,"deadlineText":"Check maldef.org annually; (window varies)","gpaText":"Varies by year","gpaMin":null,"awardAmountTextEs":"Varies by cycle; ($1,000–$5,000 historically) (confirma esta cantidad con la institución)","deadlineTextEs":"Check maldef.org annually; (window varies) (confirma esta fecha con la institución)","gpaTextEs":"Varía según el año","verificationStatus":"uncertain","eligibilityRaw":"Undocumented historically eligible; DACA/TPS; (verify current cycle)","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["daca","tps","undocumented_uncertain"],"geographyText":"Texas + national","contactPhone":null,"contactEmail":"info@maldef.org maldef.org","urls":[{"label":null,"url":"https://www.maldef.org/resources/scholarship-resources/"}],"urlRaw":"maldef.org/scholarships/","familyNote":"Has historically offered scholarships open to undocumented students; amounts and availability vary by year.","familyNoteEs":"Históricamente ha ofrecido becas abiertas a estudiantes indocumentados; los montos y la disponibilidad varían según el año."},{"id":"private-scholarship-8671fdb0","category":"private_scholarship","institution":null,"organization":"Hispanic Scholarship Consortium (HSC)","programName":"Hispanic Scholarship Consortium (HSC)","awardAmountText":"$1,000–$5,000","awardAmountMin":1000,"deadlineText":"Check annually; hispanicscholarship.org","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"$1,000–$5,000","deadlineTextEs":"Check annually; hispanicscholarship.org (confirma esta fecha con la institución)","gpaTextEs":"Varía","verificationStatus":"uncertain","eligibilityRaw":"No U.S. citizenship required; Texas residents; (undocumented verify)","eligibilityPlain":[{"en":"Policy for undocumented students not yet confirmed","es":"Política para estudiantes indocumentados aún no confirmada"}],"eligibilityTags":["undocumented_uncertain"],"geographyText":"Texas residents","contactPhone":null,"contactEmail":"hispanicscholarship.org","urls":[{"label":null,"url":"https://www.hispanicscholar.org/scholarships"}],"urlRaw":"hispanicscholarship.org","familyNote":"Open to Texas residents with no U.S. citizenship requirement stated.","familyNoteEs":"Abierta a residentes de Texas sin requisito de ciudadanía estadounidense declarado."},{"id":"private-scholarship-d44db0f1","category":"private_scholarship","institution":null,"organization":"TheDream.US Opportunity Scholarship","programName":"TheDream.US Opportunity Scholarship","awardAmountText":"Bachelor's: up to $33,000 total; Associate's: up to $16,500 + $6,000 living stipend","awardAmountMin":6000,"deadlineText":"Opens Nov 1, 2026; Closes Feb 28, 2027; Program key: 'Dream'","gpaText":"2.5 GPA minimum","gpaMin":2.5,"awardAmountTextEs":"Bachelor's: up to $33,000 total; Associate's: up to $16,500 + $6,000 living stipend (confirma esta cantidad con la institución)","deadlineTextEs":"Opens noviembre 1, 2026; Closes febrero 28, 2027; Program key: 'Dream' (confirma esta fecha con la institución)","gpaTextEs":"Promedio mínimo de 2.5","verificationStatus":"confirmed","eligibilityRaw":"Undocumented/DACA/TPS; arrived before age 16; before Nov 1, 2020; first-gen immigrant; NOT Pell-eligible; 2.5+ GPA; significant unmet need","eligibilityPlain":[{"en":"Mentions DACA eligibility","es":"Menciona elegibilidad para DACA"},{"en":"Mentions TPS eligibility","es":"Menciona elegibilidad para TPS"},{"en":"Mentions undocumented students","es":"Menciona a estudiantes indocumentados"}],"eligibilityTags":["daca","tps","undocumented_mentioned"],"geographyText":"TX Partners: UST-Houston, OLLU, San Antonio College, South Texas College","contactPhone":null,"contactEmail":"help@thedream.us thedream.us","urls":[{"label":null,"url":"https://www.thedream.us/scholarships/national-scholarship/"}],"urlRaw":"thedream.us/scholarships/national-scholarship/","familyNote":"A national scholarship for undocumented and DACA/TPS students, with several Texas partner schools including UST-Houston.","familyNoteEs":"Una beca nacional para estudiantes indocumentados y DACA/TPS, con varias escuelas socias en Texas, incluyendo UST-Houston."},{"id":"private-scholarship-2d3b4973","category":"private_scholarship","institution":null,"organization":"HACU Scholarship Programs (Hispanic Association of Colleges & Universities)","programName":"HACU Scholarship Programs (Hispanic Association of Colleges & Universities)","awardAmountText":"Varies by program; $1,000–$5,000+","awardAmountMin":1000,"deadlineText":"Varies by program; hacu.net/scholarships","gpaText":"Varies","gpaMin":null,"awardAmountTextEs":"Varies by program; $1,000–$5,000+ (confirma esta cantidad con la institución)","deadlineTextEs":"Varies by program; hacu.net/scholarships (confirma esta fecha con la institución)","gpaTextEs":"Varía","verificationStatus":"uncertain","eligibilityRaw":"No citizenship requirement (some programs); HACU member school enrollment required","eligibilityPlain":[{"en":"Eligibility details not fully confirmed","es":"Detalles de elegibilidad no confirmados del todo"}],"eligibilityTags":[],"geographyText":"HACU member school enrollment (includes San Jacinto, HCC, TSU, UST, OLLU)","contactPhone":null,"contactEmail":"scholarships@hacu.net hacu.net","urls":[{"label":null,"url":"https://hacu.net/programs/hacu-scholarship-program/"}],"urlRaw":"hacu.net/scholarships/","familyNote":"Covers several AP-relevant schools including San Jacinto, HCC, TSU, UST-Houston, and OLLU. Some programs have no citizenship requirement.","familyNoteEs":"Cubre varias escuelas relevantes para AP, incluyendo San Jacinto, HCC, TSU, UST-Houston y OLLU. Algunos programas no tienen requisito de ciudadanía."}];
+
+const SCHOLARSHIP_CATEGORY_LABELS = {
+  public_university:{en:'Public Universities', es:'Universidades Públicas'},
+  private_university:{en:'Private Universities', es:'Universidades Privadas'},
+  community_college:{en:'Community Colleges', es:'Colegios Comunitarios'},
+  private_scholarship:{en:'Private Scholarships', es:'Becas Privadas'},
+};
+// Filter chip vocabulary — only ever matches SCHOLARSHIP_DATA's own eligibilityTags, never invents a category.
+const SCHOLARSHIP_ELIGIBILITY_FILTERS = [
+  {key:'any_status', tags:['any_status'], en:'Open to any immigration status', es:'Abierta a cualquier estatus migratorio'},
+  {key:'daca', tags:['daca'], en:'Mentions DACA eligibility', es:'Menciona elegibilidad para DACA'},
+  {key:'tps', tags:['tps'], en:'Mentions TPS eligibility', es:'Menciona elegibilidad para TPS'},
+  {key:'undocumented', tags:['undocumented_mentioned','undocumented_uncertain','undocumented_not_eligible'], en:'Mentions undocumented students', es:'Menciona a estudiantes indocumentados'},
+];
+const SCHOLARSHIP_GPA_BANDS = [
+  {key:'any', test:()=>true, en:'Any GPA', es:'Cualquier promedio'},
+  {key:'under3', test:(g)=>g!==null && g<3.0, en:'Under 3.0', es:'Menos de 3.0'},
+  {key:'3to349', test:(g)=>g!==null && g>=3.0 && g<3.5, en:'3.0–3.49', es:'3.0–3.49'},
+  {key:'35plus', test:(g)=>g!==null && g>=3.5, en:'3.5 and up', es:'3.5 en adelante'},
+];
+const SCHOLARSHIP_AMOUNT_BANDS = [
+  {key:'any', test:()=>true, en:'Any amount', es:'Cualquier cantidad'},
+  {key:'under1k', test:(a)=>a!==null && a<1000, en:'Under $1,000', es:'Menos de $1,000'},
+  {key:'1kto5k', test:(a)=>a!==null && a>=1000 && a<5000, en:'$1,000–$4,999', es:'$1,000–$4,999'},
+  {key:'5kplus', test:(a)=>a!==null && a>=5000, en:'$5,000 and up', es:'$5,000 en adelante'},
+];
+// Mirrors the workbook's own STATUS COLOR LEGEND. Drives consistent user-facing language.
+// 'uncertain' is the default for anything unmapped — never inferred as 'confirmed'.
+const VERIFICATION_COPY = {
+  confirmed:{en:"Confirmed as open, as of Anchored Pathways' most recent review.", es:'Confirmada como disponible, según la revisión más reciente de Anchored Pathways.'},
+  restricted:{en:'This pathway currently has a stated restriction. Read the eligibility notes carefully.', es:'Este camino actualmente tiene una restricción indicada. Lee con cuidado las notas de elegibilidad.'},
+  verify_directly:{en:"Policy details were unclear or may have changed. It's best to call or email and confirm directly.", es:'Los detalles de la política no estaban claros o pueden haber cambiado. Lo mejor es llamar o escribir para confirmar directamente.'},
+  uncertain:{en:'Current policy for this pathway is not fully confirmed.', es:'La política actual para este camino no está totalmente confirmada.'},
+  directory_only:{en:'This is a directory that lists many scholarships, not a single award itself.', es:'Este es un directorio que reúne muchas becas, no una sola beca en sí.'},
+};
+
+/* ============ PHASE 3: INTERPRETATION LAYER ============
+   Internal-only theme vocabulary, axis placements, and spoken-register templates.
+   None of this changes assessment questions, scoring, routes, or the shape of state.results. */
+
+// Plain-spoken gloss for each internal theme. Never shown as a label, only woven into sentences.
+const THEME_GLOSS = {
+  connection:{en:'connecting with people', es:'conectar con la gente'},
+  service:{en:'helping others', es:'ayudar a los demás'},
+  belonging:{en:'feeling like you belong somewhere', es:'sentir que perteneces a un lugar'},
+  loyalty:{en:'sticking by the people you care about', es:'estar ahí para la gente que quieres'},
+  empathy:{en:'understanding what other people are going through', es:'entender lo que otros están pasando'},
+  independence:{en:'doing things your own way', es:'hacer las cosas a tu manera'},
+  'self-direction':{en:'figuring things out on your own', es:'resolver las cosas por tu cuenta'},
+  freedom:{en:'having room to make your own choices', es:'tener espacio para decidir por ti mismo/a'},
+  stability:{en:'having something steady to count on', es:'tener algo estable en qué apoyarte'},
+  order:{en:'keeping things organized', es:'mantener las cosas en orden'},
+  reliability:{en:'being someone people can count on', es:'ser alguien en quien se puede confiar'},
+  planning:{en:'having a plan before you jump in', es:'tener un plan antes de lanzarte'},
+  growth:{en:'always working toward something better', es:'siempre trabajar hacia algo mejor'},
+  curiosity:{en:'wanting to understand how things work', es:'querer entender cómo funcionan las cosas'},
+  achievement:{en:'wanting to accomplish real things', es:'querer lograr cosas de verdad'},
+  mastery:{en:'getting really good at something', es:'llegar a dominar algo de verdad'},
+  creativity:{en:'making things that are your own', es:'crear cosas que son tuyas'},
+  originality:{en:'seeing things a little differently than most people', es:'ver las cosas un poco distinto a los demás'},
+  expression:{en:'putting what\'s inside you into something real', es:'convertir lo que sientes en algo real'},
+  leadership:{en:'stepping up and guiding others', es:'dar el paso y guiar a otros'},
+  influence:{en:'getting people to see things your way', es:'lograr que otros vean las cosas como tú'},
+  initiative:{en:'starting things instead of waiting', es:'empezar las cosas en lugar de esperar'},
+  craft:{en:'working with your hands and getting it right', es:'trabajar con las manos y hacerlo bien'},
+  precision:{en:'wanting to get the details right', es:'querer que los detalles salgan bien'},
+  practicality:{en:'wanting to see something real come out of what you do', es:'querer que salga algo real de lo que haces'},
+  novelty:{en:'wanting something new, not the same thing every day', es:'querer algo nuevo, no lo mismo todos los días'},
+  adaptability:{en:'rolling with things as they change', es:'adaptarte según van cambiando las cosas'},
+  discovery:{en:'wanting to explore what you haven\'t seen yet', es:'querer explorar lo que todavía no has visto'},
+  patience:{en:'sticking with something even when it\'s slow', es:'quedarte con algo aunque vaya despacio'},
+  endurance:{en:'not giving up when things get hard', es:'no rendirte cuando las cosas se ponen difíciles'},
+  steadfastness:{en:'seeing things through once you commit', es:'seguir adelante una vez que te comprometes con algo'},
+};
+// Each theme sits on 0+ axes. Two eligible themes on opposite poles of the same axis get the
+// "both/and" treatment. This is a geometric rule, not a hardcoded list of "tension pairs".
+const THEME_AXES = {
+  independence:[{axis:'A',pole:'autonomy'}], 'self-direction':[{axis:'A',pole:'autonomy'},{axis:'C',pole:'flexibility'}], freedom:[{axis:'A',pole:'autonomy'}],
+  connection:[{axis:'A',pole:'connection'}], belonging:[{axis:'A',pole:'connection'}], loyalty:[{axis:'A',pole:'connection'}], empathy:[{axis:'A',pole:'connection'}], service:[{axis:'A',pole:'connection'}],
+  stability:[{axis:'B',pole:'steady'}], order:[{axis:'B',pole:'steady'},{axis:'C',pole:'structure'}], reliability:[{axis:'B',pole:'steady'}], planning:[{axis:'B',pole:'steady'},{axis:'C',pole:'structure'}], steadfastness:[{axis:'B',pole:'steady'}],
+  novelty:[{axis:'B',pole:'exploration'}], adaptability:[{axis:'B',pole:'exploration'},{axis:'C',pole:'flexibility'}], discovery:[{axis:'B',pole:'exploration'}], curiosity:[{axis:'B',pole:'exploration'}],
+  precision:[{axis:'C',pole:'structure'},{axis:'D',pole:'practical'}],
+  craft:[{axis:'D',pole:'practical'}], practicality:[{axis:'D',pole:'practical'}],
+  creativity:[{axis:'D',pole:'abstract'}], originality:[{axis:'D',pole:'abstract'}], expression:[{axis:'D',pole:'abstract'}], mastery:[{axis:'D',pole:'abstract'}],
+  leadership:[], influence:[], initiative:[], growth:[], achievement:[], patience:[], endurance:[],
+};
+// Layer 1 only: how each Personality letter is described in its OWN results screen (work-style register,
+// distinct from the theme vocabulary used for cross-section matching).
+const PERSONALITY_WORKSTYLE_GLOSS = {
+  E:{en:'you recharge by being around people', es:'te recargas estando con gente'},
+  I:{en:'you recharge with quiet time to yourself', es:'te recargas con tiempo tranquilo a solas'},
+  S:{en:'you like clear, practical steps', es:'te gustan los pasos claros y prácticos'},
+  N:{en:'you like figuring things out your own way', es:'te gusta resolver las cosas a tu manera'},
+  T:{en:'you tend to think things through with logic first', es:'sueles pensar las cosas con lógica primero'},
+  F:{en:'you tend to lead with your gut and your values', es:'sueles guiarte por tu instinto y tus valores'},
+  J:{en:'you like having a plan', es:'te gusta tener un plan'},
+  P:{en:'you\'re comfortable figuring it out as you go', es:'te sientes cómodo o cómoda resolviendo las cosas sobre la marcha'},
+};
+// Layer 2 only: which internal theme each Personality letter contributes toward cross-section matching.
+const PERSONALITY_DIMENSION_TAGS = {E:'connection', I:'self-direction', S:'practicality', N:'discovery', T:'order', F:'empathy', J:'planning', P:'adaptability'};
+// Spoken-register gloss for each RIASEC category, used only in the Layer 1 Interests reflection line.
+const RIASEC_SPOKEN_GLOSS = {
+  R:{en:'hands-on, practical work', es:'trabajo práctico, con las manos'},
+  I:{en:'figuring out how things work', es:'entender cómo funcionan las cosas'},
+  A:{en:'making or creating something of your own', es:'crear algo tuyo'},
+  S:{en:'helping and connecting with people', es:'ayudar y conectar con la gente'},
+  E:{en:'leading, persuading, building something of your own', es:'liderar, convencer a la gente, construir algo propio'},
+  C:{en:'keeping things organized and running smoothly', es:'mantener las cosas organizadas y funcionando bien'},
+};
+
+/* ============ STATE ============ */
+let state = {
+  lang:'en', screen:'home', topic:null,
+  path: [],           // breadcrumb of stages visited this session
+  // assessment progress
+  valuesStep:0, valuesSelected:[], valuesRanked:[],
+  strengthsStep:0, strengthsSelected:[], strengthsTop3:[],
+  persoStep:0, persoAnswers:[],
+  interestStep:0, interestSelected:[], interestDone:false,
+  completed: {values:false, strengths:false, personality:false, interests:false},
+  results: {values:null, strengths:null, personality:null, interests:null},
+  // Phase 2: the vision reflection is the opening frame, not a 5th scored assessment
+  visionAsked:false, visionReflection:'',
+  // Phase 4: Scholarship & Funding Navigator
+  scholarshipCategory:null, scholarshipSearch:'', scholarshipEligFilters:[], scholarshipGpaBand:'any', scholarshipAmountBand:'any',
+  scholarshipDetailId:null, savedScholarships:[],
+};
+
+// Clears only Explore-related state (values/strengths/personality/interests/vision/Path Profile inputs).
+// Deliberately does not touch: lang, screen navigation, Decide session data, or anything Clínica/Family-related.
+function resetExploreState(){
+  state.valuesStep=0; state.valuesSelected=[]; state.valuesRanked=[];
+  state.strengthsStep=0; state.strengthsSelected=[]; state.strengthsTop3=[];
+  state.persoStep=0; state.persoAnswers=[];
+  state.interestStep=0; state.interestSelected=[]; state.interestDone=false;
+  state.completed = {values:false, strengths:false, personality:false, interests:false};
+  state.results = {values:null, strengths:null, personality:null, interests:null};
+  state.visionAsked=false; state.visionReflection='';
+}
+
+// Shared progress phrasing, used by both the Explore Hub and the Family Profile screen
+function exploreProgressText(n){
+  if(n===0) return isEn() ? "Start whenever you're ready" : "Empieza cuando estés listo o lista";
+  return isEn() ? `${n} of 4 parts explored` : `${n} de 4 partes exploradas`;
+}
+
+/* ================= PHASE 3: LAYER 1 — per-section spoken reflections ================= */
+// Each of these reads ONLY that section's own stored result. No cross-section logic here.
+
+function composeValuesReflection(){
+  const v = state.results.values; if(!v) return null;
+  const en = `One thing that jumped out is how much ${v[0].en} and ${v[1].en} matter to you. Does that sound right?`;
+  const es = `Algo que resalta es lo mucho que te importan ${v[0].es} y ${v[1].es}. ¿Eso te suena a ti?`;
+  return {en, es};
+}
+function composeStrengthsReflection(){
+  const s = state.results.strengths; if(!s) return null;
+  const en = `You picked out ${s[0].en}, ${s[1].en}, and ${s[2].en} as things you're good at. I'm curious how those show up for you day to day.`;
+  const es = `Elegiste ${s[0].es}, ${s[1].es} y ${s[2].es} como cosas en las que eres bueno o buena. Me da curiosidad saber cómo se ven esas fortalezas en tu día a día.`;
+  return {en, es};
+}
+function composeInterestsReflection(){
+  const i = state.results.interests; if(!i) return null;
+  const gloss = RIASEC_SPOKEN_GLOSS[i[0].code];
+  const en = `Sounds like ${gloss.en} is where your attention keeps going. Does that sound like you?`;
+  const es = `Parece que ${gloss.es} es hacia donde se va tu atención. ¿Sientes que eso va contigo?`;
+  return {en, es};
+}
+function composePersonalityReflection(){
+  const p = state.results.personality; if(!p) return null;
+  const letters = p.code.split('');
+  const glossesEn = letters.map(l=>PERSONALITY_WORKSTYLE_GLOSS[l].en);
+  const glossesEs = letters.map(l=>PERSONALITY_WORKSTYLE_GLOSS[l].es);
+  const en = `Here's what stood out from how you tend to work through things: ${glossesEn[0]}, ${glossesEn[1]}, ${glossesEn[2]}, and ${glossesEn[3]}. See if that sounds like how you usually do things.`;
+  const es = `Esto es lo que resaltó sobre cómo sueles resolver las cosas: ${glossesEs[0]}, ${glossesEs[1]}, ${glossesEs[2]} y ${glossesEs[3]}. Piensa si eso se parece a cómo sueles hacer las cosas.`;
+  return {en, es};
+}
+
+/* ================= PHASE 3: LAYER 2 — cross-section synthesis engine ================= */
+// Deterministic. Reads state.results/state.completed only. Never touches the vision reflection.
+
+// Returns [{theme, sections}] for themes mentioned by 2+ DISTINCT completed sections, sorted
+// by number of corroborating sections (desc), then by vocabulary order for stable ties.
+function getEligibleThemes(){
+  const themeSections = {}; // theme -> Set of section keys that mentioned it
+  function mention(theme, sectionKey){
+    if(!themeSections[theme]) themeSections[theme] = new Set();
+    themeSections[theme].add(sectionKey);
+  }
+  if(state.completed.values && state.results.values){
+    state.results.values.slice(0,2).forEach(v=>(v.tags||[]).forEach(tag=>mention(tag,'values')));
+  }
+  if(state.completed.strengths && state.results.strengths){
+    state.results.strengths.forEach(s=>(s.tags||[]).forEach(tag=>mention(tag,'strengths')));
+  }
+  if(state.completed.interests && state.results.interests){
+    const top = RIASEC.find(r=>r.code===state.results.interests[0].code);
+    if(top) (top.tags||[]).forEach(tag=>mention(tag,'interests'));
+  }
+  if(state.completed.personality && state.results.personality){
+    state.results.personality.code.split('').forEach(letter=>mention(PERSONALITY_DIMENSION_TAGS[letter],'personality'));
+  }
+  const vocabOrder = Object.keys(THEME_GLOSS);
+  return Object.keys(themeSections)
+    .filter(theme=>themeSections[theme].size>=2)
+    .sort((a,b)=>{
+      const diff = themeSections[b].size - themeSections[a].size;
+      if(diff!==0) return diff;
+      return vocabOrder.indexOf(a)-vocabOrder.indexOf(b);
+    })
+    .map(theme=>({theme, sections:themeSections[theme].size}));
+}
+
+// Geometric rule: do two eligible themes share an axis with opposite poles? Returns the first
+// such pair found (deterministic order), or null. No hardcoded tension list.
+function findAxisOpposition(eligible){
+  for(let i=0;i<eligible.length;i++){
+    for(let j=i+1;j<eligible.length;j++){
+      const axesA = THEME_AXES[eligible[i].theme]||[];
+      const axesB = THEME_AXES[eligible[j].theme]||[];
+      for(const a of axesA){
+        for(const b of axesB){
+          if(a.axis===b.axis && a.pole!==b.pole){
+            return [eligible[i].theme, eligible[j].theme];
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function computeSynthesis(){
+  const completedCount = Object.values(state.completed).filter(Boolean).length;
+  if(completedCount < 2) return {type:'sparse'};
+  const eligible = getEligibleThemes();
+  if(eligible.length===0) return {type:'none'};
+  const oppPair = findAxisOpposition(eligible);
+  if(oppPair) return {type:'bothand', themeA:oppPair[0], themeB:oppPair[1]};
+  if(eligible.length>=2) return {type:'reinforcing', theme1:eligible[0].theme, theme2:eligible[1].theme};
+  return {type:'single', theme:eligible[0].theme};
+}
+
+function patternsSectionCopy(synthesis){
+  const g = (theme)=>THEME_GLOSS[theme];
+  if(synthesis.type==='sparse'){
+    return {
+      en:"You've only done one part so far, so there's nothing to compare yet, that's completely normal.",
+      es:'Solo has hecho una parte hasta ahora, así que todavía no hay nada que comparar, y eso es totalmente normal.'
+    };
+  }
+  if(synthesis.type==='none'){
+    return {
+      en:"Nothing's lining up clearly yet between the parts you've done, and that's okay too, sometimes it takes a few more pieces before a pattern shows up.",
+      es:'Todavía no hay algo que coincida claramente entre las partes que hiciste, y está bien, a veces se necesitan más piezas para que aparezca un patrón.'
+    };
+  }
+  if(synthesis.type==='single'){
+    const t = g(synthesis.theme);
+    return {
+      en:`One thing I noticed: ${t.en} keeps showing up for you, in more than one place. Does that sound like you? It's just one piece of the picture.`,
+      es:`Algo que noté: ${t.es} apareció en más de una parte. ¿Sientes que eso va contigo? Es solo una pieza del rompecabezas.`
+    };
+  }
+  if(synthesis.type==='reinforcing'){
+    const t1=g(synthesis.theme1), t2=g(synthesis.theme2);
+    return {
+      en:`Something that kept coming up is how much ${t1.en} matters to you, and ${t2.en} showed up right alongside it. Does that sound like you? It's just one piece of the picture.`,
+      es:`Algo que apareció varias veces fue lo importante que es para ti ${t1.es}, y ${t2.es} apareció justo al lado. ¿Sientes que eso va contigo? Es solo una pieza del rompecabezas.`
+    };
+  }
+  // bothand
+  const tA=g(synthesis.themeA), tB=g(synthesis.themeB);
+  return {
+    en:`Two things kept coming up: ${tA.en} really matters to you, and so does ${tB.en}. Those aren't in competition, plenty of people want both at once. Does that sound like you?`,
+    es:`Dos cosas se repitieron bastante: ${tA.es} te importa de verdad, y también ${tB.es}. Esas dos cosas no compiten entre sí, a muchas personas les gustan las dos cosas al mismo tiempo. ¿Sientes que eso va contigo?`
+  };
+}
+
+/* ================= PHASE 3: LAYER 3 — pathway rationale (career-matching logic itself is unchanged, Phase 4) ================= */
+function composePathwayRationale(topCode, synthesis){
+  const riasecTags = (RIASEC.find(r=>r.code===topCode)||{}).tags || [];
+  const matched = riasecTags.find(tag=>{
+    if(synthesis.type==='bothand') return tag===synthesis.themeA || tag===synthesis.themeB;
+    if(synthesis.type==='reinforcing') return tag===synthesis.theme1 || tag===synthesis.theme2;
+    if(synthesis.type==='single') return tag===synthesis.theme;
+    return false;
+  });
+  if(matched){
+    const g = THEME_GLOSS[matched];
+    return {
+      en:`This one's here because you lean toward ${g.en}, and that's shown up in more than one place.`,
+      es:`Esto aparece porque te inclinas hacia ${g.es}, algo que se ha notado en más de un lugar.`
+    };
+  }
+  return {
+    en:"This is one possibility. It's simply connected to something you said you enjoy.",
+    es:'Esta es una posibilidad. Aparece porque se relaciona con algo que dijiste que disfrutas.'
+  };
+}
+
+function questionsToKeepExploringCopy(synthesis){
+  const g = (theme)=>THEME_GLOSS[theme];
+  if(synthesis.type==='sparse' || synthesis.type==='none'){
+    const v = state.results.values;
+    if(v){
+      return {
+        en:`${v[0].en} and ${v[1].en} stood out to you. Whenever you're ready, another section might add one more piece to this.`,
+        es:`${v[0].es} y ${v[1].es} resaltaron para ti. Cuando estés listo o lista, otra sección podría sumar otra pieza a esto.`
+      };
+    }
+    return {
+      en:"There's more to add here whenever you're ready, no rush.",
+      es:'Hay más que agregar aquí cuando estés listo o lista, sin prisa.'
+    };
+  }
+  if(synthesis.type==='bothand'){
+    const tA=g(synthesis.themeA), tB=g(synthesis.themeB);
+    return {
+      en:`You seem to want ${tA.en} and ${tB.en} at the same time. Is there a version of your future where both are true, instead of picking one? Worth talking through with your family, or at Clínica.`,
+      es:`Parece que quieres ${tA.es} y ${tB.es} al mismo tiempo. ¿Hay una versión de tu futuro donde las dos cosas sean ciertas, en lugar de elegir una? Vale la pena platicarlo en familia, o en la Clínica.`
+    };
+  }
+  const theme = synthesis.type==='single' ? synthesis.theme : synthesis.theme1;
+  const t = g(theme);
+  return {
+    en:`${t.en.charAt(0).toUpperCase()+t.en.slice(1)} keeps showing up for you. Where have you noticed that in your own life?`,
+    es:`${t.es.charAt(0).toUpperCase()+t.es.slice(1)} ha salido varias veces. ¿Dónde lo has notado en tu propia vida?`
+  };
+}
+
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; }
+function t(){ return T[state.lang]; }
+function isEn(){ return state.lang==='en'; }
+
+/* ============ RENDER SHELL ============ */
+function render(){
+  const app=document.getElementById('app'); app.innerHTML='';
+  app.appendChild(topbar());
+  const map={
+    home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, topic:topicScreen, family:familyScreen,
+    'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
+    'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
+    pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, stay:stayScreen, shift:shiftScreen,
+    'decide-compare':decideCompareScreen, 'decide-afford':decideAffordScreen, 'decide-questions':decideQuestionsScreen,
+    'apply-scholarships':scholarshipsHubScreen, 'apply-scholarships-list':scholarshipsListScreen,
+    'apply-scholarships-detail':scholarshipsDetailScreen, 'apply-scholarships-saved':scholarshipsSavedScreen,
+  };
+  app.appendChild((map[state.screen]||homeScreen)());
+  app.appendChild(bottomnav());
+}
+
+function topbar(){
+  const bar=el('div','topbar');
+  const row=el('div','topbar-row');
+  const brand=el('div','brand');
+  brand.appendChild(el('div','brand-mark','🧭'));
+  brand.appendChild(el('div','brand-name','Anchored Pathways'));
+  row.appendChild(brand);
+  const toggle=el('div','lang-toggle');
+  const enBtn=el('button',state.lang==='en'?'active':'','EN');
+  const esBtn=el('button',state.lang==='es'?'active':'','ES');
+  enBtn.onclick=()=>{state.lang='en';render();};
+  esBtn.onclick=()=>{state.lang='es';render();};
+  toggle.appendChild(enBtn);toggle.appendChild(esBtn);
+  row.appendChild(toggle);
+  bar.appendChild(row);
+  if(state.screen==='home'){
+    const g=el('div','greeting'); g.appendChild(el('h1','',t().hello)); g.appendChild(el('p','',t().sub)); bar.appendChild(g);
+  }
+  // stage breadcrumb shown on every stage-related screen
+  const stageScreens = ['explore','decide','apply','stay','shift','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-afford','decide-questions','apply-scholarships','apply-scholarships-list','apply-scholarships-detail','apply-scholarships-saved'];
+  if(stageScreens.includes(state.screen)){
+    const active = state.screen.startsWith('assess') || state.screen==='pathprofile' ? 'explore'
+                 : state.screen.startsWith('decide-') ? 'decide'
+                 : state.screen.startsWith('apply-scholarships') ? 'apply'
+                 : state.screen;
+    const crumb=el('div','stage-crumb');
+    t().stages.forEach((s,i)=>{
+      const chip=el('span','crumb-chip'+(s.key===active?' active':''), isEn()?s.en:s.es);
+      chip.style.cursor='pointer';
+      chip.onclick=()=>{ state.screen = s.key==='explore' ? 'explore' : s.key; render(); };
+      crumb.appendChild(chip);
+      if(i<t().stages.length-1) crumb.appendChild(el('span','crumb-arrow','›'));
+    });
+    bar.appendChild(crumb);
+  }
+  return bar;
+}
+
+function screenHeader(title, backTo){
+  const h=el('div','screen-header');
+  const back=el('button','back-btn','‹');
+  back.onclick=()=>{ state.screen = backTo || 'home'; render(); };
+  h.appendChild(back); h.appendChild(el('div','screen-title',title));
+  return h;
+}
+
+function bottomnav(){
+  const nav=el('div','bottomnav');
+  const items=[
+    {ic:'🏠', label:t().navHome, screen:'home'},
+    {ic:'🧭', label:t().navExplore, screen:'explore'},
+    {ic:'📅', label:t().navClinica, screen:'clinica'},
+    {ic:'👪', label:t().navMe, screen:'family'},
+  ];
+  items.forEach(item=>{
+    const active = state.screen===item.screen || (item.screen==='explore' && state.screen.startsWith('assess')) || (item.screen==='explore'&&state.screen==='pathprofile');
+    const b=el('button','navbtn'+(active?' active':''));
+    b.innerHTML=`<span class="ic">${item.ic}</span><span>${item.label}</span>`;
+    b.onclick=()=>{ state.screen=item.screen; render(); };
+    nav.appendChild(b);
+  });
+  return nav;
+}
+
+/* ============ HOME ============ */
+function homeScreen(){
+  const wrap=el('div','content');
+  wrap.appendChild(el('div','section-label',t().todaySection));
+  const grid=el('div','triage-grid');
+  t().triage.forEach(item=>{
+    const card=el('button','triage-card');
+    card.innerHTML=`<div class="emoji">${item.emoji}</div><div><div class="txt-en">${item.en}</div><div class="txt-es">${item.es}</div></div><div class="chev">›</div>`;
+    card.onclick=()=>{
+      const hasExploreProgress = Object.values(state.completed).some(Boolean) || state.visionAsked;
+      if(item.key==='explore' && hasExploreProgress){ state.screen='explore'; }
+      else { state.screen='topic'; state.topic=item; }
+      render();
+    };
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  wrap.appendChild(el('div','section-label',t().resourcesSection));
+  t().stages.forEach(s=>{
+    const b=el('div','stage-banner');
+    b.style.background = `linear-gradient(135deg, ${s.c1}, ${s.c1}CC)`;
+    b.innerHTML=`<div class="ic">${s.ic}</div><div><h3>${isEn()?s.en:s.es}</h3><p>${isEn()?s.descEn:s.descEs}</p></div><div class="chev">›</div>`;
+    b.onclick=()=>{ state.screen = s.key==='explore'?'explore':s.key; render(); };
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+/* ============ TOPIC (reused from Phase 0, routes into stages) ============ */
+const TOPIC_TEXT = {
+  fafsa:{dest:'apply', destEn:'Apply', destEs:'Aplicar',
+    titleEn:"Let's get financial aid started", titleEs:"Empecemos con la ayuda financiera",
+    bodyEn:"Most families qualify for some form of aid. FAFSA or TASFA, depending on status, is the first real step.",
+    bodyEs:"La mayoría de las familias califican para algún tipo de ayuda. FAFSA o TASFA, según el estatus, es el primer paso real."},
+  explore:{dest:'explore', destEn:'Explore', destEs:'Explorar',
+    titleEn:"Not knowing yet is completely normal", titleEs:"No saber todavía es completamente normal",
+    bodyEn:"Before we get anywhere near a major or a career, it helps to start with you, what matters to you, the strengths you bring, and what you enjoy. That's what Explore is for.",
+    bodyEs:"Antes de hablar de una carrera o profesión, ayuda empezar contigo, qué te importa, las fortalezas que aportas, y qué disfrutas. Para eso es Explorar."},
+  worthit:{dest:'decide', destEn:'Decide', destEs:'Decidir',
+    titleEn:"That's a fair question to ask", titleEs:"Es una pregunta justa",
+    bodyEn:"College is one path, not the only one. Decide compares cost, time, salary, and outlook across college, trade, and apprenticeship options, side by side.",
+    bodyEs:"La universidad es un camino, no el único. Decidir compara costo, tiempo, salario y perspectiva entre universidad, oficio y aprendizaje, lado a lado."},
+  undoc:{dest:'clinica', destEn:'Get Help at Clínica', destEs:'Recibe Ayuda en la Clínica',
+    titleEn:"You belong in this process too", titleEs:"Tú también perteneces a este proceso",
+    bodyEn:"Immigration status can make college feel closed off. It usually isn't. Texas residents, regardless of status, may qualify for in-state tuition through separate rules, and TASFA exists as a state financial aid path. Nothing you share at Clínica is reported anywhere. A Navigator can talk through your specific situation privately, no forms required to start.",
+    bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Usualmente no lo está. Los residentes de Texas, sin importar su estatus, pueden calificar para matrícula estatal bajo reglas separadas, y TASFA existe como camino de ayuda financiera estatal. Nada de lo que compartas en la Clínica se reporta a ningún lugar. Un Navegador puede hablar contigo en privado, sin formularios para empezar."},
+  adult:{dest:'shift', destEn:'Shift', destEs:'Cambia',
+    titleEn:"It's not too late to go back", titleEs:"No es demasiado tarde para regresar",
+    bodyEn:"Whether it's been a few classes or a few decades, the Shift stage is built for adults returning to school, including credit for prior learning and evening options.",
+    bodyEs:"Sea que falten pocas clases o hayan pasado décadas, la etapa Cambiar está hecha para adultos que regresan, incluyendo crédito por aprendizaje previo y horarios nocturnos."},
+  scholarships:{dest:'apply', destEn:'Apply', destEs:'Aplicar',
+    titleEn:"Let's build a scholarship list", titleEs:"Construyamos una lista de becas",
+    bodyEn:"Most families only hear about the one big national scholarship. There are usually smaller, local ones with far less competition.",
+    bodyEs:"La mayoría de las familias solo escuchan sobre la gran beca nacional. Usualmente hay becas locales más pequeñas con mucha menos competencia."},
+};
+function topicScreen(){
+  const wrap=el('div');
+  const key = state.topic.key;
+  const data = TOPIC_TEXT[key];
+  wrap.appendChild(screenHeader(isEn()?'Your next step':'Tu próximo paso'));
+  const card=el('div','card');
+  card.appendChild(el('h2','',isEn()?data.titleEn:data.titleEs));
+  card.appendChild(el('p','',isEn()?data.bodyEn:data.bodyEs));
+  card.appendChild(el('p','es',isEn()?data.bodyEs:data.bodyEn));
+  const primary=el('button','primary-btn', data.dest==='clinica' ? (isEn()?data.destEn:data.destEs) : (isEn()?`Go to ${data.destEn}`:`Ir a ${data.destEs}`));
+  primary.onclick=()=>{ state.screen=data.dest; render(); };
+  card.appendChild(primary);
+  if(data.dest!=='clinica'){
+    const sec=el('button','secondary-btn',isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+    sec.onclick=()=>{ state.screen='clinica'; render(); };
+    card.appendChild(sec);
+  }
+  wrap.appendChild(card);
+  return wrap;
+}
+
+/* ============ EXPLORE HUB (formerly the separate Discover Your Path home) ============ */
+/* ============ EXPLORE HUB — Phase 2: purpose as frame, not a 5th assessment ============ */
+function buildVisionCard(standalone){
+  const isEnFlag = isEn();
+  const card=el('div','card');
+  if(!standalone) card.appendChild(el('p','', isEnFlag?"One bigger question first. There's no right answer here, and you're welcome to skip it if you'd rather jump right in.":"Antes que nada, una pregunta más grande. No hay una respuesta correcta, y puedes saltarla si prefieres empezar de una vez."));
+  card.appendChild(el('h2','', isEnFlag?'When you picture your life going well someday, what does that actually look like?':'Cuando imaginas que tu vida va bien algún día, ¿cómo se ve eso realmente?'));
+  card.appendChild(el('p','', isEnFlag?"It could mean close family, financial stability, creative work, helping others, independence, belonging somewhere, having more time, or just feeling at peace. Your answer does not have to look like anyone else's.":'Puede significar tener a la familia cerca, estabilidad económica, trabajo creativo, ayudar a otros, independencia, sentirte parte de algo, tener más tiempo, o simplemente sentirte en paz. Tu respuesta no tiene que parecerse a la de nadie más.'));
+  const field=el('div','field');
+  const textarea=document.createElement('textarea');
+  textarea.placeholder = isEnFlag ? 'Whatever comes to mind...' : 'Lo que se te ocurra...';
+  textarea.value = state.visionReflection || '';
+  field.appendChild(textarea);
+  card.appendChild(field);
+  const btn=el('button','primary-btn', isEnFlag?'Continue':'Continuar');
+  btn.onclick=()=>{
+    state.visionReflection = textarea.value.trim();
+    state.visionAsked = true;
+    state.screen='explore'; render();
+  };
+  card.appendChild(btn);
+  if(!standalone){
+    const skip=el('button','secondary-btn', isEnFlag?'Skip for now':'Saltar por ahora');
+    skip.onclick=()=>{ state.visionAsked=true; state.screen='explore'; render(); };
+    card.appendChild(skip);
+  }
+  return card;
+}
+function visionScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'The life you\'re imagining':'La vida que imaginas','explore'));
+  wrap.appendChild(buildVisionCard(true));
+  return wrap;
+}
+
+function resetConfirmScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Start over':'Empezar de nuevo', state.resetReturnTo||'explore'));
+  const card=el('div','card');
+  card.appendChild(el('h2','', isEn()?'Start Explore over?':'¿Empezar Explorar de nuevo?'));
+  card.appendChild(el('p','', isEn()?'This will clear your values, strengths, interests, personality, vision reflection, and Path Profile results. This cannot be undone.':'Esto borrará tus respuestas sobre valores, fortalezas, intereses, personalidad, tu reflexión sobre el futuro y los resultados de tu Perfil de Camino. No se puede deshacer.'));
+  const destructive=el('button','primary-btn', isEn()?'Clear my Explore results':'Borrar mis resultados de Explorar');
+  destructive.style.background = '#C4612A';
+  destructive.onclick=()=>{ resetExploreState(); state.screen='explore'; render(); };
+  card.appendChild(destructive);
+  const keep=el('button','secondary-btn', isEn()?'Keep my results':'Conservar mis resultados');
+  keep.onclick=()=>{ state.screen = state.resetReturnTo||'explore'; render(); };
+  card.appendChild(keep);
+  wrap.appendChild(card);
+  return wrap;
+}
+
+function exploreScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Explore':'Explorar'));
+  const n = Object.values(state.completed).filter(Boolean).length;
+  const showVisionInline = (n===0 && !state.visionAsked);
+
+  const intro=el('div','card');
+  if(n===4){
+    intro.appendChild(el('h2','', isEn()?'A Few Things Are Starting to Stand Out':'Algunas cosas empiezan a destacar'));
+    intro.appendChild(el('p','', isEn()?'You\'ve shared some important pieces, what matters to you, the strengths you bring, what you enjoy, and how you go about things. A few patterns are starting to come into focus. Let\'s look at them together.':'Has compartido algunas piezas importantes, lo que te importa, las fortalezas que aportas, lo que disfrutas, y cómo sueles hacer las cosas. Algunos patrones empiezan a tomar forma. Vamos a verlos juntos.'));
+  } else if(n>0){
+    intro.appendChild(el('h2','', isEn()?'Good to See You Again':'Qué bueno verte de nuevo'));
+    intro.appendChild(el('p','', isEn()?"You've already explored part of this. Whenever you're ready, let's keep going.":'Ya exploraste parte de esto. Cuando estés listo o lista, sigamos.'));
+  } else {
+    intro.appendChild(el('h2','', isEn()?'Let\'s Spend a Little Time Getting to Know You':'Vamos a dedicar un poco de tiempo a conocerte'));
+    intro.appendChild(el('p','', isEn()?"This isn't a test, and there's nothing to study for. It's a few short sections about what matters to you, the strengths you bring, what you enjoy, and how you go about things. Take it at whatever pace works for you.":'Esto no es un examen, y no hay nada que estudiar. Son unas secciones cortas sobre lo que te importa, las fortalezas que aportas, lo que disfrutas, y cómo sueles hacer las cosas. Tómalo al ritmo que te funcione.'));
+  }
+  wrap.appendChild(intro);
+
+  if(showVisionInline){
+    wrap.appendChild(buildVisionCard(false));
+    return wrap; // primary action, progress, and jump-list appear only after the opening question is handled
+  }
+
+  // primary action + progress
+  const actionCard=el('div','card');
+  if(n===4){
+    actionCard.appendChild(el('p','', exploreProgressText(n)));
+    const btn=el('button','primary-btn', isEn()?'See what stands out':'Ver lo que destaca');
+    btn.onclick=()=>{ state.screen='pathprofile'; render(); };
+    actionCard.appendChild(btn);
+  } else {
+    const dots = el('div','progress-dots');
+    for(let i=0;i<4;i++) dots.appendChild(el('span', i<n?'done':''));
+    actionCard.appendChild(dots);
+    actionCard.appendChild(el('p','', exploreProgressText(n)));
+    const sequence = ['values','strengths','interests','personality'];
+    const screenFor = {values:'assess-values', strengths:'assess-strengths', interests:'assess-interests', personality:'assess-personality'};
+    const nextKey = sequence.find(k=>!state.completed[k]) || sequence[0];
+    const btn=el('button','primary-btn', isEn()?(n===0?"Let's begin":'Keep going'):(n===0?'Comencemos':'Sigamos'));
+    btn.onclick=()=>{ state.screen=screenFor[nextKey]; render(); };
+    actionCard.appendChild(btn);
+    if(n>0){
+      const preview=el('button','secondary-btn', isEn()?'Preview what we\'ve learned so far':'Ver un adelanto de lo aprendido');
+      preview.onclick=()=>{ state.screen='pathprofile'; render(); };
+      actionCard.appendChild(preview);
+    }
+  }
+  wrap.appendChild(actionCard);
+
+  // quiet jump-list, always available, never locked
+  const jumpCard=el('div','card');
+  jumpCard.appendChild(el('div','section-label', isEn()?'Want to jump to a specific part instead?':'¿Prefieres ir directo a una parte en particular?'));
+  const jumpItems=[
+    {key:'values', screen:'assess-values', titleEn:'What matters to you', titleEs:'Lo que te importa'},
+    {key:'strengths', screen:'assess-strengths', titleEn:'The strengths you bring', titleEs:'Las fortalezas que aportas'},
+    {key:'interests', screen:'assess-interests', titleEn:'What you enjoy', titleEs:'Lo que te interesa'},
+    {key:'personality', screen:'assess-personality', titleEn:'How you go about things', titleEs:'Cómo sueles hacer las cosas'},
+  ];
+  jumpItems.forEach(item=>{
+    const row=el('button','choice-opt');
+    const done=state.completed[item.key];
+    row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center';
+    row.innerHTML=`<span>${isEn()?item.titleEn:item.titleEs}</span><span>${done?'✓':'›'}</span>`;
+    row.onclick=()=>{ state.screen=item.screen; render(); };
+    jumpCard.appendChild(row);
+  });
+  const visionRow=el('button','choice-opt');
+  visionRow.style.display='flex'; visionRow.style.justifyContent='space-between'; visionRow.style.alignItems='center';
+  visionRow.innerHTML=`<span>${isEn()?"Add a note about the life you're imagining":'Agregar una nota sobre la vida que imaginas'}</span><span>${state.visionReflection?'✓':'›'}</span>`;
+  visionRow.onclick=()=>{ state.screen='assess-vision'; render(); };
+  jumpCard.appendChild(visionRow);
+  wrap.appendChild(jumpCard);
+
+  if(n>0 || state.visionAsked){
+    const resetLink=document.createElement('div');
+    resetLink.style.textAlign='center'; resetLink.style.margin='6px 18px 18px';
+    const resetBtn=document.createElement('button');
+    resetBtn.textContent = isEn()?'Start Explore over':'Empezar Explorar de nuevo';
+    resetBtn.style.background='none'; resetBtn.style.border='none'; resetBtn.style.color='var(--ink-soft)';
+    resetBtn.style.fontSize='12px'; resetBtn.style.fontFamily='var(--font-body)'; resetBtn.style.textDecoration='underline';
+    resetBtn.style.cursor='pointer';
+    resetBtn.onclick=()=>{ state.resetReturnTo='explore'; state.screen='reset-confirm'; render(); };
+    resetLink.appendChild(resetBtn);
+    wrap.appendChild(resetLink);
+  }
+
+  return wrap;
+}
+
+/* ============ VALUES ASSESSMENT ============ */
+function valuesScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Discover Your Core Values':'Descubre Tus Valores Centrales','explore'));
+  if(state.valuesStep===0){
+    const card=el('div','card');
+    card.appendChild(el('div','pill', isEn()?'STEP 1 OF 2 · SELECT':'PASO 1 DE 2 · SELECCIONA'));
+    card.appendChild(el('h2','', isEn()?'Select any that resonate':'Selecciona las que resuenen contigo'));
+    const grid=el('div','chip-grid');
+    VALUES.forEach(v=>{
+      const c=el('button','chip'+(state.valuesSelected.includes(v.id)?' picked':''), isEn()?v.en:v.es);
+      c.onclick=()=>{
+        const i=state.valuesSelected.indexOf(v.id);
+        if(i>-1) state.valuesSelected.splice(i,1); else state.valuesSelected.push(v.id);
+        render();
+      };
+      grid.appendChild(c);
+    });
+    card.appendChild(grid);
+    card.appendChild(el('div','chip-counter', isEn()?`${state.valuesSelected.length} selected`:`${state.valuesSelected.length} seleccionadas`));
+    const btn=el('button','primary-btn', isEn()?'Next: rank your top 5':'Siguiente: clasifica tus 5');
+    btn.disabled = state.valuesSelected.length<5;
+    btn.onclick=()=>{ if(state.valuesSelected.length>=5){ state.valuesRanked = []; state.valuesStep=1; render(); } };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  } else if(state.valuesStep===1){
+    const card=el('div','card');
+    card.appendChild(el('div','pill', isEn()?'STEP 2 OF 2 · RANK TOP 5':'PASO 2 DE 2 · CLASIFICA'));
+
+    if(state.valuesRanked.length<5){
+      card.appendChild(el('h2','', isEn()?'Tap them in order, most important first':'Tócalos en orden, el más importante primero'));
+      card.appendChild(el('p','', isEn()?`${5-state.valuesRanked.length} more to go`:`${5-state.valuesRanked.length} más`));
+      const grid=el('div','chip-grid');
+      state.valuesSelected.filter(id=>!state.valuesRanked.includes(id)).forEach(id=>{
+        const v=VALUES.find(x=>x.id===id);
+        const c=el('button','chip', isEn()?v.en:v.es);
+        c.onclick=()=>{ state.valuesRanked.push(id); render(); };
+        grid.appendChild(c);
+      });
+      card.appendChild(grid);
+    }
+
+    if(state.valuesRanked.length>0){
+      card.appendChild(el('div','section-label', isEn()?'Your order so far':'Tu orden hasta ahora'));
+      state.valuesRanked.forEach((id,i)=>{
+        const v=VALUES.find(x=>x.id===id);
+        const row=el('div','rank-item');
+        row.innerHTML=`<span class="rank-badge">${i+1}</span><span>${isEn()?v.en:v.es}</span>`;
+        const btns=el('div','rank-btns');
+        const up=el('button','','↑'); up.onclick=()=>{ if(i>0){ [state.valuesRanked[i-1],state.valuesRanked[i]]=[state.valuesRanked[i],state.valuesRanked[i-1]]; render(); } };
+        const down=el('button','','↓'); down.onclick=()=>{ if(i<state.valuesRanked.length-1){ [state.valuesRanked[i+1],state.valuesRanked[i]]=[state.valuesRanked[i],state.valuesRanked[i+1]]; render(); } };
+        const rm=el('button','','✕'); rm.onclick=()=>{ state.valuesRanked.splice(i,1); render(); };
+        btns.appendChild(up); btns.appendChild(down); btns.appendChild(rm);
+        row.appendChild(btns);
+        card.appendChild(row);
+      });
+    }
+
+    const btn=el('button','primary-btn', isEn()?'See my results':'Ver mis resultados');
+    btn.disabled = state.valuesRanked.length<5;
+    btn.onclick=()=>{
+      if(state.valuesRanked.length===5){
+        state.results.values = state.valuesRanked.map(id=>VALUES.find(v=>v.id===id));
+        state.completed.values=true;
+        state.valuesStep=2; render();
+      }
+    };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  } else {
+    const card=el('div','card confirm-box');
+    card.appendChild(el('div','confirm-icon','💛'));
+    const reflection = composeValuesReflection();
+    card.appendChild(el('p','', isEn()?reflection.en:reflection.es));
+    card.appendChild(el('div','divider'));
+    card.appendChild(el('h2','', isEn()?'Your top values':'Tus valores principales'));
+    const list=el('ul','step-list');
+    state.results.values.forEach((v,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${isEn()?v.en:v.es}</span>`; list.appendChild(li); });
+    card.appendChild(list);
+    card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
+    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    btn.onclick=()=>{ state.screen='explore'; render(); };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  }
+  return wrap;
+}
+
+/* ============ STRENGTHS ASSESSMENT ============ */
+function strengthsScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Discover Your Superpowers':'Descubre Tus Superpoderes','explore'));
+  if(state.strengthsStep===0){
+    const card=el('div','card');
+    card.appendChild(el('div','pill', isEn()?'STEP 1 OF 2 · SELECT 8':'PASO 1 DE 2 · ELIGE 8'));
+    card.appendChild(el('h2','', isEn()?'Choose 8 that describe you':'Elige 8 que te describan'));
+    const grid=el('div','chip-grid');
+    STRENGTHS.forEach(s=>{
+      const c=el('button','chip'+(state.strengthsSelected.includes(s.id)?' picked':''), isEn()?s.en:s.es);
+      c.onclick=()=>{
+        const i=state.strengthsSelected.indexOf(s.id);
+        if(i>-1) state.strengthsSelected.splice(i,1);
+        else if(state.strengthsSelected.length<8) state.strengthsSelected.push(s.id);
+        render();
+      };
+      grid.appendChild(c);
+    });
+    card.appendChild(grid);
+    card.appendChild(el('div','chip-counter', isEn()?`${state.strengthsSelected.length} of 8 selected`:`${state.strengthsSelected.length} de 8 seleccionadas`));
+    const btn=el('button','primary-btn', isEn()?'Next: pick your top 3':'Siguiente: elige tus 3 mejores');
+    btn.disabled = state.strengthsSelected.length<8;
+    btn.onclick=()=>{ if(state.strengthsSelected.length===8){ state.strengthsStep=1; render(); } };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  } else if(state.strengthsStep===1){
+    const card=el('div','card');
+    card.appendChild(el('div','pill', isEn()?'STEP 2 OF 2 · TOP 3':'PASO 2 DE 2 · TOP 3'));
+    card.appendChild(el('h2','', isEn()?'From those 8, pick your top 3':'De esas 8, elige tus 3 mejores'));
+    const grid=el('div','chip-grid');
+    state.strengthsSelected.forEach(id=>{
+      const s=STRENGTHS.find(x=>x.id===id);
+      const c=el('button','chip'+(state.strengthsTop3.includes(id)?' picked':''), isEn()?s.en:s.es);
+      c.onclick=()=>{
+        const i=state.strengthsTop3.indexOf(id);
+        if(i>-1) state.strengthsTop3.splice(i,1);
+        else if(state.strengthsTop3.length<3) state.strengthsTop3.push(id);
+        render();
+      };
+      grid.appendChild(c);
+    });
+    card.appendChild(grid);
+    card.appendChild(el('div','chip-counter', isEn()?`${state.strengthsTop3.length} of 3 selected`:`${state.strengthsTop3.length} de 3 seleccionadas`));
+    const btn=el('button','primary-btn', isEn()?'See my results':'Ver mis resultados');
+    btn.disabled = state.strengthsTop3.length<3;
+    btn.onclick=()=>{
+      if(state.strengthsTop3.length===3){
+        state.results.strengths = state.strengthsTop3.map(id=>STRENGTHS.find(s=>s.id===id));
+        state.completed.strengths=true;
+        state.strengthsStep=2; render();
+      }
+    };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  } else {
+    const card=el('div','card confirm-box');
+    card.appendChild(el('div','confirm-icon','💪'));
+    const reflection = composeStrengthsReflection();
+    card.appendChild(el('p','', isEn()?reflection.en:reflection.es));
+    card.appendChild(el('div','divider'));
+    card.appendChild(el('h2','', isEn()?'Your top strengths':'Tus fortalezas principales'));
+    const list=el('ul','step-list');
+    state.results.strengths.forEach((s,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${isEn()?s.en:s.es}</span>`; list.appendChild(li); });
+    card.appendChild(list);
+    card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
+    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    btn.onclick=()=>{ state.screen='explore'; render(); };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  }
+  return wrap;
+}
+
+/* ============ PERSONALITY ASSESSMENT ============ */
+function personalityScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?"What's Your Type?":'¿Cuál Es Tu Tipo?','explore'));
+  if(state.persoStep < PERSONALITY_Q.length){
+    const dots=el('div','progress-dots');
+    PERSONALITY_Q.forEach((_,i)=>dots.appendChild(el('span', i<state.persoStep?'done':'')));
+    wrap.appendChild(dots);
+    const q=PERSONALITY_Q[state.persoStep];
+    const card=el('div','card');
+    card.appendChild(el('div','pill', (isEn()?'QUESTION ':'PREGUNTA ')+(state.persoStep+1)+' / '+PERSONALITY_Q.length));
+    card.appendChild(el('h2','', isEn()?'Which sounds more like you?':'¿Cuál se parece más a ti?'));
+    const optA=el('button','choice-opt', isEn()?q.textA_en:q.textA_es);
+    optA.onclick=()=>{ state.persoAnswers.push(q.A); state.persoStep++; render(); };
+    const optB=el('button','choice-opt', isEn()?q.textB_en:q.textB_es);
+    optB.onclick=()=>{ state.persoAnswers.push(q.B); state.persoStep++; render(); };
+    card.appendChild(optA); card.appendChild(optB);
+    wrap.appendChild(card);
+  } else {
+    const counts={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+    state.persoAnswers.forEach(a=>counts[a]++);
+    const type = (counts.E>=counts.I?'E':'I')+(counts.S>=counts.N?'S':'N')+(counts.T>=counts.F?'T':'F')+(counts.J>=counts.P?'J':'P');
+    state.results.personality = {code:type, name: isEn()?TYPE_NAMES[type]:TYPE_NAMES_ES[type]};
+    state.completed.personality=true;
+    const card=el('div','card confirm-box');
+    card.appendChild(el('div','confirm-icon','🧩'));
+    const reflection = composePersonalityReflection();
+    card.appendChild(el('p','', isEn()?reflection.en:reflection.es));
+    card.appendChild(el('div','divider'));
+    card.appendChild(el('h2','', `${type} · ${state.results.personality.name}`));
+    card.appendChild(el('p','', isEn()?'This is a short version. A fuller 20-question version is coming as the platform grows.':'Esta es una versión corta. Una versión completa de 20 preguntas llegará conforme crezca la plataforma.'));
+    card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
+    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    btn.onclick=()=>{ state.screen='explore'; render(); };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  }
+  return wrap;
+}
+
+/* ============ INTERESTS (RIASEC) ASSESSMENT ============ */
+function interestsScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'What Do You Enjoy?':'¿Qué Disfrutas?','explore'));
+  const allActs = [];
+  RIASEC.forEach(cat=>cat.acts.forEach(a=>allActs.push({...a, code:cat.code})));
+  if(!state.interestDone){
+    const card=el('div','card');
+    card.appendChild(el('div','pill', isEn()?'SELECT ACTIVITIES YOU ENJOY':'SELECCIONA ACTIVIDADES QUE DISFRUTAS'));
+    card.appendChild(el('h2','', isEn()?'Pick any that sound fun to you':'Elige las que te parezcan divertidas'));
+    const grid=el('div','chip-grid');
+    allActs.forEach((a,idx)=>{
+      const c=el('button','chip'+(state.interestSelected.includes(idx)?' picked':''), isEn()?a.en:a.es);
+      c.onclick=()=>{
+        const i=state.interestSelected.indexOf(idx);
+        if(i>-1) state.interestSelected.splice(i,1); else state.interestSelected.push(idx);
+        render();
+      };
+      grid.appendChild(c);
+    });
+    card.appendChild(grid);
+    card.appendChild(el('div','chip-counter', isEn()?`${state.interestSelected.length} selected`:`${state.interestSelected.length} seleccionadas`));
+    const btn=el('button','primary-btn', isEn()?'See my results':'Ver mis resultados');
+    btn.disabled = state.interestSelected.length<3;
+    btn.onclick=()=>{
+      if(state.interestSelected.length>=3){
+        const counts={};
+        state.interestSelected.forEach(idx=>{ const c=allActs[idx].code; counts[c]=(counts[c]||0)+1; });
+        const ranked = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).slice(0,3);
+        state.results.interests = ranked.map(code=>RIASEC.find(r=>r.code===code));
+        state.completed.interests=true;
+        state.interestDone=true; render();
+      }
+    };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  } else {
+    const card=el('div','card confirm-box');
+    card.appendChild(el('div','confirm-icon','🔭'));
+    const reflection = composeInterestsReflection();
+    card.appendChild(el('p','', isEn()?reflection.en:reflection.es));
+    card.appendChild(el('div','divider'));
+    card.appendChild(el('h2','', isEn()?'Your top interest areas':'Tus áreas de interés principales'));
+    const list=el('ul','step-list');
+    state.results.interests.forEach((r,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${isEn()?r.en:r.es} · ${isEn()?r.descEn:r.descEs}</span>`; list.appendChild(li); });
+    card.appendChild(list);
+    card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
+    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    btn.onclick=()=>{ state.screen='explore'; render(); };
+    card.appendChild(btn);
+    wrap.appendChild(card);
+  }
+  return wrap;
+}
+
+/* ============ PATH PROFILE — the chain the old app never built ============ */
+function pathProfileScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Your Path Profile':'Tu Perfil de Camino','explore'));
+
+  // ---- What you shared ----
+  const summary=el('div','profile-summary-card');
+  summary.appendChild(el('h3','', isEn()?'What you shared':'Lo que compartiste'));
+  const rows=[
+    {label:isEn()?'Top values':'Valores principales', val: state.results.values? state.results.values.slice(0,3).map(v=>isEn()?v.en:v.es).join(', ') : (isEn()?'Not yet':'Aún no')},
+    {label:isEn()?'Top strengths':'Fortalezas principales', val: state.results.strengths? state.results.strengths.map(s=>isEn()?s.en:s.es).join(', ') : (isEn()?'Not yet':'Aún no')},
+    {label:isEn()?'Personality':'Personalidad', val: state.results.personality? `${state.results.personality.code} · ${state.results.personality.name}` : (isEn()?'Not yet':'Aún no')},
+    {label:isEn()?'Interest areas':'Áreas de interés', val: state.results.interests? state.results.interests.map(r=>isEn()?r.en:r.es).join(', ') : (isEn()?'Not yet':'Aún no')},
+  ];
+  rows.forEach(r=>{ const row=el('div','summary-row'); row.innerHTML=`<span>${r.label}</span><b>${r.val}</b>`; summary.appendChild(row); });
+  wrap.appendChild(summary);
+
+  // ---- Patterns worth noticing (Layer 2 synthesis) ----
+  const synthesis = computeSynthesis();
+  const patternsCopy = patternsSectionCopy(synthesis);
+  const patternsCard=el('div','card');
+  patternsCard.appendChild(el('div','section-label', isEn()?'Patterns worth noticing':'Patrones que vale la pena notar'));
+  patternsCard.appendChild(el('p','', isEn()?patternsCopy.en:patternsCopy.es));
+  wrap.appendChild(patternsCard);
+
+  // ---- Questions to discuss with family (unchanged from Phase 1) ----
+  const card=el('div','card');
+  card.appendChild(el('div','section-label', isEn()?'Questions to discuss with family':'Preguntas para hablar en familia'));
+  const qs = isEn()
+    ? ["What matters most to you as you think about what's next?","What do you hope the future makes possible for you?","What's one worry about this that's okay to just say out loud?"]
+    : ["¿Qué es lo más importante para ti al pensar en lo que sigue?","¿Qué esperas que el futuro haga posible para ti?","¿Qué preocupación sobre esto está bien decir en voz alta?"];
+  const list=el('ul','step-list');
+  qs.forEach((q,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${q}</span>`; list.appendChild(li); });
+  card.appendChild(list);
+  wrap.appendChild(card);
+
+  // ---- Possibilities to explore (Layer 3: framing only, CAREER_MAP itself unchanged, that's Phase 4) ----
+  const topCode = state.results.interests ? state.results.interests[0].code : null;
+  wrap.appendChild(el('div','section-label', isEn()?'Possibilities to explore':'Posibilidades para explorar'));
+  const careerWrap=el('div'); careerWrap.style.margin='0 18px 8px';
+  if(topCode){
+    CAREER_MAP[topCode].forEach(c=>{
+      const rationale = composePathwayRationale(topCode, synthesis);
+      const cc=el('div','career-card');
+      cc.innerHTML=`<h4>${isEn()?c.en:c.es}</h4><p>${isEn()?c.credEn:c.credEs}</p><p style="margin-top:6px;">${isEn()?rationale.en:rationale.es}</p>`;
+      careerWrap.appendChild(cc);
+    });
+    const humility=el('p','es');
+    humility.style.margin='6px 4px 0';
+    humility.textContent = isEn()?'These are a few things you could look into, not a decision you have to make.':'Son algunas cosas que podrías investigar, no una decisión que tengas que tomar.';
+    careerWrap.appendChild(humility);
+  } else {
+    const cc=el('div','career-card');
+    cc.innerHTML=`<h4>${isEn()?"We'd need to know a bit about what you enjoy day to day before naming anything here.":'Necesitaríamos saber un poco sobre lo que disfrutas en tu día a día antes de nombrar algo aquí.'}</h4><p>${isEn()?'"What Do You Enjoy?" is a good next one, whenever you\'re ready.':'"¿Qué Disfrutas?" es una buena siguiente, cuando estés listo o lista.'}</p>`;
+    careerWrap.appendChild(cc);
+  }
+  wrap.appendChild(careerWrap);
+
+  const card2=el('div','card');
+  card2.appendChild(el('div','pill', isEn()?'NEXT STEP':'PRÓXIMO PASO'));
+  card2.appendChild(el('h2','', isEn()?'A Good Next Step':'Un buen próximo paso'));
+  card2.appendChild(el('p','', isEn()?"Our Career Exploration workshop builds on what you've shared here, connecting what matters to you with real paths forward.":'Nuestro taller de Exploración de Carreras se basa en lo que has compartido aquí, conectando lo que te importa con caminos reales hacia adelante.'));
+  const btn1=el('button','secondary-btn', isEn()?'Talk it through at Clínica':'Hablarlo en la Clínica');
+  btn1.onclick=()=>{ state.screen='clinica'; render(); };
+  card2.appendChild(btn1);
+  wrap.appendChild(card2);
+
+  // ---- Questions to keep exploring (closes the profile as an invitation, not a verdict) ----
+  const questionsCopy = questionsToKeepExploringCopy(synthesis);
+  const qCard=el('div','card');
+  qCard.appendChild(el('div','section-label', isEn()?'Questions to keep exploring':'Preguntas para seguir explorando'));
+  qCard.appendChild(el('p','', isEn()?questionsCopy.en:questionsCopy.es));
+  wrap.appendChild(qCard);
+
+  // ---- Vision reflection echo: verbatim, presence-only, never interpreted ----
+  if(state.visionReflection && state.visionReflection.trim()){
+    const vCard=el('div','card');
+    vCard.appendChild(el('p','', isEn()
+      ? `You also told us, in your own words: "${state.visionReflection}". Keep that close as you think about what's next.`
+      : `También nos dijiste, con tus propias palabras: "${state.visionReflection}". Tenlo presente al pensar en lo que sigue.`));
+    wrap.appendChild(vCard);
+  }
+
+  const card3=el('div','card');
+  card3.appendChild(el('h2','', isEn()?'Continue to Decide':'Continuar a Decidir'));
+  card3.appendChild(el('p','', isEn()?'Compare the cost, time, and outlook for the paths above.':'Compara el costo, tiempo y perspectiva de los caminos anteriores.'));
+  const btn2=el('button','primary-btn', isEn()?'Continue →':'Continuar →');
+  btn2.onclick=()=>{ state.screen='decide'; render(); };
+  card3.appendChild(btn2);
+  wrap.appendChild(card3);
+
+  const resetLink=document.createElement('div');
+  resetLink.style.textAlign='center'; resetLink.style.margin='6px 18px 18px';
+  const resetBtn=document.createElement('button');
+  resetBtn.textContent = isEn()?'Start Explore over':'Empezar Explorar de nuevo';
+  resetBtn.style.background='none'; resetBtn.style.border='none'; resetBtn.style.color='var(--ink-soft)';
+  resetBtn.style.fontSize='12px'; resetBtn.style.fontFamily='var(--font-body)'; resetBtn.style.textDecoration='underline';
+  resetBtn.style.cursor='pointer';
+  resetBtn.onclick=()=>{ state.resetReturnTo='pathprofile'; state.screen='reset-confirm'; render(); };
+  resetLink.appendChild(resetBtn);
+  wrap.appendChild(resetLink);
+
+  return wrap;
+}
+
+/* ============ DECIDE — data ============ */
+const DECIDE_PATHS = [
+  {id:'cc', en:'Community College (Associate)', es:'Colegio Comunitario (Asociado)',
+    costEn:'$3,000–$6,000/yr', costEs:'$3,000–$6,000/año', timeEn:'2 years', timeEs:'2 años',
+    salEn:'$32K–$48K to start', salEs:'$32K–$48K para empezar', outlookEn:'Strong in healthcare, IT, skilled trades', outlookEs:'Fuerte en salud, TI, oficios técnicos',
+    licEn:'Varies by program, check board requirements', licEs:'Varía según el programa, verifica requisitos',
+    transferEn:'High, most credits transfer to a 4-year school', transferEs:'Alta, la mayoría de créditos transfieren',
+    flexEn:'High, evening and online options common', flexEs:'Alta, opciones nocturnas y en línea comunes'},
+  {id:'uni', en:'4-Year University (Bachelor\'s)', es:'Universidad de 4 Años (Licenciatura)',
+    costEn:'$8,000–$25,000/yr', costEs:'$8,000–$25,000/año', timeEn:'4 years', timeEs:'4 años',
+    salEn:'$45K–$65K to start', salEs:'$45K–$65K para empezar', outlookEn:'Broad, especially business, education, health sciences', outlookEs:'Amplia, especialmente negocios, educación, ciencias de la salud',
+    licEn:'Required for teaching, nursing, and other licensed fields', licEs:'Requerida para enseñanza, enfermería y otros campos con licencia',
+    transferEn:'N/A, this is the destination degree', transferEs:'N/A, este es el título final',
+    flexEn:'Medium, mostly in-person with growing online options', flexEs:'Media, mayormente presencial con opciones en línea'},
+  {id:'trade', en:'Trade / Certificate Program', es:'Programa Técnico / Certificado',
+    costEn:'$1,500–$8,000 total', costEs:'$1,500–$8,000 total', timeEn:'6–12 months', timeEs:'6–12 meses',
+    salEn:'$35K–$55K to start', salEs:'$35K–$55K para empezar', outlookEn:'Strong, especially HVAC, welding, medical assisting', outlookEs:'Fuerte, especialmente HVAC, soldadura, asistente médico',
+    licEn:'Often required, exam fees separate from tuition', licEs:'A menudo requerida, cuotas de examen aparte de la matrícula',
+    transferEn:'Low, built for direct entry into work', transferEs:'Baja, hecho para entrar directo al trabajo',
+    flexEn:'High, many evening and weekend cohorts', flexEs:'Alta, muchos horarios nocturnos y de fin de semana'},
+  {id:'appr', en:'Registered Apprenticeship', es:'Aprendizaje Registrado',
+    costEn:'$0, you are paid to train', costEs:'$0, te pagan mientras aprendes', timeEn:'3–4 years, paid', timeEs:'3–4 años, pagado',
+    salEn:'$28K rising to $55K+ as a journeyworker', salEs:'$28K subiendo a $55K+ como oficial certificado', outlookEn:'Strong in electrical, plumbing, pipefitting', outlookEs:'Fuerte en electricidad, plomería, tubería',
+    licEn:'Leads directly to journeyworker licensure', licEs:'Lleva directo a la licencia de oficial certificado',
+    transferEn:'Low, but the credential is portable across employers', transferEs:'Baja, pero la credencial es portátil entre empleadores',
+    flexEn:'Low, fixed work and class schedule', flexEs:'Baja, horario fijo de trabajo y clases'},
+  {id:'mil', en:'Military', es:'Servicio Militar',
+    costEn:'$0, plus GI Bill for later education', costEs:'$0, más GI Bill para estudios futuros', timeEn:'4+ year commitment', timeEs:'Compromiso de 4+ años',
+    salEn:'Salary plus housing, food, and health coverage', salEs:'Salario más vivienda, comida y cobertura médica', outlookEn:'Stable, plus training in a technical specialty', outlookEs:'Estable, más entrenamiento en una especialidad técnica',
+    licEn:'Many specialties convert to civilian certifications', licEs:'Muchas especialidades se convierten en certificaciones civiles',
+    transferEn:'High, GI Bill can fund college or trade school after', transferEs:'Alta, el GI Bill puede pagar universidad u oficio después',
+    flexEn:'Low, service requirements are fixed', flexEs:'Baja, los requisitos de servicio son fijos'},
+];
+
+function decideStageHeader(title){
+  return screenHeader(title, 'decide');
+}
+
+/* ============ DECIDE — hub ============ */
+function decideScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Decide':'Decidir'));
+
+  const intro=el('div','card');
+  intro.appendChild(el('div','pill', isEn()?'DECIDE · COMPARE YOUR OPTIONS':'DECIDIR · COMPARA TUS OPCIONES'));
+  intro.appendChild(el('h2','', isEn()?'College is one path, not the only one':'La universidad es un camino, no el único'));
+  intro.appendChild(el('p','', isEn()?'These tools give you real numbers to compare side by side. None of them replace a conversation with a Navigator, they just make that conversation more useful.':'Estas herramientas te dan números reales para comparar. Ninguna reemplaza una conversación con un Navegador, solo la hacen más útil.'));
+  intro.appendChild(el('p','', isEn()?"Think of what follows as ways to reach the life you're imagining, not the destination itself.":'Piensa en esto como caminos hacia la vida que imaginas, no como el destino en sí.'));
+  if(state.results.interests){
+    const topCareer = CAREER_MAP[state.results.interests[0].code][0];
+    intro.appendChild(el('p','', isEn()?`From your Path Profile: you're exploring paths like ${topCareer.en}.`:`De tu Perfil de Camino: estás explorando caminos como ${topCareer.es}.`));
+  }
+  wrap.appendChild(intro);
+
+  const tools = [
+    {key:'decide-compare', ic:'⚖️', bg:'#FCEFDD', titleEn:'Compare Two Paths', titleEs:'Comparar Dos Caminos', descEn:'Cost, time, salary, and licensure side by side', descEs:'Costo, tiempo, salario y licencia lado a lado'},
+    {key:'decide-afford', ic:'💵', bg:'#EEF6F5', titleEn:'Family Affordability Snapshot', titleEs:'Resumen de Asequibilidad Familiar', descEn:'A rough starting estimate of what you might pay', descEs:'Un estimado inicial de lo que podrías pagar'},
+    {key:'decide-questions', ic:'❓', bg:'#F0EAF9', titleEn:'Questions to Ask', titleEs:'Preguntas Para Hacer', descEn:'For schools and for employers', descEs:'Para escuelas y para empleadores'},
+  ];
+  wrap.appendChild(el('div','section-label', isEn()?'Decide tools':'Herramientas de Decidir'));
+  const grid=el('div','explore-grid'); grid.style.margin='0 18px';
+  tools.forEach(a=>{
+    const card=el('button','assess-card');
+    card.innerHTML=`<div class="ic" style="background:${a.bg}">${a.ic}</div>
+      <div class="info"><h4>${isEn()?a.titleEn:a.titleEs}</h4><div class="es-sub">${isEn()?a.descEn:a.descEs}</div></div>
+      <div class="status">›</div>`;
+    card.onclick=()=>{ state.screen=a.key; render(); };
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  const card2=el('div','card');
+  card2.appendChild(el('h2','', isEn()?'Talk it through in person':'Hablarlo en persona'));
+  card2.appendChild(el('p','', isEn()?'A Navigator can build a full Family Affordability Snapshot and school list with you at Clínica.':'Un Navegador puede construir un Resumen de Asequibilidad Familiar completo contigo en la Clínica.'));
+  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  card2.appendChild(btn);
+  wrap.appendChild(card2);
+
+  const locked=el('div','locked-card');
+  locked.innerHTML=`<div class="lock-ic">🔒</div><p>${isEn()?'A full school list builder and saved decision notebook are part of the Year 2 Cohort build-out.':'Un constructor de listas de escuelas completo y un cuaderno de decisiones guardado son parte de la Cohorte del Año 2.'}</p>`;
+  wrap.appendChild(locked);
+  return wrap;
+}
+
+/* ============ DECIDE — compare two paths ============ */
+function decideCompareScreen(){
+  const wrap=el('div');
+  wrap.appendChild(decideStageHeader(isEn()?'Compare Two Paths':'Comparar Dos Caminos'));
+
+  if(!state.compareA) state.compareA = 'cc';
+  if(!state.compareB) state.compareB = 'uni';
+
+  const card=el('div','card');
+  card.appendChild(el('div','section-label', isEn()?'Path A':'Camino A'));
+  const selA=el('select');
+  DECIDE_PATHS.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=isEn()?p.en:p.es; if(p.id===state.compareA) o.selected=true; selA.appendChild(o); });
+  selA.onchange=(e)=>{ state.compareA=e.target.value; render(); };
+  card.appendChild(selA);
+  card.appendChild(el('div','section-label', isEn()?'Path B':'Camino B'));
+  const selB=el('select');
+  DECIDE_PATHS.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=isEn()?p.en:p.es; if(p.id===state.compareB) o.selected=true; selB.appendChild(o); });
+  selB.onchange=(e)=>{ state.compareB=e.target.value; render(); };
+  card.appendChild(selB);
+  wrap.appendChild(card);
+
+  const pA = DECIDE_PATHS.find(p=>p.id===state.compareA);
+  const pB = DECIDE_PATHS.find(p=>p.id===state.compareB);
+  const rowsDef = [
+    {label:isEn()?'Cost':'Costo', a:isEn()?pA.costEn:pA.costEs, b:isEn()?pB.costEn:pB.costEs},
+    {label:isEn()?'Time':'Tiempo', a:isEn()?pA.timeEn:pA.timeEs, b:isEn()?pB.timeEn:pB.timeEs},
+    {label:isEn()?'Starting salary':'Salario inicial', a:isEn()?pA.salEn:pA.salEs, b:isEn()?pB.salEn:pB.salEs},
+    {label:isEn()?'Job outlook':'Perspectiva laboral', a:isEn()?pA.outlookEn:pA.outlookEs, b:isEn()?pB.outlookEn:pB.outlookEs},
+    {label:isEn()?'Licensure':'Licencia', a:isEn()?pA.licEn:pA.licEs, b:isEn()?pB.licEn:pB.licEs},
+    {label:isEn()?'Transferability':'Transferibilidad', a:isEn()?pA.transferEn:pA.transferEs, b:isEn()?pB.transferEn:pB.transferEs},
+    {label:isEn()?'Flexibility':'Flexibilidad', a:isEn()?pA.flexEn:pA.flexEs, b:isEn()?pB.flexEn:pB.flexEs},
+  ];
+  const cmpCard=el('div','card');
+  cmpCard.appendChild(el('h2','', `${isEn()?pA.en:pA.es}  ⇄  ${isEn()?pB.en:pB.es}`));
+  rowsDef.forEach(r=>{
+    const rowWrap=el('div');
+    rowWrap.style.marginBottom='12px';
+    rowWrap.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">${r.label}</div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;background:#F5FAFA;border-radius:10px;padding:8px 10px;font-size:12px;color:var(--ink);">${r.a}</div>
+        <div style="flex:1;background:#FCEFDD;border-radius:10px;padding:8px 10px;font-size:12px;color:var(--ink);">${r.b}</div>
+      </div>`;
+    cmpCard.appendChild(rowWrap);
+  });
+  wrap.appendChild(cmpCard);
+
+  const disclaimer=el('div','card');
+  disclaimer.appendChild(el('p','', isEn()?'Licensing rules, lawful presence requirements, and work authorization rules vary by occupation and Texas board, and can change. These numbers are general guidance only, not legal or financial advice. Always verify current requirements with the school, employer, or relevant Texas licensing board before enrolling or applying.':'Las reglas de licencia, presencia legal y autorización de trabajo varían según la ocupación y la junta de Texas, y pueden cambiar. Estos números son guía general, no asesoría legal o financiera. Siempre verifica los requisitos actuales con la escuela, el empleador o la junta de licencias de Texas correspondiente.'));
+  wrap.appendChild(disclaimer);
+
+  const btn=el('button','primary-btn', isEn()?'Talk through my results at Clínica':'Hablar mis resultados en la Clínica');
+  btn.style.margin='4px 18px 16px'; btn.style.width='calc(100% - 36px)';
+  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  wrap.appendChild(btn);
+
+  return wrap;
+}
+
+/* ============ DECIDE — family affordability snapshot ============ */
+function decideAffordScreen(){
+  const wrap=el('div');
+  wrap.appendChild(decideStageHeader(isEn()?'Family Affordability Snapshot':'Resumen de Asequibilidad Familiar'));
+
+  const card=el('div','card');
+  card.appendChild(el('div','pill', isEn()?'ROUGH ESTIMATE, NOT OFFICIAL':'ESTIMADO APROXIMADO, NO OFICIAL'));
+  card.appendChild(el('h2','', isEn()?'A starting point for the conversation':'Un punto de partida para la conversación'));
+  card.appendChild(el('p','', isEn()?'This gives you a general sense of the gap between cost and what your family might realistically cover. Your real FAFSA/TASFA numbers will be more accurate, a Navigator can walk through those with you.':'Esto te da una idea general de la diferencia entre el costo y lo que tu familia podría cubrir. Tus números reales de FAFSA/TASFA serán más precisos, un Navegador puede revisarlos contigo.'));
+
+  const f1=el('div','field');
+  f1.innerHTML=`<label>${isEn()?'Estimated annual cost of the school or program':'Costo anual estimado de la escuela o programa'}</label><input type="number" id="affCost" placeholder="$10,000">`;
+  card.appendChild(f1);
+
+  const f2=el('div','field');
+  f2.innerHTML=`<label>${isEn()?'Household income range':'Rango de ingreso familiar'}</label>
+    <select id="affIncome">
+      <option value="0.85">${isEn()?'Under $30,000':'Menos de $30,000'}</option>
+      <option value="0.65">${isEn()?'$30,000–$50,000':'$30,000–$50,000'}</option>
+      <option value="0.45">${isEn()?'$50,000–$75,000':'$50,000–$75,000'}</option>
+      <option value="0.25">${isEn()?'$75,000–$100,000':'$75,000–$100,000'}</option>
+      <option value="0.10">${isEn()?'Over $100,000':'Más de $100,000'}</option>
+    </select>`;
+  card.appendChild(f2);
+
+  const f3=el('div','field');
+  f3.innerHTML=`<label>${isEn()?'Scholarships or grants you already expect (optional)':'Becas o subvenciones que ya esperas (opcional)'}</label><input type="number" id="affAid" placeholder="$0">`;
+  card.appendChild(f3);
+
+  const resultBox=el('div'); resultBox.id='affResult';
+  card.appendChild(resultBox);
+
+  const btn=el('button','primary-btn', isEn()?'See my snapshot':'Ver mi resumen');
+  btn.onclick=()=>{
+    const cost = parseFloat(document.getElementById('affCost').value) || 0;
+    const aidFactor = parseFloat(document.getElementById('affIncome').value);
+    const knownAid = parseFloat(document.getElementById('affAid').value) || 0;
+    const estAidPortion = cost * aidFactor;
+    const netPrice = Math.max(0, cost - knownAid - estAidPortion);
+    resultBox.innerHTML = `
+      <div class="profile-summary-card" style="margin:14px 0 4px;">
+        <h3>${isEn()?'Estimated snapshot':'Resumen estimado'}</h3>
+        <div class="summary-row"><span>${isEn()?'Total cost':'Costo total'}</span><b>$${cost.toLocaleString()}</b></div>
+        <div class="summary-row"><span>${isEn()?'Known scholarships':'Becas conocidas'}</span><b>$${knownAid.toLocaleString()}</b></div>
+        <div class="summary-row"><span>${isEn()?'Estimated aid range':'Rango de ayuda estimada'}</span><b>~$${Math.round(estAidPortion).toLocaleString()}</b></div>
+        <div class="summary-row"><span>${isEn()?'Your family might cover':'Tu familia podría cubrir'}</span><b>~$${Math.round(netPrice).toLocaleString()}/yr</b></div>
+      </div>`;
+  };
+  card.appendChild(btn);
+  wrap.appendChild(card);
+
+  const note=el('div','locked-card');
+  note.innerHTML=`<div class="lock-ic">ℹ️</div><p>${isEn()?'This uses a simplified estimate, not the federal FAFSA formula. Bring your actual FAFSA/TASFA Student Aid Report to Clínica for real numbers.':'Esto usa un estimado simplificado, no la fórmula federal de FAFSA. Trae tu Reporte de Ayuda Estudiantil real a la Clínica para números precisos.'}</p>`;
+  wrap.appendChild(note);
+
+  return wrap;
+}
+
+/* ============ DECIDE — questions to ask ============ */
+function decideQuestionsScreen(){
+  const wrap=el('div');
+  wrap.appendChild(decideStageHeader(isEn()?'Questions to Ask':'Preguntas Para Hacer'));
+
+  if(!state.questionsTab) state.questionsTab='schools';
+  const tabs=el('div','lang-toggle');
+  tabs.style.background='#EEF6F5'; tabs.style.width='fit-content'; tabs.style.margin='0 18px 14px';
+  const tSchools=document.createElement('button'); tSchools.textContent=isEn()?'Schools':'Escuelas';
+  tSchools.style.color = state.questionsTab==='schools' ? '#14505E' : '#4A6B72';
+  tSchools.style.background = state.questionsTab==='schools' ? '#F5A623' : 'transparent';
+  tSchools.onclick=()=>{ state.questionsTab='schools'; render(); };
+  const tEmployers=document.createElement('button'); tEmployers.textContent=isEn()?'Employers':'Empleadores';
+  tEmployers.style.color = state.questionsTab==='employers' ? '#14505E' : '#4A6B72';
+  tEmployers.style.background = state.questionsTab==='employers' ? '#F5A623' : 'transparent';
+  tEmployers.onclick=()=>{ state.questionsTab='employers'; render(); };
+  tabs.appendChild(tSchools); tabs.appendChild(tEmployers);
+  wrap.appendChild(tabs);
+
+  const schoolQs = isEn() ? [
+    "What is the total cost after aid, not just the sticker price?",
+    "What percentage of students graduate on time?",
+    "Is this program accredited in a way that matters for licensure?",
+    "What support exists for first-generation students?",
+    "How many credits transfer in, and how many transfer out?",
+  ] : [
+    "¿Cuál es el costo total después de la ayuda, no solo el precio de lista?",
+    "¿Qué porcentaje de estudiantes se gradúa a tiempo?",
+    "¿Este programa tiene la acreditación que importa para la licencia?",
+    "¿Qué apoyo existe para estudiantes de primera generación?",
+    "¿Cuántos créditos transfieren de entrada y de salida?",
+  ];
+  const employerQs = isEn() ? [
+    "Does this job require a license or certification I don't have yet?",
+    "Is there a clear path to a raise or promotion, and on what timeline?",
+    "Will you help pay for further training or certification?",
+    "What does a typical schedule look like, including nights or weekends?",
+    "Is this role stable, or tied to a specific project or season?",
+  ] : [
+    "¿Este trabajo requiere una licencia o certificación que aún no tengo?",
+    "¿Hay un camino claro a un aumento o ascenso, y en qué plazo?",
+    "¿Me ayudarán a pagar entrenamiento o certificación adicional?",
+    "¿Cómo es un horario típico, incluyendo noches o fines de semana?",
+    "¿Este puesto es estable, o depende de un proyecto o temporada?",
+  ];
+  const qs = state.questionsTab==='schools' ? schoolQs : employerQs;
+  const card=el('div','card');
+  const list=el('ul','step-list');
+  qs.forEach((q,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${q}</span>`; list.appendChild(li); });
+  card.appendChild(list);
+  wrap.appendChild(card);
+
+  return wrap;
+}
+
+/* ============ APPLY ============ */
+function applyScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Apply':'Aplicar'));
+  const card=el('div','card');
+  card.appendChild(el('div','pill', isEn()?'APPLY · FAFSA, TASFA & SCHOLARSHIPS':'APLICAR · FAFSA, TASFA Y BECAS'));
+  card.appendChild(el('h2','', isEn()?"Let's get financial aid started":'Empecemos con la ayuda financiera'));
+  const list=el('ul','step-list');
+  const steps = isEn()
+    ? ['Figure out which form applies: FAFSA or TASFA','Gather ID and recent tax information','Bring it to Clínica, a Navigator will help you fill it out']
+    : ['Averigua qué formulario aplica: FAFSA o TASFA','Reúne identificación e información de impuestos','Trae todo a la Clínica, un Navegador te ayudará'];
+  steps.forEach((s,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${s}</span>`; list.appendChild(li); });
+  card.appendChild(list);
+  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  card.appendChild(btn);
+  wrap.appendChild(card);
+
+  const schCard=el('div','card');
+  schCard.appendChild(el('div','pill', isEn()?'SCHOLARSHIPS & FUNDING':'BECAS Y FINANCIAMIENTO'));
+  schCard.appendChild(el('h2','', isEn()?'Browse scholarships and funding':'Explora becas y financiamiento'));
+  schCard.appendChild(el('p','', isEn()?`${SCHOLARSHIP_DATA.length} options from universities, community colleges, and outside organizations, searchable by what matters to your family.`:`${SCHOLARSHIP_DATA.length} opciones de universidades, colegios comunitarios y organizaciones externas, con búsqueda según lo que le importa a tu familia.`));
+  const schBtn=el('button','primary-btn', isEn()?'Browse Scholarships & Funding':'Explorar Becas y Financiamiento');
+  schBtn.onclick=()=>{ state.screen='apply-scholarships'; render(); };
+  schCard.appendChild(schBtn);
+  wrap.appendChild(schCard);
+
+  return wrap;
+}
+
+/* ============ PHASE 4: SCHOLARSHIP & FUNDING NAVIGATOR ============ */
+
+// ---- Filtering layer: reads state + SCHOLARSHIP_DATA, returns filtered records. No rendering here. ----
+function getFilteredScholarships(){
+  let results = SCHOLARSHIP_DATA;
+  if(state.scholarshipCategory){
+    results = results.filter(r=>r.category===state.scholarshipCategory);
+  }
+  const q = state.scholarshipSearch.trim().toLowerCase();
+  if(q){
+    results = results.filter(r=>{
+      const hay = [r.institution, r.organization, r.programName, r.familyNote, r.familyNoteEs].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if(state.scholarshipEligFilters.length>0){
+    results = results.filter(r=>{
+      return state.scholarshipEligFilters.every(filterKey=>{
+        const filterDef = SCHOLARSHIP_ELIGIBILITY_FILTERS.find(f=>f.key===filterKey);
+        return filterDef.tags.some(tag=>r.eligibilityTags.includes(tag));
+      });
+    });
+  }
+  if(state.scholarshipGpaBand!=='any'){
+    const band = SCHOLARSHIP_GPA_BANDS.find(b=>b.key===state.scholarshipGpaBand);
+    results = results.filter(r=>band.test(r.gpaMin));
+  }
+  if(state.scholarshipAmountBand!=='any'){
+    const band = SCHOLARSHIP_AMOUNT_BANDS.find(b=>b.key===state.scholarshipAmountBand);
+    results = results.filter(r=>band.test(r.awardAmountMin));
+  }
+  return results;
+}
+function scholarshipDisplayName(r){ return r.institution || r.organization || ''; }
+function bilingualField(en, es){ return isEn() ? en : (es || en); }
+function hasActiveScholarshipFilters(){
+  return state.scholarshipSearch.trim()!=='' || state.scholarshipEligFilters.length>0 || state.scholarshipGpaBand!=='any' || state.scholarshipAmountBand!=='any';
+}
+function clearScholarshipFilters(){
+  state.scholarshipSearch=''; state.scholarshipEligFilters=[]; state.scholarshipGpaBand='any'; state.scholarshipAmountBand='any';
+}
+
+// ---- Hub: category browse + unified search entry ----
+function scholarshipsHubScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Scholarships & Funding':'Becas y Financiamiento', 'apply'));
+
+  const intro=el('div','card');
+  intro.appendChild(el('h2','', isEn()?'A place to start looking, not a final answer':'Un lugar para empezar a buscar, no una respuesta final'));
+  intro.appendChild(el('p','', isEn()?"This list comes from Anchored Pathways' own research. Details like deadlines and eligibility can change, so anything here is worth exploring, not a guarantee. A Navigator can help you confirm current details.":'Esta lista viene de la propia investigación de Anchored Pathways. Detalles como fechas límite y elegibilidad pueden cambiar, así que todo aquí vale la pena explorarlo, no es una garantía. Un Navegador puede ayudarte a confirmar los detalles actuales.'));
+  wrap.appendChild(intro);
+
+  wrap.appendChild(el('div','section-label', isEn()?'Browse by type':'Explorar por tipo'));
+  const catGrid=el('div','explore-grid'); catGrid.style.margin='0 18px';
+  const cats=[
+    {key:'public_university', ic:'🏫', bg:'#EEF6F5'},
+    {key:'private_university', ic:'🏛', bg:'#FCEFDD'},
+    {key:'community_college', ic:'🏙', bg:'#E6F3EC'},
+    {key:'private_scholarship', ic:'💰', bg:'#F0EAF9'},
+  ];
+  cats.forEach(c=>{
+    const count = SCHOLARSHIP_DATA.filter(r=>r.category===c.key).length;
+    const card=el('button','assess-card');
+    const label = SCHOLARSHIP_CATEGORY_LABELS[c.key];
+    card.innerHTML=`<div class="ic" style="background:${c.bg}">${c.ic}</div>
+      <div class="info"><h4>${isEn()?label.en:label.es}</h4><div class="es-sub">${count} ${isEn()?'listed':'en la lista'}</div></div>
+      <div class="status">›</div>`;
+    card.onclick=()=>{ state.scholarshipCategory=c.key; clearScholarshipFilters(); state.screen='apply-scholarships-list'; render(); };
+    catGrid.appendChild(card);
+  });
+  wrap.appendChild(catGrid);
+
+  const searchCard=el('div','card');
+  searchCard.appendChild(el('h2','', isEn()?'Or search everything at once':'O busca en todo a la vez'));
+  const searchBtn=el('button','primary-btn', isEn()?'Search All Scholarships & Funding':'Buscar en Todas las Becas y Financiamiento');
+  searchBtn.onclick=()=>{ state.scholarshipCategory=null; clearScholarshipFilters(); state.screen='apply-scholarships-list'; render(); };
+  searchCard.appendChild(searchBtn);
+  if(state.savedScholarships.length>0){
+    const savedBtn=el('button','secondary-btn', isEn()?`View Saved (${state.savedScholarships.length})`:`Ver Guardadas (${state.savedScholarships.length})`);
+    savedBtn.onclick=()=>{ state.screen='apply-scholarships-saved'; render(); };
+    searchCard.appendChild(savedBtn);
+  }
+  wrap.appendChild(searchCard);
+
+  return wrap;
+}
+
+// ---- Card renderer, shared by list and saved screens ----
+function scholarshipCard(r){
+  const card=el('div','card');
+  card.style.cursor='pointer';
+  const name = scholarshipDisplayName(r);
+  const isSaved = state.savedScholarships.includes(r.id);
+  const catLabel = SCHOLARSHIP_CATEGORY_LABELS[r.category];
+  card.innerHTML = `<div class="pill">${isEn()?catLabel.en:catLabel.es}</div>
+    <h2 style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+      <span>${name}</span><span style="font-size:19px;flex-shrink:0;">${isSaved?'❤️':'🤍'}</span>
+    </h2>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 8px;">${r.programName||''}</p>`;
+  const metaRow=el('div','tag-row');
+  if(r.awardAmountText) metaRow.appendChild(el('span','tag', bilingualField(r.awardAmountText, r.awardAmountTextEs)));
+  if(r.deadlineText) metaRow.appendChild(el('span','tag', bilingualField(r.deadlineText, r.deadlineTextEs)));
+  card.appendChild(metaRow);
+  if(r.eligibilityPlain && r.eligibilityPlain.length>0){
+    const elig=document.createElement('div');
+    elig.style.fontSize='12px'; elig.style.color='var(--teal-deep)'; elig.style.marginBottom='6px';
+    elig.textContent = (isEn()?r.eligibilityPlain[0].en:r.eligibilityPlain[0].es);
+    card.appendChild(elig);
+  }
+  if(r.verificationStatus && r.verificationStatus!=='confirmed' && VERIFICATION_COPY[r.verificationStatus]){
+    const vc = VERIFICATION_COPY[r.verificationStatus];
+    const statusLine=document.createElement('div');
+    statusLine.style.fontSize='11.5px'; statusLine.style.color='var(--burnt)'; statusLine.style.marginBottom='6px';
+    statusLine.textContent = isEn()?vc.en:vc.es;
+    card.appendChild(statusLine);
+  }
+  if(r.familyNote){
+    const note=el('p','es');
+    note.textContent = isEn() ? r.familyNote : (r.familyNoteEs || r.familyNote);
+    card.appendChild(note);
+  }
+  const heartBtn=el('button','secondary-btn', isSaved?(isEn()?'Remove from Saved':'Quitar de Guardadas'):(isEn()?'Save for Later':'Guardar para Después'));
+  heartBtn.onclick=(e)=>{
+    e.stopPropagation();
+    const i=state.savedScholarships.indexOf(r.id);
+    if(i>-1) state.savedScholarships.splice(i,1); else state.savedScholarships.push(r.id);
+    render();
+  };
+  card.appendChild(heartBtn);
+  card.addEventListener('click', (e)=>{
+    if(e.target===heartBtn) return;
+    state.scholarshipDetailId=r.id; state.screen='apply-scholarships-detail'; render();
+  });
+  return card;
+}
+
+// ---- List/search/filter screen ----
+function scholarshipsListScreen(){
+  const wrap=el('div');
+  const catLabel = state.scholarshipCategory ? SCHOLARSHIP_CATEGORY_LABELS[state.scholarshipCategory] : null;
+  wrap.appendChild(screenHeader(catLabel ? (isEn()?catLabel.en:catLabel.es) : (isEn()?'Search All':'Buscar en Todo'), 'apply-scholarships'));
+
+  const searchCard=el('div','card');
+  const f1=el('div','field');
+  f1.innerHTML=`<label>${isEn()?'Search by name or keyword':'Buscar por nombre o palabra clave'}</label>`;
+  const searchInput=document.createElement('input');
+  searchInput.type='text'; searchInput.placeholder=isEn()?'e.g. nursing, San Jacinto, DACA...':'ej. enfermería, San Jacinto, DACA...';
+  searchInput.value=state.scholarshipSearch;
+  searchInput.oninput=(e)=>{ state.scholarshipSearch=e.target.value; renderScholarshipResultsOnly(); };
+  f1.appendChild(searchInput);
+  searchCard.appendChild(f1);
+
+  searchCard.appendChild(el('div','section-label', isEn()?'Eligibility mentions':'Menciones de elegibilidad'));
+  const chipGrid=el('div','chip-grid');
+  SCHOLARSHIP_ELIGIBILITY_FILTERS.forEach(f=>{
+    const active = state.scholarshipEligFilters.includes(f.key);
+    const chip=el('button','chip'+(active?' picked':''), isEn()?f.en:f.es);
+    chip.onclick=()=>{
+      const i=state.scholarshipEligFilters.indexOf(f.key);
+      if(i>-1) state.scholarshipEligFilters.splice(i,1); else state.scholarshipEligFilters.push(f.key);
+      render();
+    };
+    chipGrid.appendChild(chip);
+  });
+  searchCard.appendChild(chipGrid);
+
+  searchCard.appendChild(el('div','section-label', isEn()?'GPA':'Promedio'));
+  const gpaSel=document.createElement('select');
+  SCHOLARSHIP_GPA_BANDS.forEach(b=>{ const o=document.createElement('option'); o.value=b.key; o.textContent=isEn()?b.en:b.es; if(b.key===state.scholarshipGpaBand) o.selected=true; gpaSel.appendChild(o); });
+  gpaSel.onchange=(e)=>{ state.scholarshipGpaBand=e.target.value; render(); };
+  searchCard.appendChild(gpaSel);
+
+  searchCard.appendChild(el('div','section-label', isEn()?'Award amount':'Cantidad de la beca'));
+  const amtSel=document.createElement('select');
+  SCHOLARSHIP_AMOUNT_BANDS.forEach(b=>{ const o=document.createElement('option'); o.value=b.key; o.textContent=isEn()?b.en:b.es; if(b.key===state.scholarshipAmountBand) o.selected=true; amtSel.appendChild(o); });
+  amtSel.onchange=(e)=>{ state.scholarshipAmountBand=e.target.value; render(); };
+  searchCard.appendChild(amtSel);
+
+  if(hasActiveScholarshipFilters()){
+    const clearBtn=el('button','secondary-btn', isEn()?'Clear All Filters':'Borrar Todos los Filtros');
+    clearBtn.onclick=()=>{ clearScholarshipFilters(); render(); };
+    searchCard.appendChild(clearBtn);
+  }
+  wrap.appendChild(searchCard);
+
+  const resultsContainer=el('div'); resultsContainer.id='scholarship-results';
+  wrap.appendChild(resultsContainer);
+  renderScholarshipResultsInto(resultsContainer);
+
+  return wrap;
+}
+function renderScholarshipResultsInto(container){
+  container.innerHTML='';
+  const results = getFilteredScholarships();
+  const summary=el('p','es');
+  summary.style.margin='0 18px 10px';
+  summary.textContent = hasActiveScholarshipFilters()
+    ? (isEn()?`${results.length} results appear to match some of the filters you selected.`:`${results.length} resultados parecen coincidir con algunos de los filtros que elegiste.`)
+    : (isEn()?`${results.length} total, all worth a look.`:`${results.length} en total, todas valen la pena explorar.`);
+  container.appendChild(summary);
+  if(results.length===0){
+    const empty=el('div','locked-card');
+    empty.innerHTML=`<div class="lock-ic">🔍</div><p>${isEn()?'Nothing matches those filters. Try clearing one or two.':'Nada coincide con esos filtros. Intenta quitar uno o dos.'}</p>`;
+    container.appendChild(empty);
+  } else {
+    results.forEach(r=>container.appendChild(scholarshipCard(r)));
+  }
+}
+function renderScholarshipResultsOnly(){
+  const container = document.getElementById('scholarship-results');
+  if(container) renderScholarshipResultsInto(container);
+}
+
+// ---- Detail screen ----
+function scholarshipsDetailScreen(){
+  const wrap=el('div');
+  const r = SCHOLARSHIP_DATA.find(x=>x.id===state.scholarshipDetailId);
+  if(!r){ state.screen='apply-scholarships'; return scholarshipsHubScreen(); }
+  wrap.appendChild(screenHeader(isEn()?'Details':'Detalles', 'apply-scholarships-list'));
+
+  const card=el('div','card');
+  const catLabel = SCHOLARSHIP_CATEGORY_LABELS[r.category];
+  card.appendChild(el('div','pill', isEn()?catLabel.en:catLabel.es));
+  card.appendChild(el('h2','', scholarshipDisplayName(r)));
+  if(r.programName) card.appendChild(el('p','', r.programName));
+
+  const isSaved = state.savedScholarships.includes(r.id);
+  const saveBtn=el('button', isSaved?'secondary-btn':'primary-btn', isSaved?(isEn()?'Remove from Saved':'Quitar de Guardadas'):(isEn()?'Save for Later':'Guardar para Después'));
+  saveBtn.onclick=()=>{
+    const i=state.savedScholarships.indexOf(r.id);
+    if(i>-1) state.savedScholarships.splice(i,1); else state.savedScholarships.push(r.id);
+    render();
+  };
+  card.appendChild(saveBtn);
+  wrap.appendChild(card);
+
+  const details=el('div','card');
+  function row(labelEn, labelEs, value){
+    if(!value) return;
+    const d=document.createElement('div'); d.style.marginBottom='14px';
+    d.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">${isEn()?labelEn:labelEs}</div><div style="font-size:14px;color:var(--ink);">${value}</div>`;
+    details.appendChild(d);
+  }
+  row('Award Amount','Cantidad de la Beca', bilingualField(r.awardAmountText, r.awardAmountTextEs));
+  row('Deadline','Fecha Límite', bilingualField(r.deadlineText, r.deadlineTextEs));
+  row('GPA','Promedio', bilingualField(r.gpaText, r.gpaTextEs));
+  if(r.eligibilityPlain && r.eligibilityPlain.length>0){
+    row('Eligibility Notes','Notas de Elegibilidad', r.eligibilityPlain.map(p=>isEn()?p.en:p.es).join(' · '));
+  }
+  if(r.verificationStatus && VERIFICATION_COPY[r.verificationStatus]){
+    const vc = VERIFICATION_COPY[r.verificationStatus];
+    row('Status','Estado', isEn()?vc.en:vc.es);
+  }
+  if(r.familyNote) row('Worth Knowing','Vale la Pena Saber', isEn() ? r.familyNote : (r.familyNoteEs || r.familyNote));
+  if(r.distanceText) row('Location','Ubicación', r.distanceText);
+  if(r.priorityTag==='high') row('Note','Nota', isEn()?'Especially relevant for Pasadena/Galena Park families.':'Especialmente relevante para familias de Pasadena/Galena Park.');
+  if(r.contactPhone) row('Phone','Teléfono', r.contactPhone);
+  if(r.contactEmail) row('Contact','Contacto', r.contactEmail);
+  wrap.appendChild(details);
+
+  if(r.urls && r.urls.length>0){
+    const urlCard=el('div','card');
+    r.urls.forEach((u, i)=>{
+      const label = u.label ? `${isEn()?'Visit':'Visitar'} ${u.label}` : (isEn()?'Visit Official Page':'Visitar Página Oficial');
+      const urlBtn=el('button', i===0?'primary-btn':'secondary-btn', label);
+      urlBtn.onclick=()=>{ window.open(u.url, '_blank', 'noopener,noreferrer'); };
+      urlCard.appendChild(urlBtn);
+    });
+    wrap.appendChild(urlCard);
+  }
+
+  const disclaimer=el('div','card');
+  disclaimer.appendChild(el('p','', isEn()?"This is general information from AP's own research, not a determination of eligibility. Policies, deadlines, and requirements can change. A Navigator can help you confirm current details at Clínica.":'Esta es información general de la propia investigación de AP, no una determinación de elegibilidad. Las políticas, fechas límite y requisitos pueden cambiar. Un Navegador puede ayudarte a confirmar los detalles actuales en la Clínica.'));
+  const clinicaBtn=el('button','secondary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+  clinicaBtn.onclick=()=>{ state.screen='clinica'; render(); };
+  disclaimer.appendChild(clinicaBtn);
+  wrap.appendChild(disclaimer);
+
+  return wrap;
+}
+
+// ---- Saved screen ----
+function scholarshipsSavedScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Saved Scholarships':'Becas Guardadas', 'apply-scholarships'));
+  const saved = SCHOLARSHIP_DATA.filter(r=>state.savedScholarships.includes(r.id));
+  if(saved.length===0){
+    const empty=el('div','locked-card');
+    empty.innerHTML=`<div class="lock-ic">🤍</div><p>${isEn()?"Nothing saved yet. Tap Save for Later on anything you want to come back to.":'Aún no has guardado nada. Toca Guardar para Después en lo que quieras volver a ver.'}</p>`;
+    wrap.appendChild(empty);
+  } else {
+    saved.forEach(r=>wrap.appendChild(scholarshipCard(r)));
+  }
+  return wrap;
+}
+
+/* ============ STAY ============ */
+function stayScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Stay':'Quédate'));
+  const card=el('div','card');
+  card.appendChild(el('div','pill', isEn()?'STAY · ONGOING SUPPORT':'QUÉDATE · APOYO CONTINUO'));
+  card.appendChild(el('h2','', isEn()?'Already enrolled? We stay with you.':'¿Ya estás inscrito? Seguimos contigo.'));
+  card.appendChild(el('p','', isEn()?'Financial aid renewal reminders, check-ins, and emergency resource connections continue for 12 months after your family works with AP.':'Recordatorios de renovación de ayuda financiera, seguimiento y conexiones a recursos de emergencia continúan por 12 meses.'));
+  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  card.appendChild(btn);
+  const btnPriv=el('button','secondary-btn', isEn()?'Or Request a Private Meeting':'O Solicitar una Reunión Privada');
+  btnPriv.onclick=()=>{ window.open(PRIVATE_MEETING_FORM_URL, '_blank', 'noopener,noreferrer'); };
+  card.appendChild(btnPriv);
+  wrap.appendChild(card);
+  return wrap;
+}
+
+/* ============ SHIFT ============ */
+function shiftScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Shift':'Cambia'));
+  const card=el('div','card');
+  card.appendChild(el('div','pill', isEn()?'SHIFT · CHANGING DIRECTION':'CAMBIA · CAMBIAR DE DIRECCIÓN'));
+  card.appendChild(el('h2','', isEn()?"It's not too late to change direction":'No es demasiado tarde para cambiar de rumbo'));
+  card.appendChild(el('p','', isEn()?'Changing majors, transferring schools, returning as an adult learner, or pivoting careers, this is the stage for that conversation.':'Cambiar de carrera, transferirte de escuela, regresar como adulto o cambiar de profesión, esta es la etapa para esa conversación.'));
+  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  card.appendChild(btn);
+  const btnPriv=el('button','secondary-btn', isEn()?'Or Request a Private Meeting':'O Solicitar una Reunión Privada');
+  btnPriv.onclick=()=>{ window.open(PRIVATE_MEETING_FORM_URL, '_blank', 'noopener,noreferrer'); };
+  card.appendChild(btnPriv);
+  wrap.appendChild(card);
+  return wrap;
+}
+
+/* ============ CLÍNICA ============ */
+const HEADS_UP_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdaSHjdHPWYUb_N-SHizm_vPGUaWcSLIwPpjfzkErfekLHBVw/viewform';
+const PRIVATE_MEETING_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfy788vzYrUM8Bo1kWzM1UsmvSmrKJaJxlUyJsvsuf1URRBGg/viewform';
+
+function clinicaScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Clínica':'Clínica'));
+
+  const card=el('div','card');
+  card.appendChild(el('div','pill', isEn()?'DROP-IN · NO COST':'SIN CITA · SIN COSTO'));
+  card.appendChild(el('h2','', isEn()?'No appointment needed, just come by':'No necesitas cita, solo ven'));
+  card.appendChild(el('p','', isEn()?"Thursdays, 5:00–8:00 PM at East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). It's completely free, and there's no sign-up or reserved time, a Navigator will be there to help whoever comes during those hours.":'Los jueves, de 5:00 a 8:00 PM en East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). Es completamente gratis, y no hay inscripción ni horario reservado, un Navegador estará ahí para ayudar a quien llegue durante ese horario.'));
+  wrap.appendChild(card);
+
+  const card2=el('div','card');
+  card2.appendChild(el('div','section-label', isEn()?'What families bring':'Lo que las familias traen'));
+  const bringList = isEn()
+    ? ['Filling out FAFSA or TASFA','Finding scholarships','Comparing college, trade, or apprenticeship options','Questions about immigration status and financial aid, handled privately','Anything else on your mind']
+    : ['Llenar el FAFSA o TASFA','Buscar becas','Comparar universidad, oficio o aprendizaje','Preguntas sobre estatus migratorio y ayuda financiera, en privado','Cualquier otra cosa que tengas en mente'];
+  const list=el('ul','step-list');
+  bringList.forEach(item=>{ const li=el('li'); li.innerHTML=`<span class="step-num">•</span><span>${item}</span>`; list.appendChild(li); });
+  card2.appendChild(list);
+  wrap.appendChild(card2);
+
+  const card3=el('div','card');
+  card3.appendChild(el('h2','', isEn()?'Planning to stop by?':'¿Piensas pasar?'));
+  card3.appendChild(el('p','', isEn()?'No appointment is needed. Clínica is drop-in. This optional form gives us a heads-up about what you may want help with so we can be better prepared. It does not reserve a time or guarantee immediate service.':'No necesitas cita. La Clínica funciona sin cita previa. Este formulario opcional solo nos ayuda a saber con anticipación en qué podrías necesitar apoyo para estar mejor preparados. No reserva un horario ni garantiza atención inmediata.'));
+  const btn=el('button','primary-btn', isEn()?'Send an optional heads-up':'Enviar aviso opcional');
+  btn.onclick=()=>{ window.open(HEADS_UP_FORM_URL, '_blank', 'noopener,noreferrer'); };
+  card3.appendChild(btn);
+  card3.appendChild(el('p','es', isEn()?'You can still come even if you do not fill out the form.':'Puedes venir aunque no llenes el formulario.'));
+  wrap.appendChild(card3);
+
+  const card4=el('div','card');
+  card4.appendChild(el('h2','', isEn()?'Prefer a private conversation instead?':'¿Prefieres una conversación privada?'));
+  card4.appendChild(el('p','', isEn()?"Clínica is a group, drop-in setting. If that doesn't feel right for your situation, you can request a one-on-one meeting with a Navigator instead. This is a request, not an instant booking, someone will follow up with you.":'La Clínica es un espacio grupal, sin cita previa. Si eso no se siente adecuado para tu situación, puedes pedir una reunión individual con un Navegador. Esto es una solicitud, no una cita inmediata, alguien te dará seguimiento.'));
+  const privBtn=el('button','secondary-btn', isEn()?'Request a Private Meeting':'Solicitar una Reunión Privada');
+  privBtn.onclick=()=>{ window.open(PRIVATE_MEETING_FORM_URL, '_blank', 'noopener,noreferrer'); };
+  card4.appendChild(privBtn);
+  wrap.appendChild(card4);
+
+  return wrap;
+}
+
+/* ============ FAMILY PROFILE ============ */
+function familyScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Family':'Familia'));
+  const card=el('div','card');
+  card.appendChild(el('div','pill', isEn()?'ONE FAMILY, ONE PROFILE':'UNA FAMILIA, UN PERFIL'));
+  card.appendChild(el('h2','', isEn()?'This is where everything lives':'Aquí vive todo'));
+  card.appendChild(el('p','', isEn()?'Explore results, Clínica appointments, and workshop history all connect to one family profile, not separate logins for separate tools.':'Los resultados de Explorar, citas de Clínica e historial de talleres se conectan a un solo perfil familiar, no a inicios de sesión separados.'));
+  wrap.appendChild(card);
+
+  const card2=el('div','card');
+  card2.appendChild(el('div','section-label', isEn()?'Explore progress':'Progreso de Explorar'));
+  const n=Object.values(state.completed).filter(Boolean).length;
+  const dots=el('div','progress-dots'); for(let i=0;i<4;i++) dots.appendChild(el('span', i<n?'done':''));
+  card2.appendChild(dots);
+  card2.appendChild(el('p','', exploreProgressText(n)));
+  if(n>0){ const btn=el('button','secondary-btn', isEn()?'View Path Profile':'Ver Perfil de Camino'); btn.onclick=()=>{state.screen='pathprofile';render();}; card2.appendChild(btn); }
+  wrap.appendChild(card2);
+
+  const card3=el('div','card');
+  card3.appendChild(el('div','section-label', isEn()?'Clínica':'Clínica'));
+  card3.appendChild(el('p','', isEn()?'Drop-in, Thursdays 5:00–8:00 PM. No appointment needed.':'Sin cita, los jueves de 5:00 a 8:00 PM. No necesitas reservar.'));
+  const btn2=el('button','secondary-btn', isEn()?'Go to Clínica':'Ir a la Clínica');
+  btn2.onclick=()=>{ state.screen='clinica'; render(); };
+  card3.appendChild(btn2);
+  wrap.appendChild(card3);
+
+  return wrap;
+}
+
+render();
+</script>
+</body>
+</html>

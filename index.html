@@ -150,7 +150,9 @@ const T = {
     hello: "Hi, we're glad you're here.",
     sub: "You don't need to know anything about college to start. Just tell us what's going on.",
     todaySection: "What brings you here today?",
-    resourcesSection: "Or start with a stage",
+    resourcesSection: "Where would you like to begin?",
+    frameworkSubtitle: "Wherever you are right now, there's a place to start.",
+    chooseTopic: "Tell us what's going on",
     navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navMe:"Family",
     back:"Back",
     stages: [
@@ -173,7 +175,9 @@ const T = {
     hello: "Hola, qué bueno que estás aquí.",
     sub: "No necesitas saber nada sobre la universidad para empezar. Solo cuéntanos qué está pasando.",
     todaySection: "¿Qué te trae por aquí hoy?",
-    resourcesSection: "O empieza por una etapa",
+    resourcesSection: "¿Por dónde te gustaría empezar?",
+    frameworkSubtitle: "Estés donde estés ahora mismo, hay un lugar por dónde empezar.",
+    chooseTopic: "Cuéntanos qué está pasando",
     navHome:"Inicio", navExplore:"Explorar", navClinica:"Clínica", navMe:"Familia",
     back:"Atrás",
     stages: null, // filled below to mirror EN structurally
@@ -372,6 +376,8 @@ let state = {
   // Phase 4: Scholarship & Funding Navigator
   scholarshipCategory:null, scholarshipSearch:'', scholarshipEligFilters:[], scholarshipGpaBand:'any', scholarshipAmountBand:'any',
   scholarshipDetailId:null, savedScholarships:[],
+  // Home screen situation-selector accordion
+  homeTriageExpanded:false, homeLastTopicKey:null,
 };
 
 // Clears only Explore-related state (values/strengths/personality/interests/vision/Path Profile inputs).
@@ -582,7 +588,10 @@ function t(){ return T[state.lang]; }
 function isEn(){ return state.lang==='en'; }
 
 /* ============ RENDER SHELL ============ */
+let previousScreen = null;
 function render(){
+  if(state.screen==='home' && previousScreen!=='home'){ state.homeTriageExpanded=false; }
+  previousScreen = state.screen;
   const app=document.getElementById('app'); app.innerHTML='';
   app.appendChild(topbar());
   const map={
@@ -665,22 +674,12 @@ function bottomnav(){
 /* ============ HOME ============ */
 function homeScreen(){
   const wrap=el('div','content');
-  wrap.appendChild(el('div','section-label',t().todaySection));
-  const grid=el('div','triage-grid');
-  t().triage.forEach(item=>{
-    const card=el('button','triage-card');
-    card.innerHTML=`<div class="emoji">${item.emoji}</div><div><div class="txt-en">${item.en}</div><div class="txt-es">${item.es}</div></div><div class="chev">›</div>`;
-    card.onclick=()=>{
-      const hasExploreProgress = Object.values(state.completed).some(Boolean) || state.visionAsked;
-      if(item.key==='explore' && hasExploreProgress){ state.screen='explore'; }
-      else { state.screen='topic'; state.topic=item; }
-      render();
-    };
-    grid.appendChild(card);
-  });
-  wrap.appendChild(grid);
 
-  wrap.appendChild(el('div','section-label',t().resourcesSection));
+  // Framework comes first now — it's the primary product, given more visual weight than the accordion below.
+  const frameworkHeading=el('div');
+  frameworkHeading.style.margin='4px 2px 14px';
+  frameworkHeading.innerHTML=`<div style="font-family:var(--font-head); font-size:20px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:4px;">${t().resourcesSection}</div><div style="font-size:13px; color:var(--ink-soft); line-height:1.4;">${t().frameworkSubtitle}</div>`;
+  wrap.appendChild(frameworkHeading);
   t().stages.forEach(s=>{
     const b=el('div','stage-banner');
     b.style.background = `linear-gradient(135deg, ${s.c1}, ${s.c1}CC)`;
@@ -688,6 +687,40 @@ function homeScreen(){
     b.onclick=()=>{ state.screen = s.key==='explore'?'explore':s.key; render(); };
     wrap.appendChild(b);
   });
+
+  // Situational entry point: one collapsible control instead of a stacked list of cards.
+  wrap.appendChild(el('div','section-label',t().todaySection));
+
+  const selectTopic=(item)=>{
+    state.homeLastTopicKey = item.key;
+    state.homeTriageExpanded = false;
+    const hasExploreProgress = Object.values(state.completed).some(Boolean) || state.visionAsked;
+    if(item.key==='explore' && hasExploreProgress){ state.screen='explore'; }
+    else { state.screen='topic'; state.topic=item; }
+    render();
+  };
+
+  const lastItem = state.homeLastTopicKey ? t().triage.find(i=>i.key===state.homeLastTopicKey) : null;
+  const headerLabel = lastItem ? `${lastItem.emoji} ${lastItem.en}` : t().chooseTopic;
+
+  const header=el('button','triage-card');
+  header.style.width='100%';
+  header.innerHTML=`<div style="flex:1;font-weight:600;font-size:14px;color:var(--ink);">${headerLabel}</div><div class="chev">${state.homeTriageExpanded?'▴':'▾'}</div>`;
+  header.onclick=()=>{ state.homeTriageExpanded = !state.homeTriageExpanded; render(); };
+  wrap.appendChild(header);
+
+  if(state.homeTriageExpanded){
+    const list=el('div','triage-grid');
+    list.style.marginTop='8px';
+    t().triage.forEach(item=>{
+      const row=el('button','triage-card');
+      row.innerHTML=`<div class="emoji">${item.emoji}</div><div class="txt-en">${item.en}</div><div class="chev">›</div>`;
+      row.onclick=()=>selectTopic(item);
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
+  }
+
   return wrap;
 }
 

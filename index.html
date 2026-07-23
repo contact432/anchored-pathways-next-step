@@ -482,6 +482,8 @@ let state = {
   scholarshipDetailId:null, savedScholarships:[],
   // Phase 1B prototype: session-only, never persisted, cleared on explicit action or app reload
   localPathwaySchoolId:null, localPathwayMode:'school',
+  applyTopicKey:null,
+  currentGuideKey:null, guideReturnScreen:null,
   // Home screen situation-selector accordion
   homeTriageExpanded:false, homeLastTopicKey:null,
 };
@@ -709,6 +711,7 @@ function render(){
     'apply-scholarships':scholarshipsHubScreen, 'apply-scholarships-list':scholarshipsListScreen,
     'apply-scholarships-detail':scholarshipsDetailScreen, 'apply-scholarships-saved':scholarshipsSavedScreen,
     'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
+    'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
   };
   app.appendChild((map[state.screen]||homeScreen)());
   app.appendChild(bottomnav());
@@ -733,11 +736,11 @@ function topbar(){
     const g=el('div','greeting'); g.appendChild(el('h1','',t().hello)); g.appendChild(el('p','',t().sub)); bar.appendChild(g);
   }
   // stage breadcrumb shown on every stage-related screen
-  const stageScreens = ['explore','decide','apply','stay','shift','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-afford','decide-questions','apply-scholarships','apply-scholarships-list','apply-scholarships-detail','apply-scholarships-saved','apply-local-pathway','apply-local-pathway-result'];
+  const stageScreens = ['explore','decide','apply','stay','shift','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-afford','decide-questions','apply-scholarships','apply-scholarships-list','apply-scholarships-detail','apply-scholarships-saved','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide'];
   if(stageScreens.includes(state.screen)){
     const active = state.screen.startsWith('assess') || state.screen==='pathprofile' ? 'explore'
                  : state.screen.startsWith('decide-') ? 'decide'
-                 : (state.screen.startsWith('apply-scholarships') || state.screen.startsWith('apply-local-pathway')) ? 'apply'
+                 : (state.screen.startsWith('apply-scholarships') || state.screen.startsWith('apply-local-pathway') || state.screen==='apply-topic' || state.screen==='apply-guide') ? 'apply'
                  : state.screen;
     const crumb=el('div','stage-crumb');
     t().stages.forEach((s,i)=>{
@@ -1640,7 +1643,259 @@ function decideQuestionsScreen(){
 }
 
 /* ============ APPLY ============ */
+// Apply is taught in five plain-language topics rather than presented as a menu of
+// resource names. No fabricated URLs — AP's own FAFSA/TASFA and Military guides aren't
+// linked here yet since no real URL was provided; those actions route to a Navigator
+// instead until real links exist.
+// Real content from AP's own bilingual guides. Condensed for a phone screen but faithful
+// to structure, nuance, and cautions — never a re-explanation from general knowledge.
+// Spanish text is AP's own official translation from the source PDF wherever the PDF
+// provided one, not a fresh translation, to stay faithful to "summarize the guide."
+const GUIDES = {
+  fafsaTasfa:{
+    titleEn:'FAFSA & TASFA Made Simple', titleEs:'FAFSA y TASFA Hechos Fáciles',
+    lastReviewedEn:'Last reviewed: July 2026', lastReviewedEs:'Última revisión: julio de 2026',
+    sections:[
+      {headingEn:'What are these forms?', headingEs:'¿Qué son estos formularios?',
+       bodyEn:'The FAFSA (Free Application for Federal Student Aid) and the TASFA (Texas Application for State Financial Aid) are the forms that help students access financial aid for college and career training programs.',
+       bodyEs:'La FAFSA (Solicitud Gratuita de Ayuda Federal para Estudiantes) y la TASFA (Solicitud de Texas para Ayuda Financiera Estatal) son los formularios que ayudan a los estudiantes a acceder a la ayuda financiera para la universidad y programas de capacitación.'},
+      {headingEn:'Which form is right for you?', headingEs:'¿Qué formulario le corresponde?',
+       listEn:["U.S. citizen, permanent resident, or eligible noncitizen → Complete the FAFSA at fafsa.gov","Not eligible for the FAFSA? You may qualify for TASFA at collegeforalltexans.com, depending on current Texas rules and school requirements","Some schools may request both FAFSA- and TASFA-related documentation depending on your status","Not sure which applies to you? Contact Anchored Pathways, we will help you figure it out without judgment"],
+       listEs:["Ciudadano de EE. UU., residente permanente, o no ciudadano elegible → Complete la FAFSA en fafsa.gov","¿No es elegible para la FAFSA? Podría calificar para TASFA en collegeforalltexans.com, según las reglas vigentes de Texas","Algunas escuelas podrían solicitar documentación de FAFSA y de TASFA según su situación","¿No está seguro de qué formulario le corresponde? Comuníquese con Anchored Pathways, le ayudaremos a determinarlo sin juzgarle"]},
+      {headingEn:'When to apply', headingEs:'Cuándo solicitar',
+       bodyEn:"The 2026–2027 FAFSA is available now and covers July 1, 2026 through June 30, 2027. Apply as early as possible, since federal aid and some school aid can be limited. Deadlines vary by institution, check each school's financial aid office for its priority deadline.",
+       bodyEs:'La FAFSA 2026–2027 ya está disponible y cubre del 1 de julio de 2026 al 30 de junio de 2027. Solicítela lo antes posible, ya que algunos fondos son limitados. Las fechas límite varían según la institución; verifique la fecha prioritaria con la oficina de ayuda financiera de cada escuela.'},
+      {headingEn:'Creating an FSA ID', headingEs:'Crear un ID de FSA',
+       bodyEn:'Before starting the FAFSA, the student and any required contributors must create an FSA ID at studentaid.gov/fsa-id, your electronic signature for the form. Some contributors without a Social Security number may still be able to create one, check the latest instructions at studentaid.gov.',
+       bodyEs:'Antes de comenzar la FAFSA, el estudiante y los contribuyentes requeridos deben crear un ID de FSA en studentaid.gov/fsa-id, su firma electrónica para el formulario. Algunos contribuyentes sin número de Seguro Social aún podrían crear uno; verifique las instrucciones más recientes en studentaid.gov.'},
+      {headingEn:'Common mistakes to avoid', headingEs:'Errores comunes que evitar',
+       listEn:['Waiting too long, early submission increases your chance of full aid','Mixing up student and parent information, double-check names and SSNs','Forgetting to sign and submit, all required contributors must sign electronically','Using the wrong tax year, for 2026–2027, use 2024 income and tax information'],
+       listEs:['Esperar demasiado; la presentación temprana aumenta sus posibilidades de recibir toda la ayuda','Confundir la información del estudiante y del padre/madre; verifique nombres y números de Seguro Social','Olvidar firmar y enviar; todos los contribuyentes requeridos deben firmar electrónicamente','Usar el año fiscal incorrecto; para 2026–2027, use la información de ingresos de 2024']},
+      {caution:true, headingEn:'Texas Licensing Alert', headingEs:'Alerta de Licencias en Texas',
+       bodyEn:'As of January 26, 2026, TDLR requires some applicants to submit documentation establishing lawful presence for certain professional licenses. This applies mainly when a student is entering a licensed field, check those requirements before enrolling in training.',
+       bodyEs:'A partir del 26 de enero de 2026, TDLR exige que algunos solicitantes presenten documentación que establezca presencia legal para ciertas licencias profesionales. Esto aplica principalmente cuando el estudiante ingresa a un campo con licencia; verifique esos requisitos antes de inscribirse.'},
+    ],
+    closingEn:"We guide families through every step, from creating FSA IDs to uploading documents to understanding your financial aid offer. You do not have to figure this out alone.",
+    closingEs:'Le guiamos a través de cada paso, desde crear IDs de FSA hasta entender su oferta de ayuda financiera. No tiene que resolver esto solo.',
+  },
+  military:{
+    titleEn:'Military & Career Pathways', titleEs:'Caminos Militares y Profesionales',
+    lastReviewedEn:'Last reviewed: July 2026', lastReviewedEs:'Última revisión: julio de 2026',
+    sections:[
+      {headingEn:'Verify before deciding', headingEs:'Verifique antes de decidir', caution:true,
+       bodyEn:'Requirements, benefits, and eligibility rules can change by branch and by service date. Confirm details with an official recruiter or VA source before deciding.',
+       bodyEs:'Los requisitos, beneficios y reglas de elegibilidad pueden cambiar según la rama y la fecha de servicio. Confirme los detalles con un reclutador oficial o una fuente del VA antes de decidir.'},
+      {headingEn:'Four routes into service', headingEs:'Cuatro rutas para ingresar al servicio',
+       listEn:[
+         'ROTC (officer, college first) — Attend college full-time while training to become an officer. Scholarships may cover up to 100% of tuition, plus a monthly stipend. Apply junior or senior year of high school.',
+         'Enlisted service (full-time) — Join directly after high school. 8–12 weeks of basic training, then a specific job area. Typical commitment: 4 years. Tuition Assistance up to $4,500/year while serving.',
+         'National Guard & Reserves (part-time, close to home) — About one weekend a month, two weeks a year. Texas Hazlewood Act may offer up to 150 credit hours of tuition exemption, eligibility is not automatic.',
+         "OCS (officer, after a degree) — For college graduates who didn't do ROTC. Requires a bachelor's degree in any major. Program length typically 10–17 weeks.",
+       ],
+       listEs:[
+         'ROTC (oficial, universidad primero) — Asista a la universidad a tiempo completo mientras se entrena para ser oficial. Las becas pueden cubrir hasta el 100% de la colegiatura, más un estipendio mensual. Aplique en el penúltimo o último año de preparatoria.',
+         'Servicio alistado (tiempo completo) — Únase directamente después de la preparatoria. 8–12 semanas de entrenamiento básico, luego un área de trabajo específica. Compromiso típico: 4 años. Asistencia de colegiatura hasta $4,500/año mientras sirve.',
+         'Guardia Nacional y Reservas (tiempo parcial, cerca de casa) — Aproximadamente un fin de semana al mes, dos semanas al año. La Ley Hazlewood de Texas puede ofrecer hasta 150 horas de crédito en exención de colegiatura; la elegibilidad no es automática.',
+         'OCS (oficial, después de un título) — Para graduados universitarios que no hicieron ROTC. Requiere un título universitario en cualquier especialidad. Duración típica: 10–17 semanas.',
+       ]},
+      {headingEn:'GI Bill & benefits after service', headingEs:'GI Bill y beneficios después del servicio',
+       listEn:['Post-9/11 GI Bill: may cover up to 100% of tuition at public in-state schools, plus housing allowance, up to 36 months of benefits, sometimes transferable to a spouse or child','Montgomery GI Bill: monthly education stipend, requires a $1,200 contribution during service to activate','Vocational Rehabilitation: for veterans with a service-connected disability, covers education, training, and employment services'],
+       listEs:['GI Bill Post-9/11: puede cubrir hasta el 100% de la colegiatura en escuelas públicas estatales, más un subsidio de vivienda, hasta 36 meses de beneficios, a veces transferible a un cónyuge o hijo','GI Bill Montgomery: estipendio educativo mensual, requiere una contribución de $1,200 durante el servicio para activarlo','Rehabilitación Vocacional: para veteranos con discapacidad relacionada con el servicio, cubre educación, capacitación y servicios de empleo']},
+      {headingEn:'Questions to ask before deciding', headingEs:'Preguntas antes de decidir',
+       listEn:['What job or career am I interested in? Does the military offer training in that area?','Am I ready for a multi-year commitment right after high school, or do I want college first?','What branch fits my personality and goals?','How does deployment affect my family and plans?','Have I spoken with an official recruiter and a veteran or service member I trust?'],
+       listEs:['¿Qué trabajo o carrera me interesa? ¿Ofrece el ejército capacitación en esa área?','¿Estoy listo para un compromiso de varios años justo después de la preparatoria, o prefiero la universidad primero?','¿Qué rama se ajusta a mi personalidad y metas?','¿Cómo afecta el despliegue a mi familia y mis planes?','¿He hablado con un reclutador oficial y con un veterano o militar de confianza?']},
+    ],
+    closingEn:'We can help you and your family think through whether military service fits your goals, compare pathways side by side, and ask the right questions before committing to anything. One-on-one navigation sessions are free, private, and available in English and Spanish.',
+    closingEs:'Le ayudamos a usted y a su familia a pensar si el servicio militar se ajusta a sus metas, comparar rutas y hacer las preguntas correctas antes de comprometerse. Las sesiones individuales son gratuitas, privadas y disponibles en inglés y español.',
+  },
+  findYourPath:{
+    titleEn:'Find Your Path: Education & Career Map', titleEs:'Encuentra Tu Camino: Mapa de Educación y Carrera',
+    lastReviewedEn:'Last reviewed: July 2026', lastReviewedEs:'Última revisión: julio de 2026',
+    sections:[
+      {headingEn:'Choose your path', headingEs:'Elija su camino',
+       listEn:[
+         'Workforce Training — Learn a trade or earn a certification that can lead directly to a job (welding, HVAC, CNA, CDL). About 3–9 months, verify exact length with the program.',
+         'Community College — Earn an associate degree or transfer to a university. Generally affordable and local. About 2 years.',
+         "University — Earn a bachelor's degree or higher. Broad career options and higher earning potential. Often 4 years.",
+         'Adult Education — GED, ESL, and foundational skills programs. Some classes are free for eligible participants. Ongoing, flexible.',
+       ],
+       listEs:[
+         'Capacitación Laboral — Aprenda un oficio o obtenga una certificación que puede llevar directo a un empleo (soldadura, HVAC, CNA, CDL). Aproximadamente 3–9 meses.',
+         'Colegio Comunitario — Obtenga un título asociado o transfiérase a una universidad. Generalmente asequible y local. Aproximadamente 2 años.',
+         'Universidad — Obtenga una licenciatura o más. Amplias opciones de carrera y mayor potencial de ingresos. A menudo 4 años.',
+         'Educación para Adultos — Programas de GED, ESL y habilidades fundamentales. Algunas clases son gratuitas para participantes elegibles.',
+       ]},
+      {headingEn:'Key questions to guide your choice', headingEs:'Preguntas clave',
+       listEn:['What kind of work excites you or feels meaningful?','How much time can you commit to school or training?','Do you need flexible hours, online learning, or evening classes?','If this path leads to a regulated field, are there licensing or immigration-status requirements to check first?'],
+       listEs:['¿Qué tipo de trabajo le entusiasma o le parece significativo?','¿Cuánto tiempo puede dedicar a la escuela o capacitación?','¿Necesita horarios flexibles, clases en línea o nocturnas?','Si este camino lleva a un campo regulado, ¿hay requisitos de licencia o estatus migratorio que verificar primero?']},
+      {headingEn:'Local opportunities', headingEs:'Oportunidades locales',
+       bodyEn:"Verify each organization's current name, contact information, and enrollment process before applying, as these can change.",
+       bodyEs:'Verifique el nombre, la información de contacto y el proceso de inscripción de cada organización antes de solicitar, ya que pueden cambiar.',
+       listEn:['Capital IDEA Houston','WorkTexas Training Center','SER Jobs for Progress','Houston City College (formerly Houston Community College)','Lone Star College Adult Education'],
+       listEs:['Capital IDEA Houston','WorkTexas Training Center','SER Jobs for Progress','Houston City College (antes Houston Community College)','Lone Star College Adult Education']},
+      {caution:true, headingEn:'Texas Licensing Alert', headingEs:'Alerta de Licencias en Texas',
+       bodyEn:'As of January 26, 2026, some TDLR-regulated licenses require documentation establishing lawful presence. This does not apply to every pathway, check licensure requirements before enrolling only if your chosen path leads to a regulated occupation.',
+       bodyEs:'A partir del 26 de enero de 2026, algunas licencias reguladas por TDLR exigen documentación de presencia legal. Esto no aplica a todos los caminos; verifique los requisitos de licencia antes de inscribirse solo si su camino lleva a una ocupación regulada.'},
+    ],
+    closingEn:'Anchored Pathways walks alongside families to explain each education and training option. We help you compare programs, understand financial aid, check licensing requirements, and choose a path that fits your life and goals.',
+    closingEs:'Anchored Pathways camina junto a las familias para explicar cada opción de educación y capacitación. Le ayudamos a comparar programas, entender la ayuda financiera, verificar requisitos de licencia y elegir un camino que se ajuste a su vida y metas.',
+  },
+  workforceTraining:{
+    titleEn:'Workforce Training Programs, Houston & Gulf Coast', titleEs:'Programas de Capacitación Laboral, Houston y la Costa del Golfo',
+    lastReviewedEn:'Last reviewed: July 2026', lastReviewedEs:'Última revisión: julio de 2026',
+    sections:[
+      {caution:true, headingEn:'Texas Licensing Alert', headingEs:'Alerta de Licencias en Texas',
+       bodyEn:'As of January 26, 2026, some TDLR-regulated licenses require documentation establishing lawful presence. This does not apply to every trade, check licensure requirements before enrolling only if your path leads to a regulated occupation.',
+       bodyEs:'A partir del 26 de enero de 2026, algunas licencias reguladas por TDLR exigen documentación de presencia legal. Esto no aplica a todos los oficios; verifique los requisitos antes de inscribirse solo si su camino lleva a una ocupación regulada.'},
+      {headingEn:'Programs', headingEs:'Programas',
+       listEn:[
+         'Capital IDEA Houston — Fully-funded education and career training in healthcare, trades, and technology. Free for eligible adults. capitalideahouston.org · 832-500-4560',
+         'Christian Community Service Center (CCSC) — Job readiness, caregiver training, small business training. Low-cost or free for eligible participants. ccschouston.org · 713-961-3993',
+         'WorkTexas Training Center — Hands-on training in welding, carpentry, electrical, HVAC, plumbing, healthcare support. Free for eligible adults. worktexas.org · 713-337-5800',
+         'SER Jobs for Progress, Houston — Training in construction, CDL, welding, heavy equipment. Free for income-eligible adults. serhouston.org · 713-773-6000',
+         'Houston City College, Workforce & Continuing Education — Short-term training in technology, logistics, welding, healthcare, business. Low-cost, financial aid available. hccs.edu/continuing-education · 713-718-2000',
+         'Lone Star College, Adult Education & Literacy — ESL, GED, and foundational skills. Free for eligible participants. lonestar.edu/adult-education · 832-813-6500',
+       ],
+       listEs:[
+         'Capital IDEA Houston — Educación y capacitación totalmente financiada en salud, oficios y tecnología. Gratis para adultos elegibles. capitalideahouston.org · 832-500-4560',
+         'Christian Community Service Center (CCSC) — Preparación laboral, capacitación para cuidadores, pequeños negocios. Bajo costo o gratis para participantes elegibles. ccschouston.org · 713-961-3993',
+         'WorkTexas Training Center — Capacitación práctica en soldadura, carpintería, electricidad, HVAC, plomería, asistencia médica. Gratis para adultos elegibles. worktexas.org · 713-337-5800',
+         'SER Jobs for Progress, Houston — Capacitación en construcción, CDL, soldadura, maquinaria pesada. Gratis para adultos elegibles por ingresos. serhouston.org · 713-773-6000',
+         'Houston City College, Educación Laboral y Continua — Capacitación corta en tecnología, logística, soldadura, salud, negocios. Bajo costo, ayuda financiera disponible. hccs.edu/continuing-education · 713-718-2000',
+         'Lone Star College, Educación para Adultos — ESL, GED y habilidades fundamentales. Gratis para participantes elegibles. lonestar.edu/adult-education · 832-813-6500',
+       ]},
+    ],
+    closingEn:'If you need help getting started with any of these programs, contact Anchored Pathways. We can help you explore your options, prepare your documents, and connect directly with a program near you.',
+    closingEs:'Si necesita ayuda para comenzar con cualquiera de estos programas, comuníquese con Anchored Pathways. Podemos ayudarle a explorar sus opciones, preparar sus documentos y conectarse directamente con un programa cerca de usted.',
+  },
+  startingAgain:{
+    titleEn:'Starting Again: A Guide for Adult Learners', titleEs:'Comenzar de Nuevo: Guía para Estudiantes Adultos',
+    lastReviewedEn:'Last reviewed: July 2026', lastReviewedEs:'Última revisión: julio de 2026',
+    sections:[
+      {headingEn:'Five steps to start', headingEs:'Cinco pasos para comenzar',
+       listEn:[
+         'Identify your goal — A GED? Job training? A college degree? Knowing your goal helps determine where to start.',
+         "Gather what you already have — Old transcripts, certificates, or training records. If you studied outside the U.S., you may need an equivalency evaluation.",
+         'Explore programs that fit your life — GED/ESL through local colleges, workforce training, or online/hybrid programs for part-time students.',
+         'Look for funding — Adults may qualify for grants or workforce funding. If not eligible for FAFSA, other options may apply depending on status.',
+         'Build your support system — Family, mentors, church, or community. Anchored Pathways can help you find support networks too.',
+       ],
+       listEs:[
+         'Identifique su meta — ¿Su GED? ¿Capacitación laboral? ¿Un título universitario? Saber su meta le ayudará a determinar dónde comenzar.',
+         'Reúna lo que ya tiene — Transcripciones, certificados o registros de capacitación anteriores. Si estudió fuera de EE. UU., puede necesitar una evaluación de equivalencia.',
+         'Explore programas que se ajusten a su vida — GED/ESL en colegios locales, capacitación laboral, o programas en línea o híbridos.',
+         'Busque financiamiento — Los adultos podrían calificar para becas o financiamiento laboral. Si no es elegible para FAFSA, otras opciones podrían aplicar según su estatus.',
+         'Construya su sistema de apoyo — Familia, mentores, iglesia o comunidad. Anchored Pathways también puede ayudarle a encontrar redes de apoyo.',
+       ]},
+      {caution:true, headingEn:'Texas Licensing Alert', headingEs:'Alerta de Licencias en Texas',
+       bodyEn:'Some licensed careers in Texas may require lawful presence documentation for TDLR-regulated licenses (as of January 26, 2026). This does not apply to every training program, verify requirements first, especially before paying for training that leads to a regulated occupation.',
+       bodyEs:'Algunas carreras con licencia en Texas podrían requerir documentación de presencia legal para licencias reguladas por TDLR (a partir del 26 de enero de 2026). Esto no aplica a todos los programas; verifique los requisitos primero, especialmente antes de pagar por una capacitación que lleva a una ocupación regulada.'},
+    ],
+    closingEn:'We support adults who are reentering education and exploring their next step. From identifying goals to connecting with local classes, funding options, and licensing guidance, Anchored Pathways helps adults move forward with clarity and confidence.',
+    closingEs:'Apoyamos a los adultos que regresan a la educación y exploran su próximo paso. Desde identificar metas hasta conectar con clases locales, opciones de financiamiento y orientación sobre licencias, Anchored Pathways ayuda a los adultos a avanzar con claridad y confianza.',
+  },
+};
+
+const APPLY_TOPICS = {
+  pay: {
+    titleEn:'How Do We Pay for School?', titleEs:'¿Cómo Pagamos la Escuela?',
+    teaserEn:"Grants, loans, FAFSA, TASFA, what applies to your family.", teaserEs:'Becas, préstamos, FAFSA, TASFA, qué aplica para tu familia.',
+    bodyEn:"FAFSA and TASFA are the two forms that unlock financial aid, grants, scholarships, and loans, for college or job training. If you're a U.S. citizen, permanent resident, or eligible noncitizen, you'll complete the FAFSA. If you're not eligible for the FAFSA, you may qualify for TASFA instead, depending on current Texas rules. Not sure which one applies to your family? Anchored Pathways will help you figure it out, without judgment.",
+    bodyEs:'FAFSA y TASFA son los dos formularios que abren la puerta a la ayuda financiera, becas, subvenciones y préstamos, para la universidad o capacitación laboral. Si es ciudadano de EE. UU., residente permanente, o no ciudadano elegible, completará la FAFSA. Si no es elegible para la FAFSA, podría calificar para TASFA, según las reglas vigentes de Texas. ¿No está seguro de cuál le corresponde a su familia? Anchored Pathways le ayudará a averiguarlo, sin juzgarle.',
+    actions:[{type:'clinica', labelEn:'Talk It Through at Clínica', labelEs:'Hablarlo en la Clínica'}],
+    guideKeys:['fafsaTasfa'],
+    faqs:[
+      {qEn:"What's the actual difference between FAFSA and TASFA?", qEs:'¿Cuál es la diferencia real entre FAFSA y TASFA?',
+       aEn:"FAFSA is the federal form. TASFA is Texas's own form for students who don't qualify for FAFSA. Which one fits depends on citizenship or immigration status.", aEs:'FAFSA es el formulario federal. TASFA es el formulario propio de Texas para estudiantes que no califican para FAFSA. Cuál le corresponde depende del estatus migratorio.'},
+      {qEn:'When should we apply?', qEs:'¿Cuándo deberíamos aplicar?',
+       aEn:'As early as possible, aid can be limited, and deadlines vary by school.', aEs:'Lo antes posible, la ayuda puede ser limitada, y las fechas límite varían según la escuela.'},
+      {qEn:"What's an FSA ID?", qEs:'¿Qué es un ID de FSA?',
+       aEn:'Your electronic signature for the FAFSA. The student and other required family members create one at studentaid.gov before starting.', aEs:'Su firma electrónica para la FAFSA. El estudiante y otros familiares requeridos crean uno en studentaid.gov antes de comenzar.'},
+      {qEn:"What if we're not sure about our status?", qEs:'¿Y si no estamos seguros de nuestro estatus?',
+       aEn:'Completely normal. A Navigator can help, privately.', aEs:'Es completamente normal. Un Navegador puede ayudarte, en privado.'},
+    ],
+  },
+  applying:{
+    titleEn:'Applying to Schools or Programs', titleEs:'Aplicar a Escuelas o Programas',
+    teaserEn:'What schools ask for, and why deadlines matter.', teaserEs:'Qué piden las escuelas, y por qué importan las fechas límite.',
+    bodyEn:"Every school asks for a few things when you apply, usually your grades (called a transcript), sometimes test scores or a short essay. Deadlines matter more than they seem, some scholarship money goes to whoever applies first, so missing one can mean waiting a full year. Worried about the application fee? You can often get it waived, just ask.",
+    bodyEs:'Cada escuela pide algunas cosas cuando aplicas, normalmente tus calificaciones (llamado historial académico o transcript), a veces resultados de exámenes o un ensayo corto. Las fechas límite importan más de lo que parece, parte del dinero de becas va a quien aplique primero, así que perder una puede significar esperar un año completo. ¿Te preocupa la cuota de solicitud? Casi siempre se puede pedir que te la quiten, solo pregunta.',
+    actions:[{type:'screen', screen:'apply-local-pathway', labelEn:"See What's Available Near Us", labelEs:'Ver Qué Hay Disponible Cerca de Ti'},
+             {type:'clinica', labelEn:'Talk It Through at Clínica', labelEs:'Hablarlo en la Clínica'}],
+    guideKeys:[], // no College Applications guide yet — attaches here without redesign once one exists
+    faqs:[
+      {qEn:'What documents do we need?', qEs:'¿Qué documentos necesitamos?',
+       aEn:'Usually a transcript, sometimes test scores or an essay, it varies by school.', aEs:'Normalmente tu historial académico, a veces resultados de exámenes o un ensayo, varía según la escuela.'},
+      {qEn:'Does it cost money to apply?', qEs:'¿Cuesta dinero aplicar?',
+       aEn:"Often yes, but fee waivers are common, ask before assuming you can't afford it.", aEs:'A menudo sí, pero las exenciones son comunes, pregunta antes de asumir que no puedes pagarlo.'},
+      {qEn:'What happens if we miss a deadline?', qEs:'¿Qué pasa si perdemos una fecha límite?',
+       aEn:'Often means waiting until the next cycle, so earlier is better.', aEs:'A menudo significa esperar hasta el próximo ciclo, así que antes es mejor.'},
+      {qEn:'Do all schools want the same things?', qEs:'¿Todas las escuelas piden lo mismo?',
+       aEn:"No, each is a little different, which is normal, not a sign you're doing it wrong.", aEs:'No, cada una es un poco diferente, lo cual es normal, no una señal de que lo estás haciendo mal.'},
+    ],
+  },
+  military:{
+    titleEn:'Military Education Benefits', titleEs:'Beneficios Educativos Militares',
+    teaserEn:'ROTC, the GI Bill, and other paths that can help pay.', teaserEs:'ROTC, el GI Bill, y otros caminos que pueden ayudar a pagar.',
+    bodyEn:"Military service is a real path after high school, one that can include education benefits, career training, and a paycheck. There are several ways in, ROTC while in college, enlisting directly, part-time through the National Guard, or Officer Candidate School after a degree, and each works differently. Requirements and benefits vary by branch and can change, so it's worth talking to an official recruiter and a Navigator before deciding, not after.",
+    bodyEs:'El servicio militar es un camino real después de la preparatoria, uno que puede incluir beneficios educativos, capacitación profesional y un salario. Hay varias formas de ingresar, ROTC durante la universidad, alistarse directamente, tiempo parcial con la Guardia Nacional, o la Escuela de Candidatos a Oficial después de un título, y cada una funciona diferente. Los requisitos y beneficios varían según la rama y pueden cambiar, así que vale la pena hablar con un reclutador oficial y un Navegador antes de decidir, no después.',
+    actions:[{type:'screen', screen:'decide-compare', labelEn:'Compare Military to Other Paths', labelEs:'Comparar el Ejército con Otros Caminos', preset:'mil'},
+             {type:'clinica', labelEn:'Talk It Through at Clínica', labelEs:'Hablarlo en la Clínica'}],
+    guideKeys:['military'],
+    faqs:[
+      {qEn:"What's the difference between ROTC and just enlisting?", qEs:'¿Cuál es la diferencia entre ROTC y alistarse directamente?',
+       aEn:'ROTC trains you during college toward becoming an officer with a degree; enlisting means full-time service right after high school, no degree required first.', aEs:'ROTC te entrena durante la universidad para convertirte en oficial con un título; alistarte significa servicio de tiempo completo justo después de la preparatoria, sin necesitar un título primero.'},
+      {qEn:'Does the GI Bill pay for school now or later?', qEs:'¿El GI Bill paga la escuela ahora o después?',
+       aEn:"Later, after you've completed your service.", aEs:'Después, una vez que hayas completado tu servicio.'},
+      {qEn:'What if we want to stay close to home?', qEs:'¿Y si queremos quedarnos cerca de casa?',
+       aEn:"The National Guard offers part-time service with education benefits, including Texas's Hazlewood Act for eligible members.", aEs:'La Guardia Nacional ofrece servicio de tiempo parcial con beneficios educativos, incluyendo la Ley Hazlewood de Texas para miembros elegibles.'},
+      {qEn:'Do we have to decide before learning more?', qEs:'¿Tenemos que decidir antes de aprender más?',
+       aEn:'No, exploring is always free, and AP offers free, private one-on-one sessions in English and Spanish.', aEs:'No, explorar siempre es gratis, y AP ofrece sesiones individuales gratuitas y privadas en inglés y español.'},
+    ],
+  },
+  career:{
+    titleEn:'Career & Training Programs', titleEs:'Programas de Carrera y Capacitación',
+    teaserEn:'Certificates and apprenticeships, not just a 4-year degree.', teaserEs:'Certificados y aprendizajes, no solo una carrera de 4 años.',
+    bodyEn:"College isn't the only path to a stable career. Workforce training programs can lead to a certification in months, not years, in fields like welding, HVAC, or healthcare support, often free for eligible adults. Apprenticeships let you get paid while you learn a trade. Some careers require a license afterward, so it's worth checking licensing rules for your specific path before you enroll.",
+    bodyEs:'La universidad no es el único camino a una carrera estable. Los programas de capacitación laboral pueden llevar a una certificación en meses, no años, en campos como soldadura, HVAC o asistencia médica, a menudo gratis para adultos elegibles. Los aprendizajes te permiten ganar mientras aprendes un oficio. Algunas carreras requieren una licencia después, así que vale la pena verificar las reglas de licencia de tu camino específico antes de inscribirte.',
+    actions:[{type:'screen', screen:'decide-compare', labelEn:'Compare Trade School to College', labelEs:'Comparar Escuela Técnica con Universidad', preset:'trade'},
+             {type:'screen', screen:'apply-local-pathway', labelEn:"See What's Available Near Us", labelEs:'Ver Qué Hay Disponible Cerca de Ti'}],
+    guideKeys:['findYourPath','workforceTraining'],
+    faqs:[
+      {qEn:'How long do workforce training programs take?', qEs:'¿Cuánto duran los programas de capacitación laboral?',
+       aEn:'Often 3–9 months, depending on the program, verify exact length directly with the provider.', aEs:'A menudo 3–9 meses, según el programa; verifica la duración exacta directamente con el proveedor.'},
+      {qEn:'Are these programs really free?', qEs:'¿Estos programas son realmente gratis?',
+       aEn:'Many are free or low-cost for eligible adults, but not every program is free for every applicant, it depends on eligibility.', aEs:'Muchos son gratis o de bajo costo para adultos elegibles, pero no todos son gratis para todos, depende de la elegibilidad.'},
+      {qEn:'Do apprenticeships really pay you?', qEs:'¿Los aprendizajes realmente te pagan?',
+       aEn:"Yes, that's the point, you earn while you train.", aEs:'Sí, ese es el punto, ganas mientras te entrenas.'},
+      {qEn:'What if my career needs a license?', qEs:'¿Y si mi carrera necesita una licencia?',
+       aEn:"Some licensed fields in Texas require proof of lawful presence. This doesn't apply to every path, check requirements for your specific one before enrolling.", aEs:'Algunos campos con licencia en Texas requieren prueba de presencia legal. Esto no aplica a todos los caminos; verifica los requisitos de tu camino específico antes de inscribirte.'},
+    ],
+  },
+  scholarships:{
+    titleEn:'Scholarships', titleEs:'Becas',
+    teaserEn:"General searches, and AP's specialized list, used together.", teaserEs:'Búsquedas generales, y la lista especializada de AP, juntas.',
+    bodyEn:"General resources, like your school's own financial aid office or broad national searches, can help with a lot of scholarships. AP's own list is different, it was built specifically for questions general searches don't answer well, like which scholarships work for DACA, TPS, or undocumented students. Using both together works better than either alone.",
+    bodyEs:'Los recursos generales, como la oficina de ayuda financiera de tu escuela o búsquedas nacionales amplias, pueden ayudarte con muchas becas. La lista de AP es diferente, se creó específicamente para preguntas que las búsquedas generales no responden bien, como cuáles becas funcionan para estudiantes con DACA, TPS o indocumentados. Usar ambas juntas funciona mejor que cualquiera por separado.',
+    actions:[{type:'screen', screen:'apply-scholarships', labelEn:"Explore AP's Specialized List", labelEs:'Explorar la Lista Especializada de AP'}],
+    guideKeys:[], // no Scholarships guide yet — attaches here without redesign once one exists
+    faqs:[
+      {qEn:'Where should we even start looking?', qEs:'¿Por dónde deberíamos empezar a buscar?',
+       aEn:"Your school's financial aid office first, then AP's list for status-specific questions.", aEs:'Primero la oficina de ayuda financiera de tu escuela, luego la lista de AP para preguntas específicas de estatus.'},
+      {qEn:'Are there scholarships for undocumented or DACA students?', qEs:'¿Hay becas para estudiantes indocumentados o con DACA?',
+       aEn:"Yes, that's exactly what AP's list is built to surface.", aEs:'Sí, para eso está hecha la lista de AP.'},
+      {qEn:'Do we need a certain GPA?', qEs:'¿Necesitamos cierto promedio?',
+       aEn:"Varies a lot by scholarship, check each one's specific listing.", aEs:'Varía mucho según la beca, revisa el detalle de cada una.'},
+      {qEn:'How many can we apply for?', qEs:'¿A cuántas podemos aplicar?',
+       aEn:"As many as you're eligible for, there's no limit.", aEs:'A tantas como seas elegible, no hay límite.'},
+    ],
+  },
+};
+const APPLY_TOPIC_ORDER = ['pay','applying','military','career','scholarships'];
+
 function applyScreen(){
+
+
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'Apply':'Aplicar'));
 
@@ -1663,37 +1918,129 @@ function applyScreen(){
     }
   }
 
-  const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'APPLY · FAFSA, TASFA & SCHOLARSHIPS':'APLICAR · FAFSA, TASFA Y BECAS'));
-  card.appendChild(el('h2','', isEn()?"Let's get financial aid started":'Empecemos con la ayuda financiera'));
-  const list=el('ul','step-list');
-  const steps = isEn()
-    ? ['Figure out which form applies: FAFSA or TASFA','Gather ID and recent tax information','Bring it to Clínica, a Navigator will help you fill it out']
-    : ['Averigua qué formulario aplica: FAFSA o TASFA','Reúne identificación e información de impuestos','Trae todo a la Clínica, un Navegador te ayudará'];
-  steps.forEach((s,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${s}</span>`; list.appendChild(li); });
-  card.appendChild(list);
-  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
+  const introCard=el('div','card');
+  introCard.appendChild(el('p','', isEn()
+    ? "Applying to college involves a few different things, paying for it, actually applying, and sometimes other paths like the military or a trade program. Let's go through this together, one part at a time."
+    : 'Aplicar a la universidad incluye varias cosas, pagarla, aplicar en sí, y a veces otros caminos como el ejército o un programa técnico. Vamos a verlo juntos, una parte a la vez.'));
+  wrap.appendChild(introCard);
+
+  APPLY_TOPIC_ORDER.forEach(key=>{
+    const topic = APPLY_TOPICS[key];
+    const row=el('button','triage-card');
+    row.style.width='100%';
+    row.innerHTML=`<div style="flex:1;"><div class="txt-en">${isEn()?topic.titleEn:topic.titleEs}</div><div class="txt-es">${isEn()?topic.teaserEn:topic.teaserEs}</div></div><div class="chev">›</div>`;
+    row.onclick=()=>{ state.applyTopicKey=key; state.screen='apply-topic'; render(); };
+    wrap.appendChild(row);
+  });
+
+  const lpRow=el('button','triage-card');
+  lpRow.style.width='100%'; lpRow.style.marginTop='10px';
+  lpRow.innerHTML=`<div class="emoji">🧭</div><div style="flex:1;"><div class="txt-en">${isEn()?"What's Available Near Us?":'¿Qué Hay Disponible Cerca de Nosotros?'}</div><div class="txt-es">${isEn()?'See what connects to your specific school.':'Ve qué se conecta con tu escuela específica.'}</div></div><div class="chev">›</div>`;
+  lpRow.onclick=()=>{ state.screen='apply-local-pathway'; render(); };
+  wrap.appendChild(lpRow);
+
+  return wrap;
+}
+
+function applyTopicScreen(){
+  const wrap=el('div');
+  const topic = APPLY_TOPICS[state.applyTopicKey];
+  if(!topic){ state.screen='apply'; return applyScreen(); }
+  wrap.appendChild(screenHeader(isEn()?topic.titleEn:topic.titleEs, 'apply'));
+
+  // Short explanation (60–90 second read)
+  const introCard=el('div','card');
+  introCard.appendChild(el('p','', isEn()?topic.bodyEn:topic.bodyEs));
+  wrap.appendChild(introCard);
+
+  // Families Often Ask...
+  const faqCard=el('div','card');
+  faqCard.appendChild(el('div','section-label', isEn()?'Families Often Ask...':'Las Familias Suelen Preguntar...'));
+  topic.faqs.forEach((faq,i)=>{
+    const qWrap=document.createElement('div');
+    qWrap.style.marginBottom = i<topic.faqs.length-1 ? '14px' : '0';
+    qWrap.innerHTML = `<div style="font-weight:700;font-size:13.5px;color:var(--ink);margin-bottom:3px;">${isEn()?faq.qEn:faq.qEs}</div><div style="font-size:13px;color:var(--ink-soft);">${isEn()?faq.aEn:faq.aEs}</div>`;
+    faqCard.appendChild(qWrap);
+  });
+  wrap.appendChild(faqCard);
+
+  // Next Steps (one or two actions)
+  const actionCard=el('div','card');
+  actionCard.appendChild(el('div','section-label', isEn()?'Next Steps':'Próximos Pasos'));
+  topic.actions.forEach((action,i)=>{
+    const btn=el('button', i===0?'primary-btn':'secondary-btn', isEn()?action.labelEn:action.labelEs);
+    btn.onclick=()=>{
+      if(action.type==='clinica'){ state.screen='clinica'; render(); }
+      else if(action.type==='screen'){
+        if(action.screen==='decide-compare' && action.preset){
+          state.compareA = action.preset==='mil' ? 'mil' : 'trade';
+          state.compareB = 'cc';
+        }
+        state.screen=action.screen; render();
+      }
+    };
+    actionCard.appendChild(btn);
+  });
+  wrap.appendChild(actionCard);
+
+  // Learn More — only shown when a real AP guide is attached. Empty guideKeys means the
+  // architecture is ready but no guide exists yet, nothing renders, no redesign needed later.
+  const guideKeys = topic.guideKeys || [];
+  if(guideKeys.length>0){
+    const guideCard=el('div','card');
+    guideCard.appendChild(el('div','section-label', isEn()?'Learn More':'Aprende Más'));
+    guideCard.appendChild(el('p','', isEn()?"Want the fuller picture? AP's own guide walks through this in more depth.":'¿Quieres saber más? La guía de AP explica esto con más profundidad.'));
+    guideKeys.forEach(gKey=>{
+      const guide = GUIDES[gKey];
+      const btn=el('button','secondary-btn', isEn()?`Read AP's ${guide.titleEn} Guide`:`Leer la Guía de AP: ${guide.titleEs}`);
+      btn.onclick=()=>{ state.currentGuideKey=gKey; state.guideReturnScreen='apply-topic'; state.screen='apply-guide'; render(); };
+      guideCard.appendChild(btn);
+    });
+    wrap.appendChild(guideCard);
+  }
+
+  return wrap;
+}
+
+function guideScreen(){
+  const wrap=el('div');
+  const guide = GUIDES[state.currentGuideKey];
+  if(!guide){ state.screen='apply'; return applyScreen(); }
+  wrap.appendChild(screenHeader(isEn()?guide.titleEn:guide.titleEs, state.guideReturnScreen||'apply'));
+
+  const headerCard=el('div','card');
+  headerCard.appendChild(el('div','pill', isEn()?"AP'S OWN GUIDE":'GUÍA PROPIA DE AP'));
+  headerCard.appendChild(el('h2','', isEn()?guide.titleEn:guide.titleEs));
+  headerCard.appendChild(el('p','es', isEn()?guide.lastReviewedEn:guide.lastReviewedEs));
+  wrap.appendChild(headerCard);
+
+  guide.sections.forEach(section=>{
+    const c=el('div','card');
+    if(section.caution){
+      c.style.background='#FCEFDD';
+      c.appendChild(el('div','pill', '⚠️ '+(isEn()?section.headingEn:section.headingEs)));
+    } else {
+      c.appendChild(el('h4','', isEn()?section.headingEn:section.headingEs));
+    }
+    if(section.bodyEn){
+      c.appendChild(el('p','', isEn()?section.bodyEn:section.bodyEs));
+    }
+    if(section.listEn){
+      const list=el('ul','step-list');
+      const items = isEn()?section.listEn:section.listEs;
+      items.forEach((item,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${item}</span>`; list.appendChild(li); });
+      c.appendChild(list);
+    }
+    wrap.appendChild(c);
+  });
+
+  const closingCard=el('div','card');
+  closingCard.appendChild(el('div','section-label', isEn()?'How Anchored Pathways Can Help':'Cómo Puede Ayudar Anchored Pathways'));
+  closingCard.appendChild(el('p','', isEn()?guide.closingEn:guide.closingEs));
+  const btn=el('button','primary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
   btn.onclick=()=>{ state.screen='clinica'; render(); };
-  card.appendChild(btn);
-  wrap.appendChild(card);
-
-  const schCard=el('div','card');
-  schCard.appendChild(el('div','pill', isEn()?'SCHOLARSHIPS & FUNDING':'BECAS Y FINANCIAMIENTO'));
-  schCard.appendChild(el('h2','', isEn()?'Browse scholarships and funding':'Explora becas y financiamiento'));
-  schCard.appendChild(el('p','', isEn()?`${SCHOLARSHIP_DATA.length} options from universities, community colleges, and outside organizations, searchable by what matters to your family.`:`${SCHOLARSHIP_DATA.length} opciones de universidades, colegios comunitarios y organizaciones externas, con búsqueda según lo que le importa a tu familia.`));
-  const schBtn=el('button','primary-btn', isEn()?'Browse Scholarships & Funding':'Explorar Becas y Financiamiento');
-  schBtn.onclick=()=>{ state.screen='apply-scholarships'; render(); };
-  schCard.appendChild(schBtn);
-  wrap.appendChild(schCard);
-
-  const lpCard=el('div','card');
-  lpCard.appendChild(el('div','pill', isEn()?'PROTOTYPE · LOCAL PATHWAY':'PROTOTIPO · CAMINO LOCAL'));
-  lpCard.appendChild(el('h2','', isEn()?'Your Local Pathway':'Tu Camino Local'));
-  lpCard.appendChild(el('p','', isEn()?"See local programs and college connections that may be relevant to your school, if you'd like to share it.":'Ve programas locales y conexiones universitarias que podrían ser relevantes para tu escuela, si quieres compartirla.'));
-  const lpBtn=el('button','secondary-btn', isEn()?'Explore Your Local Pathway':'Explorar Tu Camino Local');
-  lpBtn.onclick=()=>{ state.screen='apply-local-pathway'; render(); };
-  lpCard.appendChild(lpBtn);
-  wrap.appendChild(lpCard);
+  closingCard.appendChild(btn);
+  wrap.appendChild(closingCard);
 
   return wrap;
 }

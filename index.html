@@ -2755,7 +2755,7 @@ function scholarshipsHubScreen(){
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'Scholarships & Funding':'Becas y Financiamiento', 'apply'));
 
-  // ---- Brief orientation, kept short so search stays near the top of the screen ----
+  // ---- 1. Curated intro ----
   const intro=el('div','card');
   intro.appendChild(el('p','', isEn()
     ? 'Scholarships come from colleges, nonprofits, employers, and community groups. Most families end up with several smaller ones rather than one big one.'
@@ -2765,29 +2765,16 @@ function scholarshipsHubScreen(){
     : 'Esta es una colección hecha para las familias a las que servimos. No son todas las becas que existen.'));
   wrap.appendChild(intro);
 
-  // ---- 1. SEARCH, the primary entry point ----
-  const searchCard=el('div','card');
-  searchCard.appendChild(el('h2','', isEn()?'Search scholarships by name, school, or keyword.':'Busca becas por nombre, escuela o palabra clave.'));
-  const f1=el('div','field');
-  const searchInput=document.createElement('input');
-  searchInput.type='text';
-  searchInput.placeholder=isEn()?'Try "UH", "nursing", "transfer", or "DACA"':'Prueba "UH", "enfermería", "transferencia" o "DACA"';
-  searchInput.value=state.scholarshipSearch;
-  searchInput.oninput=(e)=>{ state.scholarshipSearch=e.target.value; renderScholarshipResultsOnly(); };
-  f1.appendChild(searchInput);
-  searchCard.appendChild(f1);
-  searchCard.appendChild(el('p','es', isEn()
-    ? 'Then narrow the list using the filters below.'
-    : 'Después reduce la lista con los filtros de abajo.'));
-  wrap.appendChild(searchCard);
+  // ---- Browse card: institution, eligibility, type, location, in that order ----
+  const browseCard=el('div','card');
+  browseCard.appendChild(el('h2','', isEn()
+    ? 'Browse scholarships by institution, type, location, or immigration eligibility.'
+    : 'Explora becas por institución, tipo, ubicación o elegibilidad migratoria.'));
 
-  // ---- 2. FILTERS ----
-  const fCard=el('div','card');
-  fCard.appendChild(el('div','section-label', isEn()?'Narrow the list':'Reduce la lista'));
-
-  fCard.appendChild(el('div','section-label', isEn()?'School':'Escuela'));
+  // 2. Browse by institution
+  browseCard.appendChild(el('div','section-label', isEn()?'Institution':'Institución'));
   const schoolSel=document.createElement('select');
-  const anyOpt=document.createElement('option'); anyOpt.value='any'; anyOpt.textContent=isEn()?'Any school':'Cualquier escuela';
+  const anyOpt=document.createElement('option'); anyOpt.value='any'; anyOpt.textContent=isEn()?'Any institution':'Cualquier institución';
   if(state.scholarshipSchool==='any') anyOpt.selected=true;
   schoolSel.appendChild(anyOpt);
   getInstitutionNames().forEach(name=>{
@@ -2796,35 +2783,10 @@ function scholarshipsHubScreen(){
     schoolSel.appendChild(o);
   });
   schoolSel.onchange=(e)=>{ state.scholarshipSchool=e.target.value; render(); };
-  fCard.appendChild(schoolSel);
+  browseCard.appendChild(schoolSel);
 
-  fCard.appendChild(el('div','section-label', isEn()?'Location':'Ubicación'));
-  const regionSel=document.createElement('select');
-  const anyRegionOpt=document.createElement('option'); anyRegionOpt.value='any'; anyRegionOpt.textContent=isEn()?'Any location':'Cualquier ubicación';
-  if(state.scholarshipRegion==='any') anyRegionOpt.selected=true;
-  regionSel.appendChild(anyRegionOpt);
-  Object.keys(SCHOLARSHIP_REGION_LABELS).forEach(key=>{
-    const o=document.createElement('option'); o.value=key; o.textContent=isEn()?SCHOLARSHIP_REGION_LABELS[key].en:SCHOLARSHIP_REGION_LABELS[key].es;
-    if(state.scholarshipRegion===key) o.selected=true;
-    regionSel.appendChild(o);
-  });
-  regionSel.onchange=(e)=>{ state.scholarshipRegion=e.target.value; render(); };
-  fCard.appendChild(regionSel);
-
-  fCard.appendChild(el('div','section-label', isEn()?'Award Amount':'Cantidad de la Beca'));
-  const amtSel=document.createElement('select');
-  const anyAmtOpt=document.createElement('option'); anyAmtOpt.value='any'; anyAmtOpt.textContent=isEn()?'Any amount':'Cualquier cantidad';
-  if(state.scholarshipAmountBrowse==='any') anyAmtOpt.selected=true;
-  amtSel.appendChild(anyAmtOpt);
-  SCHOLARSHIP_AMOUNT_BROWSE_BANDS.forEach(b=>{
-    const o=document.createElement('option'); o.value=b.key; o.textContent=isEn()?b.en:b.es;
-    if(state.scholarshipAmountBrowse===b.key) o.selected=true;
-    amtSel.appendChild(o);
-  });
-  amtSel.onchange=(e)=>{ state.scholarshipAmountBrowse=e.target.value; render(); };
-  fCard.appendChild(amtSel);
-
-  fCard.appendChild(el('div','section-label', isEn()?'Show scholarships that mention...':'Mostrar becas que mencionen...'));
+  // 3. Browse by immigration eligibility
+  browseCard.appendChild(el('div','section-label', isEn()?'Immigration Eligibility':'Elegibilidad Migratoria'));
   const chipGrid=el('div','chip-grid');
   SCHOLARSHIP_ELIGIBILITY_FILTERS.forEach(f=>{
     const active = state.scholarshipEligFilters.includes(f.key);
@@ -2836,34 +2798,10 @@ function scholarshipsHubScreen(){
     };
     chipGrid.appendChild(chip);
   });
-  fCard.appendChild(chipGrid);
+  browseCard.appendChild(chipGrid);
 
-  fCard.appendChild(el('div','section-label', isEn()?'Sort by':'Ordenar por'));
-  const sortSel=document.createElement('select');
-  [{key:'none', en:'No particular order', es:'Sin orden en particular'},
-   {key:'deadline', en:'Deadline', es:'Fecha límite'},
-   {key:'school', en:'School', es:'Escuela'},
-   {key:'amount_desc', en:'Largest award', es:'Beca más grande'},
-   {key:'alpha', en:'Alphabetical', es:'Alfabético'}].forEach(o=>{
-    const opt=document.createElement('option'); opt.value=o.key; opt.textContent=isEn()?o.en:o.es;
-    if(o.key===state.scholarshipSort) opt.selected=true; sortSel.appendChild(opt);
-  });
-  sortSel.onchange=(e)=>{ state.scholarshipSort=e.target.value; render(); };
-  fCard.appendChild(sortSel);
-
-  if(hasActiveScholarshipFilters() || state.scholarshipCategory){
-    const clearBtn=el('button','secondary-btn', isEn()?'Clear All Filters':'Borrar Todos los Filtros');
-    clearBtn.onclick=()=>{ state.scholarshipCategory=null; clearScholarshipFilters(); render(); };
-    fCard.appendChild(clearBtn);
-  }
-  wrap.appendChild(fCard);
-
-  // ---- 3. BROWSE CATEGORIES, the fallback for anyone unsure where to start ----
-  const browseCard=el('div','card');
-  browseCard.appendChild(el('div','section-label', isEn()?'Browse by type':'Explorar por tipo'));
-  browseCard.appendChild(el('p','es', isEn()
-    ? 'Browse categories if you are not sure where to start.'
-    : 'Explora por categoría si no sabes por dónde empezar.'));
+  // 4. Browse by type
+  browseCard.appendChild(el('div','section-label', isEn()?'Type':'Tipo'));
   const catChips=el('div','chip-grid');
   Object.keys(SCHOLARSHIP_CATEGORY_LABELS).forEach(key=>{
     const count = SCHOLARSHIP_DATA.filter(r=>r.category===key).length;
@@ -2874,19 +2812,91 @@ function scholarshipsHubScreen(){
     catChips.appendChild(chip);
   });
   browseCard.appendChild(catChips);
-  const allBtn=el('button','secondary-btn', isEn()
+
+  // 5. Browse by location
+  browseCard.appendChild(el('div','section-label', isEn()?'Location':'Ubicación'));
+  const regionSel=document.createElement('select');
+  const anyRegionOpt=document.createElement('option'); anyRegionOpt.value='any'; anyRegionOpt.textContent=isEn()?'Any location':'Cualquier ubicación';
+  if(state.scholarshipRegion==='any') anyRegionOpt.selected=true;
+  regionSel.appendChild(anyRegionOpt);
+  Object.keys(SCHOLARSHIP_REGION_LABELS).forEach(key=>{
+    const o=document.createElement('option'); o.value=key; o.textContent=isEn()?SCHOLARSHIP_REGION_LABELS[key].en:SCHOLARSHIP_REGION_LABELS[key].es;
+    if(state.scholarshipRegion===key) o.selected=true;
+    regionSel.appendChild(o);
+  });
+  regionSel.onchange=(e)=>{ state.scholarshipRegion=e.target.value; render(); };
+  browseCard.appendChild(regionSel);
+  wrap.appendChild(browseCard);
+
+  // 6. Browse all scholarships — the fallback for anyone unsure where to start
+  const allCard=el('div','card');
+  allCard.appendChild(el('p','es', isEn()
+    ? 'Browse categories if you are not sure where to start.'
+    : 'Explora por categoría si no sabes por dónde empezar.'));
+  const allBtn=el('button','primary-btn', isEn()
     ? ('Browse All Scholarships (' + SCHOLARSHIP_DATA.length + ')')
     : ('Explorar Todas las Becas (' + SCHOLARSHIP_DATA.length + ')'));
   allBtn.onclick=()=>{ state.scholarshipCategory=null; clearScholarshipFilters(); render(); };
-  browseCard.appendChild(allBtn);
+  allCard.appendChild(allBtn);
   if(state.savedScholarships.length>0){
     const savedBtn=el('button','secondary-btn', isEn()?('View Saved (' + state.savedScholarships.length + ')'):('Ver Guardadas (' + state.savedScholarships.length + ')'));
     savedBtn.onclick=()=>{ state.screen='apply-scholarships-saved'; render(); };
-    browseCard.appendChild(savedBtn);
+    allCard.appendChild(savedBtn);
   }
-  wrap.appendChild(browseCard);
+  wrap.appendChild(allCard);
 
-  // ---- Results ----
+  // ---- 7. Optional secondary filters — sort, keyword, and award amount live here,
+  // deliberately below the browse categories and visually lower-priority, not a starting point. ----
+  const secCard=el('div','card');
+  secCard.appendChild(el('div','section-label', isEn()?'Optional filters':'Filtros opcionales'));
+  secCard.appendChild(el('p','es', isEn()
+    ? 'You can also narrow by award amount if that helps.'
+    : 'También puedes reducir por cantidad de la beca si eso te ayuda.'));
+
+  const sortSel=document.createElement('select');
+  [{key:'none', en:'No particular order', es:'Sin orden en particular'},
+   {key:'deadline', en:'Deadline', es:'Fecha límite'},
+   {key:'school', en:'School', es:'Escuela'},
+   {key:'amount_desc', en:'Largest award', es:'Beca más grande'},
+   {key:'alpha', en:'Alphabetical', es:'Alfabético'}].forEach(o=>{
+    const opt=document.createElement('option'); opt.value=o.key; opt.textContent=isEn()?o.en:o.es;
+    if(o.key===state.scholarshipSort) opt.selected=true; sortSel.appendChild(opt);
+  });
+  sortSel.onchange=(e)=>{ state.scholarshipSort=e.target.value; render(); };
+  secCard.appendChild(el('div','section-label', isEn()?'Sort by':'Ordenar por'));
+  secCard.appendChild(sortSel);
+
+  secCard.appendChild(el('div','section-label', isEn()?'Award Amount':'Cantidad de la Beca'));
+  const amtSel=document.createElement('select');
+  const anyAmtOpt=document.createElement('option'); anyAmtOpt.value='any'; anyAmtOpt.textContent=isEn()?'Any amount':'Cualquier cantidad';
+  if(state.scholarshipAmountBrowse==='any') anyAmtOpt.selected=true;
+  amtSel.appendChild(anyAmtOpt);
+  SCHOLARSHIP_AMOUNT_BROWSE_BANDS.forEach(b=>{
+    const o=document.createElement('option'); o.value=b.key; o.textContent=isEn()?b.en:b.es;
+    if(state.scholarshipAmountBrowse===b.key) o.selected=true;
+    amtSel.appendChild(o);
+  });
+  amtSel.onchange=(e)=>{ state.scholarshipAmountBrowse=e.target.value; render(); };
+  secCard.appendChild(amtSel);
+
+  secCard.appendChild(el('div','section-label', isEn()?'Or type a keyword':'O escribe una palabra clave'));
+  const f1=el('div','field');
+  const searchInput=document.createElement('input');
+  searchInput.type='text';
+  searchInput.placeholder=isEn()?'Optional, e.g. "nursing" or "DACA"':'Opcional, ej. "enfermería" o "DACA"';
+  searchInput.value=state.scholarshipSearch;
+  searchInput.oninput=(e)=>{ state.scholarshipSearch=e.target.value; renderScholarshipResultsOnly(); };
+  f1.appendChild(searchInput);
+  secCard.appendChild(f1);
+
+  if(hasActiveScholarshipFilters() || state.scholarshipCategory){
+    const clearBtn=el('button','secondary-btn', isEn()?'Clear All Filters':'Borrar Todos los Filtros');
+    clearBtn.onclick=()=>{ state.scholarshipCategory=null; clearScholarshipFilters(); render(); };
+    secCard.appendChild(clearBtn);
+  }
+  wrap.appendChild(secCard);
+
+  // ---- 8. Results, empty state guidance lives inside renderScholarshipResultsInto ----
   const resultsContainer=el('div'); resultsContainer.id='scholarship-results';
   wrap.appendChild(resultsContainer);
   renderScholarshipResultsInto(resultsContainer);

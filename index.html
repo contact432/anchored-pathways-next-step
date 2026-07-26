@@ -153,7 +153,7 @@ const T = {
     resourcesSection: "Where would you like to begin?",
     frameworkSubtitle: "Wherever you are right now, there's a place to start.",
     chooseTopic: "Tell us what's going on",
-    navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navMe:"Family",
+    navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navApply:"Apply", navMe:"Family",
     back:"Back",
     stages: [
       {key:'explore', ic:'🧭', c1:'#2A8A96', en:'Explore', es:'Explorar', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
@@ -178,7 +178,7 @@ const T = {
     resourcesSection: "¿Por dónde te gustaría empezar?",
     frameworkSubtitle: "Estés donde estés ahora mismo, hay un lugar por dónde empezar.",
     chooseTopic: "Cuéntanos qué está pasando",
-    navHome:"Inicio", navExplore:"Explorar", navClinica:"Clínica", navMe:"Familia",
+    navHome:"Inicio", navExplore:"Explorar", navClinica:"Clínica", navApply:"Aplicar", navMe:"Familia",
     back:"Atrás",
     stages: null, // filled below to mirror EN structurally
     triage: [
@@ -292,7 +292,20 @@ const VERIFICATION_COPY = {
    reversible dedup list). To update: replace the workbook, re-run the parser, paste the
    new const here. No function below hardcodes any occupation — all read from this array. */
 const OCCUPATION_DATA = [{"id":"occ-commercial-truck-driver-0","occupation":"Commercial Truck Driver","occupationEs":"Conductor de Camión Comercial","region":"texas","pathwayTypeRaw":"Certificate","pathwayTags":["certificate","under_one_year"],"credential":"CDL training + CDL license","credentialEs":"Capacitación CDL + licencia CDL","completionYears":0.25,"durationBand":"under1","institutionType":"Workforce/short-term training","institutionTypeEs":"Capacitación laboral de corta duración","tuition":5000.0,"entrySalary":52000.0,"salaryBand":"fifty_to_seventy","growthPct":5.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":52.0,"breakevenYears":0.1,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 10.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 10.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Commercial Truck Driver","baseOccupationEs":"Conductor de Camión Comercial","routeLabel":"Certificate route","routeLabelEs":"ruta de certificado"},{"id":"occ-registered-nurse-adn-1","occupation":"Registered Nurse (ADN)","occupationEs":"Enfermera Registrada (ADN)","region":"texas","pathwayTypeRaw":"Associate","pathwayTags":["associate"],"credential":"ADN + NCLEX-RN license","credentialEs":"ADN + licencia NCLEX-RN","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college","institutionTypeEs":"Colegio comunitario de TX","tuition":9602.0,"entrySalary":68000.0,"salaryBand":"fifty_to_seventy","growthPct":6.0,"growthBand":"growing","remotePotential":"Low-Medium","texasDemand":"Very High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":35.4,"breakevenYears":0.1,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 10.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 10.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Registered Nurse","baseOccupationEs":"Enfermera Registrada","routeLabel":"ADN route","routeLabelEs":"ruta ADN"},{"id":"occ-licensed-vocational-nurse-2","occupation":"Licensed Vocational Nurse","occupationEs":"Enfermera Vocacional con Licencia","region":"texas","pathwayTypeRaw":"Certificate","pathwayTags":["certificate"],"credential":"LVN certificate + license","credentialEs":"Certificado LVN + licencia","completionYears":1.0,"durationBand":"one_to_two","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":8000.0,"entrySalary":50000.0,"salaryBand":"fifty_to_seventy","growthPct":3.0,"growthBand":"steady","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":31.2,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Licensed Vocational Nurse","baseOccupationEs":"Enfermera Vocacional con Licencia","routeLabel":"Certificate route ($8,000)","routeLabelEs":"ruta de certificado ($8,000)"},{"id":"occ-hvac-technician-3","occupation":"HVAC Technician","occupationEs":"Técnico de Aire Acondicionado (HVAC)","region":"texas","pathwayTypeRaw":"Certificate/Associate","pathwayTags":["certificate","associate"],"credential":"Certificate + EPA 608; optional AAS","credentialEs":"Certificado + EPA 608; AAS opcional","completionYears":1.5,"durationBand":"one_to_two","institutionType":"TX community college","institutionTypeEs":"Colegio comunitario de TX","tuition":7201.5,"entrySalary":45000.0,"salaryBand":"under50k","growthPct":9.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":31.2,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":"1.5 yr, $7,201.50","disambiguatorEs":"1.5 años, $7,201.50","baseOccupation":"HVAC Technician","baseOccupationEs":"Técnico de Aire Acondicionado (HVAC)","routeLabel":"Certificate or associate route (1.5 years)","routeLabelEs":"ruta de certificado o título asociado (1.5 años)"},{"id":"occ-licensed-vocational-nurse-lvn-4","occupation":"Licensed Vocational Nurse (LVN)","occupationEs":"Enfermera Vocacional con Licencia (LVN)","region":"texas","pathwayTypeRaw":"Certificate","pathwayTags":["certificate"],"credential":"LVN certificate + license","credentialEs":"Certificado LVN + licencia","completionYears":1.0,"durationBand":"one_to_two","institutionType":"TX community college","institutionTypeEs":"Colegio comunitario de TX","tuition":8161.7,"entrySalary":50000.0,"salaryBand":"fifty_to_seventy","growthPct":3.0,"growthBand":"steady","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":30.6,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Licensed Vocational Nurse","baseOccupationEs":"Enfermera Vocacional con Licencia","routeLabel":"Certificate route ($8,161.70)","routeLabelEs":"ruta de certificado ($8,161.70)"},{"id":"occ-hvac-technician-5","occupation":"HVAC Technician","occupationEs":"Técnico de Aire Acondicionado (HVAC)","region":"texas","pathwayTypeRaw":"Certificate/Associate","pathwayTags":["certificate","associate"],"credential":"Certificate + EPA 608; optional AAS","credentialEs":"Certificado + EPA 608; AAS opcional","completionYears":1.0,"durationBand":"one_to_two","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":9000.0,"entrySalary":45000.0,"salaryBand":"under50k","growthPct":9.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":25.0,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":"1 yr, $9,000","disambiguatorEs":"1 años, $9,000","baseOccupation":"HVAC Technician","baseOccupationEs":"Técnico de Aire Acondicionado (HVAC)","routeLabel":"Certificate or associate route (1 year)","routeLabelEs":"ruta de certificado o título asociado (1 año)"},{"id":"occ-registered-nurse-6","occupation":"Registered Nurse","occupationEs":"Enfermera Registrada","region":"texas","pathwayTypeRaw":"Associate/Bachelor","pathwayTags":["associate","bachelor"],"credential":"ADN or BSN + RN license","credentialEs":"ADN o BSN + licencia RN","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college ADN proxy","institutionTypeEs":"Colegio comunitario de TX, ruta ADN (referencia)","tuition":14000.0,"entrySalary":68000.0,"salaryBand":"fifty_to_seventy","growthPct":6.0,"growthBand":"growing","remotePotential":"Low-Medium","texasDemand":"Very High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":24.3,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Registered Nurse","baseOccupationEs":"Enfermera Registrada","routeLabel":"Associate or bachelor route","routeLabelEs":"ruta de título asociado o licenciatura"},{"id":"occ-web-developer-front-end-developer-7","occupation":"Web Developer / Front-End Developer","occupationEs":"Desarrollador Web / Front-End","region":"texas","pathwayTypeRaw":"Associate/Cert/Bachelor","pathwayTags":["certificate","associate","bachelor"],"credential":"AAS or bachelor + portfolio","credentialEs":"AAS o licenciatura + portafolio","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":12000.0,"entrySalary":58000.0,"salaryBand":"fifty_to_seventy","growthPct":8.0,"growthBand":"growing","remotePotential":"High","texasDemand":"Medium","nationalDemand":"Medium-High","texasHighDemand":false,"roi5yr":24.2,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Web Developer / Front-End Developer","baseOccupationEs":"Desarrollador Web / Front-End","routeLabel":"Associate, certificate or bachelor route","routeLabelEs":"ruta de asociado, certificado o licenciatura"},{"id":"occ-electrician-8","occupation":"Electrician","occupationEs":"Electricista","region":"texas","pathwayTypeRaw":"Apprenticeship","pathwayTags":["apprenticeship"],"credential":"Registered apprenticeship + journeyman license path","credentialEs":"Aprendizaje registrado + ruta a licencia de oficial","completionYears":4.0,"durationBand":"four_plus","institutionType":"Apprenticeship/employer-sponsored","institutionTypeEs":"Aprendizaje / patrocinado por el empleador","tuition":10000.0,"entrySalary":48000.0,"salaryBand":"under50k","growthPct":10.0,"growthBand":"fast_growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":24.0,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":"Apprenticeship/employer-sponsored","disambiguatorEs":"Aprendizaje / patrocinado por el empleador","baseOccupation":"Electrician","baseOccupationEs":"Electricista","routeLabel":"Apprenticeship route","routeLabelEs":"ruta de aprendizaje"},{"id":"occ-electrician-9","occupation":"Electrician","occupationEs":"Electricista","region":"texas","pathwayTypeRaw":"Apprenticeship","pathwayTags":["apprenticeship"],"credential":"Registered apprenticeship + journeyman exam","credentialEs":"Aprendizaje registrado + examen de oficial","completionYears":4.0,"durationBand":"four_plus","institutionType":"Apprenticeship/employer","institutionTypeEs":"Aprendizaje / empleador","tuition":10000.0,"entrySalary":48000.0,"salaryBand":"under50k","growthPct":10.0,"growthBand":"fast_growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":24.0,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":"Apprenticeship/employer","disambiguatorEs":"Aprendizaje / empleador","baseOccupation":"Electrician","baseOccupationEs":"Electricista","routeLabel":"Apprenticeship route","routeLabelEs":"ruta de aprendizaje"},{"id":"occ-dental-hygienist-10","occupation":"Dental Hygienist","occupationEs":"Higienista Dental","region":"texas","pathwayTypeRaw":"Associate","pathwayTags":["associate"],"credential":"Associate degree + license","credentialEs":"Título asociado + licencia","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":15000.0,"entrySalary":70000.0,"salaryBand":"seventy_to_hundred","growthPct":9.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"Medium-High","nationalDemand":"High","texasHighDemand":false,"roi5yr":23.3,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Dental Hygienist","baseOccupationEs":"Higienista Dental","routeLabel":"Associate degree route","routeLabelEs":"ruta de título asociado"},{"id":"occ-cybersecurity-support-soc-analyst-11","occupation":"Cybersecurity Support / SOC Analyst","occupationEs":"Soporte de Ciberseguridad / Analista SOC","region":"texas","pathwayTypeRaw":"Certificate/Associate/Bachelor","pathwayTags":["certificate","associate","bachelor"],"credential":"AAS or bachelor + security certs","credentialEs":"AAS o licenciatura + certificaciones de seguridad","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college transfer proxy","institutionTypeEs":"Transferencia de colegio comunitario de TX (referencia)","tuition":14000.0,"entrySalary":65000.0,"salaryBand":"fifty_to_seventy","growthPct":29.0,"growthBand":"fast_growing","remotePotential":"High","texasDemand":"High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":23.2,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Cybersecurity Support / SOC Analyst","baseOccupationEs":"Soporte de Ciberseguridad / Analista SOC","routeLabel":"Certificate, associate or bachelor route","routeLabelEs":"ruta de certificado, asociado o licenciatura"},{"id":"occ-industrial-maintenance-technician-12","occupation":"Industrial Maintenance Technician","occupationEs":"Técnico de Mantenimiento Industrial","region":"texas","pathwayTypeRaw":"Associate/Certificate","pathwayTags":["certificate","associate"],"credential":"Mechatronics or industrial maintenance AAS/certificate","credentialEs":"AAS o certificado en mecatrónica o mantenimiento industrial","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":12000.0,"entrySalary":55000.0,"salaryBand":"fifty_to_seventy","growthPct":7.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":22.9,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":"Associate/Certificate","disambiguatorEs":"Associate/Certificate","baseOccupation":"Industrial Maintenance Technician","baseOccupationEs":"Técnico de Mantenimiento Industrial","routeLabel":"Associate or certificate route","routeLabelEs":"ruta de título asociado o certificado"},{"id":"occ-industrial-maintenance-technician-13","occupation":"Industrial Maintenance Technician","occupationEs":"Técnico de Mantenimiento Industrial","region":"texas","pathwayTypeRaw":"Associate","pathwayTags":["associate"],"credential":"AAS in industrial maintenance/mechatronics","credentialEs":"AAS en mantenimiento industrial/mecatrónica","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college","institutionTypeEs":"Colegio comunitario de TX","tuition":12002.5,"entrySalary":55000.0,"salaryBand":"fifty_to_seventy","growthPct":7.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":22.9,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":"Associate","disambiguatorEs":"Associate","baseOccupation":"Industrial Maintenance Technician","baseOccupationEs":"Técnico de Mantenimiento Industrial","routeLabel":"Associate degree route","routeLabelEs":"ruta de título asociado"},{"id":"occ-respiratory-therapist-14","occupation":"Respiratory Therapist","occupationEs":"Terapeuta Respiratorio","region":"texas","pathwayTypeRaw":"Associate","pathwayTags":["associate"],"credential":"Associate degree + CRT/RRT credentials","credentialEs":"Título asociado + credenciales CRT/RRT","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":14000.0,"entrySalary":62000.0,"salaryBand":"fifty_to_seventy","growthPct":11.0,"growthBand":"fast_growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":22.1,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Respiratory Therapist","baseOccupationEs":"Terapeuta Respiratorio","routeLabel":"Associate degree route","routeLabelEs":"ruta de título asociado"},{"id":"occ-radiologic-technologist-15","occupation":"Radiologic Technologist","occupationEs":"Tecnólogo Radiológico","region":"texas","pathwayTypeRaw":"Associate","pathwayTags":["associate"],"credential":"Associate degree + ARRT/license path","credentialEs":"Título asociado + ruta a licencia ARRT","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":14000.0,"entrySalary":60000.0,"salaryBand":"fifty_to_seventy","growthPct":6.0,"growthBand":"growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":21.4,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Radiologic Technologist","baseOccupationEs":"Tecnólogo Radiológico","routeLabel":"Associate degree route","routeLabelEs":"ruta de título asociado"},{"id":"occ-registered-nurse-bsn-16","occupation":"Registered Nurse (BSN)","occupationEs":"Enfermera Registrada (BSN)","region":"texas","pathwayTypeRaw":"Bachelor","pathwayTags":["bachelor"],"credential":"BSN + NCLEX-RN license","credentialEs":"BSN + licencia NCLEX-RN","completionYears":4.0,"durationBand":"four_plus","institutionType":"TX public university","institutionTypeEs":"Universidad pública de TX","tuition":32776.0,"entrySalary":72000.0,"salaryBand":"seventy_to_hundred","growthPct":6.0,"growthBand":"growing","remotePotential":"Low-Medium","texasDemand":"Very High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":11.0,"breakevenYears":0.5,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 50.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 50.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Registered Nurse","baseOccupationEs":"Enfermera Registrada","routeLabel":"BSN route","routeLabelEs":"ruta BSN"},{"id":"occ-physical-therapist-assistant-17","occupation":"Physical Therapist Assistant","occupationEs":"Asistente de Terapia Física","region":"national","pathwayTypeRaw":"Associate","pathwayTags":["associate"],"credential":"Associate degree + license","credentialEs":"Título asociado + licencia","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":9602.0,"entrySalary":58000.0,"salaryBand":"fifty_to_seventy","growthPct":22.0,"growthBand":"fast_growing","remotePotential":"Low","texasDemand":"High","nationalDemand":"High","texasHighDemand":true,"roi5yr":30.2,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Physical Therapist Assistant","baseOccupationEs":"Asistente de Terapia Física","routeLabel":"Associate degree route","routeLabelEs":"ruta de título asociado"},{"id":"occ-wind-turbine-technician-18","occupation":"Wind Turbine Technician","occupationEs":"Técnico de Turbinas Eólicas","region":"national","pathwayTypeRaw":"Certificate/Associate","pathwayTags":["certificate","associate"],"credential":"Certificate or AAS + technical training","credentialEs":"Certificado o AAS + capacitación técnica","completionYears":2.0,"durationBand":"two_to_four","institutionType":"TX community college proxy","institutionTypeEs":"Colegio comunitario de TX (referencia)","tuition":9602.0,"entrySalary":52000.0,"salaryBand":"fifty_to_seventy","growthPct":50.0,"growthBand":"fast_growing","remotePotential":"Low","texasDemand":"Medium","nationalDemand":"High","texasHighDemand":false,"roi5yr":27.1,"breakevenYears":0.2,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 20.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 20.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Wind Turbine Technician","baseOccupationEs":"Técnico de Turbinas Eólicas","routeLabel":"Certificate or associate route","routeLabelEs":"ruta de certificado o título asociado"},{"id":"occ-information-security-analyst-19","occupation":"Information Security Analyst","occupationEs":"Analista de Seguridad Informática","region":"national","pathwayTypeRaw":"Bachelor/certs","pathwayTags":["certificate","bachelor"],"credential":"Bachelor's in IT/CS + Security+/CySA+/similar","credentialEs":"Licenciatura en TI/Computación + Security+/CySA+/similar","completionYears":4.0,"durationBand":"four_plus","institutionType":"TX public university proxy","institutionTypeEs":"Universidad pública de TX (referencia)","tuition":32776.0,"entrySalary":85000.0,"salaryBand":"seventy_to_hundred","growthPct":29.0,"growthBand":"fast_growing","remotePotential":"High","texasDemand":"High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":13.0,"breakevenYears":0.4,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 40.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 40.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Information Security Analyst","baseOccupationEs":"Analista de Seguridad Informática","routeLabel":"Bachelor plus certifications route","routeLabelEs":"ruta de licenciatura con certificaciones"},{"id":"occ-data-scientist-20","occupation":"Data Scientist","occupationEs":"Científico de Datos","region":"national","pathwayTypeRaw":"Bachelor","pathwayTags":["bachelor"],"credential":"Bachelor's in data science/CS/statistics","credentialEs":"Licenciatura en ciencia de datos/computación/estadística","completionYears":4.0,"durationBand":"four_plus","institutionType":"TX public university proxy","institutionTypeEs":"Universidad pública de TX (referencia)","tuition":32776.0,"entrySalary":80000.0,"salaryBand":"seventy_to_hundred","growthPct":34.0,"growthBand":"fast_growing","remotePotential":"High","texasDemand":"High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":12.2,"breakevenYears":0.4,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 40.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 40.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Data Scientist","baseOccupationEs":"Científico de Datos","routeLabel":"Bachelor's degree route","routeLabelEs":"ruta de licenciatura"},{"id":"occ-nurse-practitioner-21","occupation":"Nurse Practitioner","occupationEs":"Enfermera Practicante","region":"national","pathwayTypeRaw":"Graduate degree","pathwayTags":["graduate"],"credential":"BSN + MSN/DNP + APRN license","credentialEs":"BSN + MSN/DNP + licencia APRN","completionYears":6.0,"durationBand":"four_plus","institutionType":"TX public university proxy","institutionTypeEs":"Universidad pública de TX (referencia)","tuition":49164.0,"entrySalary":110000.0,"salaryBand":"hundred_plus","growthPct":40.0,"growthBand":"fast_growing","remotePotential":"Medium","texasDemand":"High","nationalDemand":"Very High","texasHighDemand":true,"roi5yr":11.2,"breakevenYears":0.4,"quickBreakeven":true,"paybackLabel":"Training cost ≈ 40.0% of one year's starting pay","paybackLabelEs":"El costo de capacitación ≈ 40.0% de un año de salario inicial","disambiguator":null,"disambiguatorEs":null,"baseOccupation":"Nurse Practitioner","baseOccupationEs":"Enfermera Practicante","routeLabel":"Graduate degree route","routeLabelEs":"ruta de posgrado"}];
-const OCC_HOW_TO_USE = [{"en":"Sort by 5-Year ROI Ratio, Payback Estimate Label, Growth 2024-2034 %, or Entry Salary USD.","es":"Ordena por proporción de retorno a 5 años, estimado de recuperación, crecimiento 2024-2034 %, o salario inicial.","tipEn":"Higher ROI = stronger earnings relative to cost","tipEs":"Retorno más alto = mejores ingresos en relación al costo"},{"en":"Filter by Region Focus, Pathway Type, and Quick Breakeven to find the fastest payback options.","es":"Filtra por región, tipo de camino y recuperación rápida para encontrar las opciones que se recuperan más rápido.","tipEn":"Lower payback percentage = faster cost recovery","tipEs":"Porcentaje de recuperación más bajo = recuperas el costo más rápido"},{"en":"Use Texas Focus for local workforce advising and National Focus for broader labor-market comparisons.","es":"Usa el enfoque de Texas para el mercado laboral local y el enfoque nacional para comparaciones más amplias.","tipEn":"Use this workbook for advising and filtering","tipEs":"Usa esta información para orientar y filtrar"}];
+const OCC_HOW_TO_USE = [
+  {"en":"Use \"Sort by\" to put the list in the order that matters most to you — for example, highest starting pay or lowest training cost.",
+   "es":"Usa \"Ordenar por\" para poner la lista en el orden que más te importe — por ejemplo, mayor salario inicial o menor costo de capacitación.",
+   "tipEn":"One sort option is ROI (Return on Investment). It compares typical starting pay to training cost — a higher number means the pay is larger compared to the cost.",
+   "tipEs":"Una opción de orden es ROI (Retorno de Inversión). Compara el salario inicial típico con el costo de capacitación — un número más alto significa que el salario es mayor comparado con el costo."},
+  {"en":"Use the filters to narrow the list — by Location, Type of Training, or careers where the training cost is low compared to one year of typical starting pay.",
+   "es":"Usa los filtros para reducir la lista — por Ubicación, Tipo de Capacitación, o carreras donde el costo de capacitación es bajo comparado con un año de salario inicial típico.",
+   "tipEn":"This compares training cost to one year of typical starting pay. It does not predict how long it would actually take to pay off that cost — taxes, living expenses, loan terms, financial aid, raises, unemployment, and part-time work can all change that.",
+   "tipEs":"Esto compara el costo de capacitación con un año de salario inicial típico. No predice cuánto tiempo tomaría realmente pagar ese costo — impuestos, gastos de vida, condiciones de préstamos, ayuda financiera, aumentos de salario, desempleo y trabajo de medio tiempo pueden cambiar eso."},
+  {"en":"Tap any career to see more detail, or use Compare Careers to look at two to four careers side by side.",
+   "es":"Toca cualquier carrera para ver más detalle, o usa Comparar Carreras para ver de dos a cuatro carreras lado a lado.",
+   "tipEn":"These numbers are a starting point for a conversation. A Navigator can go over real numbers with you at Clínica.",
+   "tipEs":"Estos números son un punto de partida para una conversación. Un Navegador puede revisar los números reales contigo en la Clínica."}
+];
 
 const OCC_REGION_LABELS = {
   texas:{en:'Texas', es:'Texas'},
@@ -331,8 +344,8 @@ const OCC_SORT_OPTIONS = [
   {key:'training_asc', en:'Shortest training time', es:'Menos tiempo de capacitación'},
   {key:'growth_desc', en:'Fastest growing', es:'Crecimiento más rápido'},
   {key:'cost_asc', en:'Lowest training cost', es:'Menor costo de capacitación'},
-  {key:'roi_desc', en:'Highest 5-year ROI', es:'Mayor retorno a 5 años'},
-  {key:'payback_asc', en:'Fastest payback estimate', es:'Recuperación más rápida'},
+  {key:'roi_desc', en:'Highest return over 5 years (ROI)', es:'Mayor retorno a 5 años (ROI)'},
+  {key:'payback_asc', en:'Lowest cost compared to starting pay', es:'Menor costo comparado con el salario inicial'},
   {key:'alpha', en:'A to Z', es:'A a Z'},
 ];
 
@@ -553,7 +566,7 @@ let state = {
   occQuickBreakeven:false, occTexasHighDemand:false, occSort:'salary_desc',
   occDetailId:null, occCompareIds:[], occCompareMode:false,
   // Home screen situation-selector accordion
-  homeTriageExpanded:false, homeLastTopicKey:null,
+  homeTriageExpanded:true, homeLastTopicKey:null,
 };
 
 // Clears only Explore-related state (values/strengths/personality/interests/vision/Path Profile inputs).
@@ -743,7 +756,7 @@ function t(){ return T[state.lang]; }
 function isEn(){ return state.lang==='en'; }
 
 /* ============ RENDER SHELL ============ */
-let previousScreen = null;
+let previousScreen = 'home';
 function render(){
   if(state.screen==='home' && previousScreen!=='home'){ state.homeTriageExpanded=false; }
   previousScreen = state.screen;
@@ -815,12 +828,13 @@ function bottomnav(){
   const nav=el('div','bottomnav');
   const items=[
     {ic:'🏠', label:t().navHome, screen:'home'},
-    {ic:'🧭', label:t().navExplore, screen:'explore'},
     {ic:'📅', label:t().navClinica, screen:'clinica'},
+    {ic:'📝', label:t().navApply, screen:'apply'},
     {ic:'👪', label:t().navMe, screen:'family'},
   ];
   items.forEach(item=>{
-    const active = state.screen===item.screen || (item.screen==='explore' && state.screen.startsWith('assess')) || (item.screen==='explore'&&state.screen==='pathprofile');
+    const active = state.screen===item.screen
+      || (item.screen==='apply' && state.screen.startsWith('apply'));
     const b=el('button','navbtn'+(active?' active':''));
     b.innerHTML=`<span class="ic">${item.ic}</span><span>${item.label}</span>`;
     b.onclick=()=>{ state.screen=item.screen; render(); };
@@ -833,20 +847,10 @@ function bottomnav(){
 function homeScreen(){
   const wrap=el('div','content');
 
-  // Framework comes first now — it's the primary product, given more visual weight than the accordion below.
-  const frameworkHeading=el('div');
-  frameworkHeading.style.margin='4px 2px 14px';
-  frameworkHeading.innerHTML=`<div style="font-family:var(--font-head); font-size:20px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:4px;">${t().resourcesSection}</div><div style="font-size:13px; color:var(--ink-soft); line-height:1.4;">${t().frameworkSubtitle}</div>`;
-  wrap.appendChild(frameworkHeading);
-  t().stages.forEach(s=>{
-    const b=el('div','stage-banner');
-    b.style.background = `linear-gradient(135deg, ${s.c1}, ${s.c1}CC)`;
-    b.innerHTML=`<div class="ic">${s.ic}</div><div><h3>${isEn()?s.en:s.es}</h3><p>${isEn()?s.descEn:s.descEs}</p></div><div class="chev">›</div>`;
-    b.onclick=()=>{ state.screen = s.key==='explore'?'explore':s.key; render(); };
-    wrap.appendChild(b);
-  });
-
-  // Situational entry point: one collapsible control instead of a stacked list of cards.
+  // Triage is the primary, unavoidable first section now — the acute task a family
+  // walks in with is what the evidence says to resolve first, before any exploration
+  // content. It is expanded by default rather than a collapsed accordion, so a
+  // first-time family sees the options immediately without an extra tap.
   wrap.appendChild(el('div','section-label',t().todaySection));
 
   const selectTopic=(item)=>{
@@ -879,6 +883,20 @@ function homeScreen(){
     wrap.appendChild(list);
   }
 
+  // Framework banners now sit below triage as a secondary, browse-on-your-own
+  // surface — still one tap away, just no longer the first thing a family sees.
+  const frameworkHeading=el('div');
+  frameworkHeading.style.margin='28px 2px 10px';
+  frameworkHeading.innerHTML=`<div style="font-family:var(--font-head); font-size:16px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:2px;">${t().resourcesSection}</div><div style="font-size:12px; color:var(--ink-soft); line-height:1.4;">${t().frameworkSubtitle}</div>`;
+  wrap.appendChild(frameworkHeading);
+  t().stages.forEach(s=>{
+    const b=el('div','stage-banner');
+    b.style.background = `linear-gradient(135deg, ${s.c1}, ${s.c1}CC)`;
+    b.innerHTML=`<div class="ic">${s.ic}</div><div><h3>${isEn()?s.en:s.es}</h3><p>${isEn()?s.descEn:s.descEs}</p></div><div class="chev">›</div>`;
+    b.onclick=()=>{ state.screen = s.key==='explore'?'explore':s.key; render(); };
+    wrap.appendChild(b);
+  });
+
   return wrap;
 }
 
@@ -898,8 +916,8 @@ const TOPIC_TEXT = {
     bodyEs:"La universidad es un camino, no el único. Decidir compara costo, tiempo, salario y perspectiva entre universidad, oficio y aprendizaje, lado a lado."},
   undoc:{dest:'clinica', destEn:'Get Help at Clínica', destEs:'Recibe Ayuda en la Clínica',
     titleEn:"You belong in this process too", titleEs:"Tú también perteneces a este proceso",
-    bodyEn:"Immigration status can make college feel closed off. It usually isn't. Texas residents, regardless of status, may qualify for in-state tuition through separate rules, and TASFA exists as a state financial aid path. Nothing you share at Clínica is reported anywhere. A Navigator can talk through your specific situation privately, no forms required to start.",
-    bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Usualmente no lo está. Los residentes de Texas, sin importar su estatus, pueden calificar para matrícula estatal bajo reglas separadas, y TASFA existe como camino de ayuda financiera estatal. Nada de lo que compartas en la Clínica se reporta a ningún lugar. Un Navegador puede hablar contigo en privado, sin formularios para empezar."},
+    bodyEn:"Immigration status can make college feel closed off. There are still real options, but the rules changed in 2025 and 2026 and depend on your specific situation, including DACA or TPS status. Nothing you share at Clínica is reported anywhere, and there is no wrong answer. A Navigator can talk through what applies to you privately, no forms required to start.",
+    bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Todavía existen opciones reales, pero las reglas cambiaron en 2025 y 2026 y dependen de tu situación específica, incluyendo el estatus de DACA o TPS. Nada de lo que compartas en la Clínica se reporta a ningún lugar, y no hay respuesta incorrecta. Un Navegador puede hablar contigo en privado sobre lo que aplica a tu caso, sin formularios para empezar."},
   adult:{dest:'shift', destEn:'Shift', destEs:'Cambia',
     titleEn:"It's not too late to go back", titleEs:"No es demasiado tarde para regresar",
     bodyEn:"Whether it's been a few classes or a few decades, the Shift stage is built for adults returning to school, including credit for prior learning and evening options.",
@@ -2007,18 +2025,32 @@ function occExplorerScreen(){
   const intro=el('div','card');
   intro.appendChild(el('h2','', isEn()?'What does training cost, and what does the job pay?':'¿Cuánto cuesta la capacitación y cuánto paga el trabajo?'));
   intro.appendChild(el('p','', isEn()
-    ? "Some careers take a few months to train for. Others take four years or more. Here you can see them side by side: how long the training takes, what it usually costs, what the job usually pays at the start, and whether the field is growing."
-    : 'Algunas carreras se estudian en unos meses. Otras toman cuatro años o más. Aquí puedes verlas lado a lado: cuánto dura la capacitación, cuánto cuesta normalmente, cuánto paga el trabajo al empezar, y si el campo está creciendo.'));
+    ? "Some careers take a few months of training. Others take four years or more. For each career, this page shows:"
+    : 'Algunas carreras se estudian en unos meses. Otras toman cuatro años o más. Para cada carrera, esta página muestra:'));
+  const introList=el('ul','step-list');
+  [
+    {en:'How long training usually takes', es:'Cuánto dura la capacitación normalmente'},
+    {en:'What training usually costs', es:'Cuánto cuesta la capacitación normalmente'},
+    {en:'What the job usually pays when you start', es:'Cuánto paga el trabajo normalmente al empezar'},
+    {en:'Whether the field is growing', es:'Si el campo está creciendo'},
+  ].forEach(item=>{
+    const li=document.createElement('li');
+    li.innerHTML = '<span class="step-num">•</span><span>' + (isEn()?item.en:item.es) + '</span>';
+    introList.appendChild(li);
+  });
+  intro.appendChild(introList);
   intro.appendChild(el('p','', isEn()
-    ? "When a career has more than one way in, the routes are listed together under one heading so you can see the choices in one place."
-    : 'Cuando una carrera tiene más de una manera de entrar, las rutas aparecen juntas bajo un mismo título para que veas las opciones en un solo lugar.'));
+    ? "When a career has more than one way to qualify, all of the ways are grouped together under one heading, so you can compare them in one place."
+    : 'Cuando una carrera tiene más de una manera de calificar, todas las maneras aparecen juntas bajo un mismo título, para que puedas compararlas en un solo lugar.'));
   intro.appendChild(el('p','es', isEn()
-    ? "These are typical numbers for Texas and the U.S. They are not an offer, and not what you will be charged or paid. Your real cost depends on the school and the help you get. A Navigator can go over real numbers with you for a program near you."
-    : 'Estos son números típicos para Texas y EE. UU. No son una oferta, ni lo que te van a cobrar o pagar. Tu costo real depende de la escuela y de la ayuda que recibas. Un Navegador puede revisar contigo los números reales de un programa cerca de ti.'));
+    ? "These are typical numbers for Texas and the U.S., not an offer and not what you will be charged or paid. The training cost shown is the estimated full price before any aid. What a student actually pays depends on grants, scholarships, employer assistance, and other financial aid, and is often lower than the number shown. A Navigator can go over real numbers with you for a program near you."
+    : 'Estos son números típicos para Texas y EE. UU., no una oferta ni lo que se te va a cobrar o pagar. El costo de capacitación que se muestra es el precio completo estimado antes de cualquier ayuda. Lo que un estudiante paga realmente depende de becas, ayuda financiera, apoyo del empleador y otras formas de ayuda, y suele ser menor que el número mostrado. Un Navegador puede revisar contigo los números reales de un programa cerca de ti.'));
   wrap.appendChild(intro);
 
-  // "How to use" — read from the workbook's own How to Use sheet, plus a plain-language
-  // gloss of the two derived metrics so families aren't left decoding them.
+  // "How to use" — plain-language walkthrough of the filters, sort options, and the two
+  // derived metrics (cost-to-pay comparison and 5-year ROI). ROI is defined once, in the
+  // first "how to use" tip above; every other mention below pairs it with a plain label
+  // instead of re-defining it, so families aren't reading the same explanation twice.
   const howCard=el('div','card');
   howCard.appendChild(el('div','section-label', isEn()?'How to use this':'Cómo usar esto'));
   const howList=el('ul','step-list');
@@ -2032,14 +2064,29 @@ function occExplorerScreen(){
   });
   howCard.appendChild(howList);
   howCard.appendChild(el('div','divider'));
+  howCard.appendChild(el('p','', isEn()
+    ? 'Two of the numbers on this list come from simple math, not a prediction:'
+    : 'Dos de los números en esta lista son solo matemáticas sencillas, no una predicción:'));
+  const howMathList=el('ul','step-list');
+  [
+    {en:'Cost compared to one year of typical starting pay — the training cost next to one year of typical starting pay for this career.',
+     es:'Costo comparado con un año de salario inicial típico — el costo de capacitación al lado de un año de salario inicial típico para esta carrera.'},
+    {en:"5-year return (ROI) — five years of that typical pay compared to the same training cost.",
+     es:'Retorno a 5 años (ROI) — cinco años de ese salario típico comparado con el mismo costo de capacitación.'},
+  ].forEach(item=>{
+    const li=document.createElement('li');
+    li.innerHTML = '<span class="step-num">•</span><span>' + (isEn()?item.en:item.es) + '</span>';
+    howMathList.appendChild(li);
+  });
+  howCard.appendChild(howMathList);
   howCard.appendChild(el('p','es', isEn()
-    ? 'Two of these numbers are just simple math. The payback estimate shows the training cost next to one year of starting pay. The 5-year number compares five years of that pay to the same cost. Neither one takes out taxes, rent, or food, so neither is a repayment plan or a timeline. They are only a way to see cost and pay on the same scale.'
-    : 'Dos de estos números son solo matemáticas sencillas. El estimado de recuperación muestra el costo de capacitación al lado de un año de salario inicial. El número de 5 años compara cinco años de ese salario con el mismo costo. Ninguno resta impuestos, renta ni comida, así que ninguno es un plan de pagos ni una fecha. Solo sirven para ver el costo y el salario en la misma escala.'));
+    ? 'Neither number accounts for taxes, living expenses, loan terms, financial aid, raises, unemployment, or part-time work. They compare estimated training cost to estimated starting pay only — they do not predict how long it would actually take to pay off training costs. Use them only to compare careers on the same scale, not as a financial plan.'
+    : 'Ninguno de los dos números toma en cuenta impuestos, gastos de vida, condiciones de préstamos, ayuda financiera, aumentos de salario, desempleo, ni trabajo de medio tiempo. Solo comparan el costo estimado de capacitación con el salario inicial estimado — no predicen cuánto tiempo tomaría realmente pagar el costo de la capacitación. Úsalos solo para comparar carreras en la misma escala, no como un plan financiero.'));
   wrap.appendChild(howCard);
 
   // ---- Filters ----
   const fCard=el('div','card');
-  fCard.appendChild(el('div','section-label', isEn()?'Where':'Dónde'));
+  fCard.appendChild(el('div','section-label', isEn()?'Location':'Ubicación'));
   const regionChips=el('div','chip-grid');
   [{key:'any',en:'Texas and U.S.',es:'Texas y EE. UU.'},{key:'texas',en:'Texas',es:'Texas'},{key:'national',en:'U.S.',es:'EE. UU.'}].forEach(r=>{
     const chip=el('button','chip'+(state.occRegion===r.key?' picked':''), isEn()?r.en:r.es);
@@ -2048,7 +2095,7 @@ function occExplorerScreen(){
   });
   fCard.appendChild(regionChips);
 
-  fCard.appendChild(el('div','section-label', isEn()?'Kind of training':'Tipo de capacitación'));
+  fCard.appendChild(el('div','section-label', isEn()?'Type of Training':'Tipo de Capacitación'));
   const pathChips=el('div','chip-grid');
   OCC_PATHWAY_FILTERS.forEach(f=>{
     const active=state.occPathways.includes(f.key);
@@ -2062,16 +2109,16 @@ function occExplorerScreen(){
   });
   fCard.appendChild(pathChips);
 
-  fCard.appendChild(occSelectRow('How long it takes','Cuánto tiempo toma', OCC_DURATION_FILTERS, state.occDuration, v=>{ state.occDuration=v; render(); }));
-  fCard.appendChild(occSelectRow('Starting pay','Salario inicial', OCC_SALARY_FILTERS, state.occSalary, v=>{ state.occSalary=v; render(); }));
-  fCard.appendChild(occSelectRow('How fast the field is growing','Qué tan rápido crece el campo', OCC_GROWTH_FILTERS, state.occGrowth, v=>{ state.occGrowth=v; render(); }));
+  fCard.appendChild(occSelectRow('Training time','Tiempo de capacitación', OCC_DURATION_FILTERS, state.occDuration, v=>{ state.occDuration=v; render(); }));
+  fCard.appendChild(occSelectRow('Typical starting pay','Salario inicial típico', OCC_SALARY_FILTERS, state.occSalary, v=>{ state.occSalary=v; render(); }));
+  fCard.appendChild(occSelectRow('Expected growth (2024-2034)','Crecimiento esperado (2024-2034)', OCC_GROWTH_FILTERS, state.occGrowth, v=>{ state.occGrowth=v; render(); }));
 
-  fCard.appendChild(el('div','section-label', isEn()?'Also show only':'Mostrar solo'));
+  fCard.appendChild(el('div','section-label', isEn()?'Show only':'Mostrar solo'));
   const flagChips=el('div','chip-grid');
   const txChip=el('button','chip'+(state.occTexasHighDemand?' picked':''), isEn()?'Texas high demand':'Alta demanda en Texas');
   txChip.onclick=()=>{ state.occTexasHighDemand=!state.occTexasHighDemand; render(); };
   flagChips.appendChild(txChip);
-  const qbChip=el('button','chip'+(state.occQuickBreakeven?' picked':''), isEn()?'Quick breakeven':'Recuperación rápida');
+  const qbChip=el('button','chip'+(state.occQuickBreakeven?' picked':''), isEn()?'Low cost compared to starting pay':'Costo bajo comparado con el salario inicial');
   qbChip.onclick=()=>{ state.occQuickBreakeven=!state.occQuickBreakeven; render(); };
   flagChips.appendChild(qbChip);
   fCard.appendChild(flagChips);
@@ -2207,7 +2254,7 @@ function occRouteRow(o, showRouteLabel, isLast){
   const tags=el('div','tag-row');
   if(o.completionYears!==null&&o.completionYears!==undefined) tags.appendChild(el('span','tag', fmtYears(o.completionYears)));
   if(o.tuition!==null&&o.tuition!==undefined) tags.appendChild(el('span','tag', fmtMoney(o.tuition)));
-  if(o.entrySalary!==null&&o.entrySalary!==undefined) tags.appendChild(el('span','tag', fmtMoney(o.entrySalary)+(isEn()?' to start':' al empezar')));
+  if(o.entrySalary!==null&&o.entrySalary!==undefined) tags.appendChild(el('span','tag', fmtMoney(o.entrySalary)+(isEn()?' (typical)':' (típico)')));
   if(o.growthPct!==null&&o.growthPct!==undefined) tags.appendChild(el('span','tag','+'+o.growthPct+'%'));
   row.appendChild(tags);
 
@@ -2262,7 +2309,7 @@ function occCard(o){
 
   const tags=el('div','tag-row');
   if(o.completionYears!==null) tags.appendChild(el('span','tag', fmtYears(o.completionYears)));
-  if(o.entrySalary!==null) tags.appendChild(el('span','tag', fmtMoney(o.entrySalary) + (isEn()?' to start':' al empezar')));
+  if(o.entrySalary!==null) tags.appendChild(el('span','tag', fmtMoney(o.entrySalary) + (isEn()?' (typical)':' (típico)')));
   if(o.growthPct!==null) tags.appendChild(el('span','tag', '+' + o.growthPct + '%'));
   card.appendChild(tags);
 
@@ -2334,11 +2381,11 @@ function occDetailScreen(){
     d.appendChild(div);
   }
   row('Training time','Tiempo de capacitación', occOrNA(fmtYears(o.completionYears)));
-  row('Where people usually train','Dónde se capacita la gente', occOrNA(occInstitution(o)));
+  row('Type of school or program','Tipo de escuela o programa', occOrNA(occInstitution(o)));
   row('Estimated training cost','Costo estimado de capacitación', occOrNA(fmtMoney(o.tuition)));
   row('Typical starting pay','Salario inicial típico', o.entrySalary===null?occOrNA(null):(fmtMoney(o.entrySalary) + (isEn()?' per year':' al año')));
-  row('Expected growth 2024-2034','Crecimiento esperado 2024-2034', o.growthPct===null?occOrNA(null):('+' + o.growthPct + '%'));
-  row('Pathway type','Tipo de camino', occOrNA(o.pathwayTypeRaw));
+  row('Expected growth (2024-2034)','Crecimiento esperado (2024-2034)', o.growthPct===null?occOrNA(null):('+' + o.growthPct + '%'));
+  row('Type of training','Tipo de capacitación', occOrNA(o.pathwayTypeRaw));
   row('Can it be done remotely?','¿Se puede hacer a distancia?', occOrNA(occScale(o.remotePotential)));
   row('Demand in Texas','Demanda en Texas', occOrNA(occScale(o.texasDemand)));
   row('Demand nationally','Demanda a nivel nacional', occOrNA(occScale(o.nationalDemand)));
@@ -2346,24 +2393,23 @@ function occDetailScreen(){
 
   // Honest restatement of the workbook's own arithmetic. The source column is labeled
   // "Breakeven Years" but is computed as tuition / salary, which assumes every pre-tax
-  // dollar goes to repaying training. Stated here as the ratio it actually is.
+  // dollar goes to repaying training. Stated here as the ratio it actually is, with the
+  // same "not a repayment timeline" framing used on the Explorer screen — stated once,
+  // in the closing disclaimer below, rather than repeated line by line.
   if(o.paybackLabel || o.roi5yr!==null){
     const m=el('div','card');
     m.appendChild(el('div','section-label', isEn()?'Putting cost and pay together':'Juntando el costo y el salario'));
     if(o.paybackLabel){
       m.appendChild(el('p','', occPayback(o) + '.'));
-      m.appendChild(el('p','es', isEn()
-        ? 'This is a simple comparison, not a repayment timeline.'
-        : 'Esta es una comparación simple, no un plan de pagos.'));
     }
     if(o.roi5yr!==null){
       m.appendChild(el('p','', isEn()
-        ? ('Over five years, typical starting pay adds up to roughly ' + o.roi5yr + ' times the training cost.')
-        : ('En cinco años, el salario inicial típico suma aproximadamente ' + o.roi5yr + ' veces el costo de la capacitación.')));
+        ? ('Over five years, typical starting pay adds up to roughly ' + o.roi5yr + ' times the training cost — sometimes called the 5-year return (ROI).')
+        : ('En cinco años, el salario inicial típico suma aproximadamente ' + o.roi5yr + ' veces el costo de la capacitación — a veces llamado el retorno a 5 años (ROI).')));
     }
     m.appendChild(el('p','es', isEn()
-      ? "These numbers do not take out taxes, rent, food, or getting to work. Real life costs more than training alone, so treat this as a rough way to compare, not a plan."
-      : 'Estos números no restan impuestos, renta, comida ni el transporte al trabajo. La vida real cuesta más que solo la capacitación, así que toma esto como una forma aproximada de comparar, no como un plan.'));
+      ? "These numbers do not account for taxes, living expenses, loan terms, financial aid, raises, unemployment, or part-time work. They compare estimated training cost to estimated starting pay only — not how long it would actually take to pay off training costs. Treat this as a rough way to compare careers, not a financial plan."
+      : 'Estos números no toman en cuenta impuestos, gastos de vida, condiciones de préstamos, ayuda financiera, aumentos de salario, desempleo, ni trabajo de medio tiempo. Solo comparan el costo estimado de capacitación con el salario inicial estimado — no cuánto tiempo tomaría realmente pagar el costo de la capacitación. Toma esto como una forma aproximada de comparar carreras, no como un plan financiero.'));
     wrap.appendChild(m);
   }
 
@@ -2399,8 +2445,8 @@ function occCompareScreen(){
 
   const note=el('div','card');
   note.appendChild(el('p','es', isEn()
-    ? 'Typical numbers, not offers. A shorter or cheaper path is not automatically the better one for your family. The payback estimate is a simple comparison, not a repayment timeline.'
-    : 'Números típicos, no ofertas. Un camino más corto o más barato no es automáticamente el mejor para tu familia. El estimado de recuperación es una comparación simple, no un plan de pagos.'));
+    ? 'Typical numbers, not offers. A shorter or cheaper path is not automatically the better one for your family. Cost compared to one year of typical starting pay is a simple comparison — not a prediction of how quickly someone would actually pay off training costs.'
+    : 'Números típicos, no ofertas. Un camino más corto o más barato no es automáticamente el mejor para tu familia. Costo comparado con un año de salario inicial típico es una comparación simple — no una predicción de qué tan rápido alguien pagaría realmente el costo de la capacitación.'));
   wrap.appendChild(note);
 
   function compareRow(labelEn, labelEs, valueFn){
@@ -2419,9 +2465,9 @@ function occCompareScreen(){
   compareRow('Training time','Tiempo de capacitación', o=>fmtYears(o.completionYears));
   compareRow('Estimated training cost','Costo estimado de capacitación', o=>fmtMoney(o.tuition));
   compareRow('Typical starting pay','Salario inicial típico', o=>fmtMoney(o.entrySalary));
-  compareRow('Expected growth','Crecimiento esperado', o=>o.growthPct===null?null:('+' + o.growthPct + '%'));
-  compareRow('Payback estimate','Estimado de recuperación', o=>occPayback(o));
-  compareRow('5-year ROI ratio','Retorno a 5 años', o=>o.roi5yr===null?null:(o.roi5yr + 'x'));
+  compareRow('Expected growth (2024-2034)','Crecimiento esperado (2024-2034)', o=>o.growthPct===null?null:('+' + o.growthPct + '%'));
+  compareRow('Cost compared to one year of typical starting pay','Costo comparado con un año de salario inicial típico', o=>occPayback(o));
+  compareRow('5-year return (ROI)','Retorno a 5 años (ROI)', o=>o.roi5yr===null?null:(o.roi5yr + 'x'));
   compareRow('Demand in Texas','Demanda en Texas', o=>occScale(o.texasDemand));
   compareRow('Remote potential','Potencial de trabajo remoto', o=>occScale(o.remotePotential));
 

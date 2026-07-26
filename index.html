@@ -543,7 +543,7 @@ const RIASEC_SPOKEN_GLOSS = {
 let state = {
   lang:'en', screen:'home', topic:null,
   path: [],           // breadcrumb of stages visited this session
-  // assessment progress
+  // assessment progress — completed/results ARE persisted locally (see saveExploreProgress); everything else on this line is session-only
   valuesStep:0, valuesSelected:[], valuesRanked:[],
   strengthsStep:0, strengthsSelected:[], strengthsTop3:[],
   persoStep:0, persoAnswers:[],
@@ -579,6 +579,54 @@ function resetExploreState(){
   state.completed = {values:false, strengths:false, personality:false, interests:false};
   state.results = {values:null, strengths:null, personality:null, interests:null};
   state.visionAsked=false; state.visionReflection='';
+  saveExploreProgress();
+}
+
+// ============ LOCAL, PER-DEVICE PERSISTENCE ============
+// Scope is deliberately narrow: only Explore progress (completed + results) and a
+// locally-generated Family ID. Everything else in `state` (Scholarship filters, Local
+// Pathway selection, ROI Explorer filters, Decide session data) stays session-only, as
+// documented at each of those fields above. This is browser storage on ONE device, not
+// an account — closing the app on a different phone or clearing browser data starts
+// fresh. Copy on the Family screen must never imply more than that.
+const EXPLORE_PROGRESS_KEY = 'ap_explore_progress_v1';
+const FAMILY_ID_KEY = 'ap_family_id_v1';
+
+function saveExploreProgress(){
+  try {
+    localStorage.setItem(EXPLORE_PROGRESS_KEY, JSON.stringify({
+      completed: state.completed, results: state.results,
+    }));
+  } catch(e){ /* storage unavailable (private browsing, disabled, quota) — fail silently, app still works session-only */ }
+}
+function loadExploreProgress(){
+  try {
+    const raw = localStorage.getItem(EXPLORE_PROGRESS_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    if(saved && saved.completed && saved.results){
+      state.completed = Object.assign({values:false,strengths:false,personality:false,interests:false}, saved.completed);
+      state.results = Object.assign({values:null,strengths:null,personality:null,interests:null}, saved.results);
+    }
+  } catch(e){ /* corrupt or unavailable — start fresh rather than throw */ }
+}
+
+// AP-YYYYMM-### — matches the format used in the org's own pipeline. Generated once per
+// device on first visit, stored locally, then reused. This is a REFERENCE CODE a family
+// can share with a Navigator for manual matching, not a unique account identifier, and
+// nothing here transmits it anywhere automatically.
+function getOrCreateFamilyId(){
+  try {
+    let id = localStorage.getItem(FAMILY_ID_KEY);
+    if(!id){
+      const now = new Date();
+      const yyyymm = String(now.getFullYear()) + String(now.getMonth()+1).padStart(2,'0');
+      const suffix = String(Math.floor(Math.random()*1000)).padStart(3,'0');
+      id = 'AP-' + yyyymm + '-' + suffix;
+      localStorage.setItem(FAMILY_ID_KEY, id);
+    }
+    return id;
+  } catch(e){ return null; } // storage unavailable — Family ID card omits itself gracefully
 }
 
 // Shared progress phrasing, used by both the Explore Hub and the Family Profile screen
@@ -1154,6 +1202,7 @@ function valuesScreen(){
       if(state.valuesRanked.length===5){
         state.results.values = state.valuesRanked.map(id=>VALUES.find(v=>v.id===id));
         state.completed.values=true;
+        saveExploreProgress();
         state.valuesStep=2; render();
       }
     };
@@ -1228,6 +1277,7 @@ function strengthsScreen(){
       if(state.strengthsTop3.length===3){
         state.results.strengths = state.strengthsTop3.map(id=>STRENGTHS.find(s=>s.id===id));
         state.completed.strengths=true;
+        saveExploreProgress();
         state.strengthsStep=2; render();
       }
     };
@@ -1276,6 +1326,7 @@ function personalityScreen(){
     const type = (counts.E>=counts.I?'E':'I')+(counts.S>=counts.N?'S':'N')+(counts.T>=counts.F?'T':'F')+(counts.J>=counts.P?'J':'P');
     state.results.personality = {code:type, name: isEn()?TYPE_NAMES[type]:TYPE_NAMES_ES[type]};
     state.completed.personality=true;
+    saveExploreProgress();
     const card=el('div','card confirm-box');
     card.appendChild(el('div','confirm-icon','🧩'));
     const reflection = composePersonalityReflection();
@@ -1323,6 +1374,7 @@ function interestsScreen(){
         const ranked = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).slice(0,3);
         state.results.interests = ranked.map(code=>RIASEC.find(r=>r.code===code));
         state.completed.interests=true;
+        saveExploreProgress();
         state.interestDone=true; render();
       }
     };
@@ -3444,11 +3496,42 @@ function clinicaScreen(){
 function familyScreen(){
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'Family':'Familia'));
+
   const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'ONE FAMILY, ONE PROFILE':'UNA FAMILIA, UN PERFIL'));
-  card.appendChild(el('h2','', isEn()?'This is where everything lives':'Aquí vive todo'));
-  card.appendChild(el('p','', isEn()?'Explore results, Clínica appointments, and workshop history all connect to one family profile, not separate logins for separate tools.':'Los resultados de Explorar, citas de Clínica e historial de talleres se conectan a un solo perfil familiar, no a inicios de sesión separados.'));
+  card.appendChild(el('div','pill', isEn()?'SAVED ON THIS DEVICE':'GUARDADO EN ESTE DISPOSITIVO'));
+  card.appendChild(el('h2','', isEn()?'Your progress stays with you':'Tu progreso se queda contigo'));
+  card.appendChild(el('p','', isEn()
+    ? "Explore progress is saved on this phone or computer, so it's here when you come back. This isn't an account, and it isn't shared with other devices."
+    : 'El progreso de Explorar se guarda en este teléfono o computadora, para que esté aquí cuando regreses. Esto no es una cuenta, y no se comparte con otros dispositivos.'));
   wrap.appendChild(card);
+
+  // Family ID: a local reference code for manual matching by a Navigator, not an account.
+  // Omits itself gracefully if the browser has no working storage.
+  const familyId = getOrCreateFamilyId();
+  if(familyId){
+    const idCard=el('div','card');
+    idCard.appendChild(el('div','section-label', isEn()?'Your Family ID':'Tu ID Familiar'));
+    idCard.appendChild(el('p','', isEn()
+      ? "Share this with a Navigator at Clínica or on a form so they can find you, no need to repeat everything."
+      : 'Comparte esto con un Navegador en la Clínica o en un formulario para que puedan encontrarte, sin necesidad de repetir todo.'));
+    const idBox=document.createElement('div');
+    idBox.style.cssText='font-size:22px;font-weight:700;letter-spacing:0.5px;color:var(--teal-deep);background:var(--cream,#F7F3EC);border-radius:10px;padding:14px 16px;text-align:center;margin:10px 0;font-family:monospace;';
+    idBox.textContent = familyId;
+    idCard.appendChild(idBox);
+    const copyBtn=el('button','secondary-btn', isEn()?'Copy ID':'Copiar ID');
+    copyBtn.onclick=()=>{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(familyId);
+        copyBtn.textContent = isEn()?'Copied':'Copiado';
+        setTimeout(()=>{ copyBtn.textContent = isEn()?'Copy ID':'Copiar ID'; }, 1500);
+      }
+    };
+    idCard.appendChild(copyBtn);
+    idCard.appendChild(el('p','es', isEn()
+      ? "This code isn't tied to an account. A different phone or a cleared browser gets a new one."
+      : 'Este código no está vinculado a una cuenta. Otro teléfono o un navegador borrado obtiene uno nuevo.'));
+    wrap.appendChild(idCard);
+  }
 
   const card2=el('div','card');
   card2.appendChild(el('div','section-label', isEn()?'Explore progress':'Progreso de Explorar'));
@@ -3470,6 +3553,7 @@ function familyScreen(){
   return wrap;
 }
 
+loadExploreProgress();
 render();
 </script>
 </body>

@@ -179,14 +179,14 @@ const T = {
     resourcesSection: "Where would you like to begin?",
     frameworkSubtitle: "Wherever you are right now, there's a place to start.",
     chooseTopic: "Tell us what's going on",
-    navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navApply:"Apply", navMe:"Family",
+    navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navApply:"Advance", navMe:"Family",
     back:"Back",
     stages: [
-      {key:'explore', ic:'🧭', c1:'#2A8A96', en:'Explore', es:'Explorar', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
-      {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decidir', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
-      {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Apply', es:'Aplicar', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
-      {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Stay', es:'Quédate', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
-      {key:'shift', ic:'🔄', c1:'#C4612A', en:'Shift', es:'Cambia', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
+      {key:'explore', ic:'🧭', c1:'#2A8A96', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
+      {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decide', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
+      {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Advance', es:'Avanza', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
+      {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Persevere', es:'Persevera', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
+      {key:'shift', ic:'🔄', c1:'#C4612A', en:'Redefine', es:'Redefine tu camino', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
     ],
     triage: [
       {emoji:"📝", en:"My child needs to apply for financial aid", es:"Mi hijo/a necesita solicitar ayuda financiera", key:'fafsa'},
@@ -204,7 +204,7 @@ const T = {
     resourcesSection: "¿Por dónde te gustaría empezar?",
     frameworkSubtitle: "Estés donde estés ahora mismo, hay un lugar por dónde empezar.",
     chooseTopic: "Cuéntanos qué está pasando",
-    navHome:"Inicio", navExplore:"Explorar", navClinica:"Clínica", navApply:"Aplicar", navMe:"Familia",
+    navHome:"Inicio", navExplore:"Explora", navClinica:"Clínica", navApply:"Avanza", navMe:"Familia",
     back:"Atrás",
     stages: null, // filled below to mirror EN structurally
     triage: [
@@ -976,27 +976,27 @@ function homeScreen(){
 
 /* ============ TOPIC (reused from Phase 0, routes into stages) ============ */
 const TOPIC_TEXT = {
-  fafsa:{dest:'apply', destEn:'Apply', destEs:'Aplicar',
+  fafsa:{dest:'apply', destEn:'Advance', destEs:'Avanza',
     titleEn:"Let's get financial aid started", titleEs:"Empecemos con la ayuda financiera",
     bodyEn:"Most families qualify for some form of aid. FAFSA or TASFA, depending on status, is the first real step.",
     bodyEs:"La mayoría de las familias califican para algún tipo de ayuda. FAFSA o TASFA, según el estatus, es el primer paso real."},
-  explore:{dest:'explore', destEn:'Explore', destEs:'Explorar',
+  explore:{dest:'explore', destEn:'Explore', destEs:'Explora',
     titleEn:"Not knowing yet is completely normal", titleEs:"No saber todavía es completamente normal",
     bodyEn:"Before we get anywhere near a major or a career, it helps to start with you, what matters to you, the strengths you bring, and what you enjoy. That's what Explore is for.",
-    bodyEs:"Antes de hablar de una carrera o profesión, ayuda empezar contigo, qué te importa, las fortalezas que aportas, y qué disfrutas. Para eso es Explorar."},
-  worthit:{dest:'decide', destEn:'Decide', destEs:'Decidir',
+    bodyEs:"Antes de hablar de una carrera o profesión, ayuda empezar contigo, qué te importa, las fortalezas que aportas, y qué disfrutas. Para eso es Explora."},
+  worthit:{dest:'decide', destEn:'Decide', destEs:'Decide',
     titleEn:"That's a fair question to ask", titleEs:"Es una pregunta justa",
     bodyEn:"College is one path, not the only one. Decide compares cost, time, salary, and outlook across college, trade, and apprenticeship options, side by side.",
-    bodyEs:"La universidad es un camino, no el único. Decidir compara costo, tiempo, salario y perspectiva entre universidad, oficio y aprendizaje, lado a lado."},
+    bodyEs:"La universidad es un camino, no el único. Decide compara costo, tiempo, salario y perspectiva entre universidad, oficio y aprendizaje, lado a lado."},
   undoc:{dest:'clinica', destEn:'Get Help at Clínica', destEs:'Recibe Ayuda en la Clínica',
     titleEn:"You belong in this process too", titleEs:"Tú también perteneces a este proceso",
     bodyEn:"Immigration status can make college feel closed off. There are still real options, but the rules changed in 2025 and 2026 and depend on your specific situation, including DACA or TPS status. Nothing you share at Clínica is reported anywhere, and there is no wrong answer. A Navigator can talk through what applies to you privately, no forms required to start.",
     bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Todavía existen opciones reales, pero las reglas cambiaron en 2025 y 2026 y dependen de tu situación específica, incluyendo el estatus de DACA o TPS. Nada de lo que compartas en la Clínica se reporta a ningún lugar, y no hay respuesta incorrecta. Un Navegador puede hablar contigo en privado sobre lo que aplica a tu caso, sin formularios para empezar."},
-  adult:{dest:'shift', destEn:'Shift', destEs:'Cambia',
+  adult:{dest:'shift', destEn:'Redefine', destEs:'Redefine tu camino',
     titleEn:"It's not too late to go back", titleEs:"No es demasiado tarde para regresar",
-    bodyEn:"Whether it's been a few classes or a few decades, the Shift stage is built for adults returning to school, including credit for prior learning and evening options.",
-    bodyEs:"Sea que falten pocas clases o hayan pasado décadas, la etapa Cambiar está hecha para adultos que regresan, incluyendo crédito por aprendizaje previo y horarios nocturnos."},
-  scholarships:{dest:'apply', destEn:'Apply', destEs:'Aplicar',
+    bodyEn:"Whether it's been a few classes or a few decades, the Redefine stage is built for adults returning to school, including credit for prior learning and evening options.",
+    bodyEs:"Sea que falten pocas clases o hayan pasado décadas, la etapa Redefine está hecha para adultos que regresan, incluyendo crédito por aprendizaje previo y horarios nocturnos."},
+  scholarships:{dest:'apply', destEn:'Advance', destEs:'Avanza',
     titleEn:"Let's build a scholarship list", titleEs:"Construyamos una lista de becas",
     bodyEn:"Most families only hear about the one big national scholarship. There are usually smaller, local ones with far less competition.",
     bodyEs:"La mayoría de las familias solo escuchan sobre la gran beca nacional. Usualmente hay becas locales más pequeñas con mucha menos competencia."},
@@ -2661,7 +2661,7 @@ function applyScreen(){
 
 
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Apply':'Aplicar'));
+  wrap.appendChild(screenHeader(isEn()?'Advance':'Avanza'));
 
   // Lightweight recommendation layer: only appears once a school has been selected via
   // Your Local Pathway, reuses that same computed recommendation (never a second, separate
@@ -3438,12 +3438,12 @@ function D_CC_NAME(ccId){
   return cc ? cc.college_name : ccId;
 }
 
-/* ============ STAY ============ */
+/* ============ PERSEVERE ============ */
 function stayScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Stay':'Quédate'));
+  wrap.appendChild(screenHeader(isEn()?'Persevere':'Persevera'));
   const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'STAY · ONGOING SUPPORT':'QUÉDATE · APOYO CONTINUO'));
+  card.appendChild(el('div','pill', isEn()?'PERSEVERE · ONGOING SUPPORT':'PERSEVERA · APOYO CONTINUO'));
   card.appendChild(el('h2','', isEn()?'Already enrolled? We stay with you.':'¿Ya estás inscrito? Seguimos contigo.'));
   card.appendChild(el('p','', isEn()?'Financial aid renewal reminders, check-ins, and emergency resource connections continue for 12 months after your family works with AP.':'Recordatorios de renovación de ayuda financiera, seguimiento y conexiones a recursos de emergencia continúan por 12 meses.'));
   const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
@@ -3456,12 +3456,12 @@ function stayScreen(){
   return wrap;
 }
 
-/* ============ SHIFT ============ */
+/* ============ REDEFINE ============ */
 function shiftScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Shift':'Cambia'));
+  wrap.appendChild(screenHeader(isEn()?'Redefine':'Redefine tu camino'));
   const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'SHIFT · CHANGING DIRECTION':'CAMBIA · CAMBIAR DE DIRECCIÓN'));
+  card.appendChild(el('div','pill', isEn()?'REDEFINE · CHANGING DIRECTION':'REDEFINE · CAMBIAR DE DIRECCIÓN'));
   card.appendChild(el('h2','', isEn()?"It's not too late to change direction":'No es demasiado tarde para cambiar de rumbo'));
   card.appendChild(el('p','', isEn()?'Changing majors, transferring schools, returning as an adult learner, or pivoting careers, this is the stage for that conversation.':'Cambiar de carrera, transferirte de escuela, regresar como adulto o cambiar de profesión, esta es la etapa para esa conversación.'));
   const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');

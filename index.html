@@ -3477,6 +3477,9 @@ function shiftScreen(){
 /* ============ CLÍNICA ============ */
 const HEADS_UP_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdaSHjdHPWYUb_N-SHizm_vPGUaWcSLIwPpjfzkErfekLHBVw/viewform';
 const PRIVATE_MEETING_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfy788vzYrUM8Bo1kWzM1UsmvSmrKJaJxlUyJsvsuf1URRBGg/viewform';
+// Weekly 15-minute drop-in reservation slots for Clínica (5:15–6:45 PM), separate from the
+// longer, private one-on-one Zoom meeting request (PRIVATE_MEETING_FORM_URL above).
+const CLINICA_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ1gW1qe9LcpvySKV9vnk_v6t5Zfn7Q-N7D24uTJrKOuKNb0Djxv54ug2Y5jhrfOQbpbDlb4d8S5';
 // Prefill entry IDs for the "Family ID (optional)" question added to each form.
 // If getOrCreateFamilyId() returns null (localStorage unavailable), the forms
 // open with no prefill — they still work fine without it since the question is optional.
@@ -3495,9 +3498,13 @@ function clinicaScreen(){
   wrap.appendChild(screenHeader(isEn()?'Clínica':'Clínica'));
 
   const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'DROP-IN · NO COST':'SIN CITA · SIN COSTO'));
-  card.appendChild(el('h2','', isEn()?'No appointment needed, just come by':'No necesitas cita, solo ven'));
-  card.appendChild(el('p','', isEn()?"Thursdays, 5:00–8:00 PM at East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). It's completely free, and there's no sign-up or reserved time, a Navigator will be there to help whoever comes during those hours.":'Los jueves, de 5:00 a 8:00 PM en East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). Es completamente gratis, y no hay inscripción ni horario reservado, un Navegador estará ahí para ayudar a quien llegue durante ese horario.'));
+  card.appendChild(el('div','pill', isEn()?'DROP-IN OR RESERVE · NO COST':'SIN CITA O CON RESERVA · SIN COSTO'));
+  card.appendChild(el('h2','', isEn()?'Reserve a 15-minute spot, or just walk in':'Reserva un espacio de 15 minutos, o ven sin cita'));
+  card.appendChild(el('p','', isEn()?"Thursdays, 5:15–7:45 PM at East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). It's completely free. From 5:15–6:45 PM you can reserve a 15-minute spot with a Navigator, walk-ins are welcome then too, but reserved spots are seen first. From 7:00–7:45 PM it's open drop-in, no appointment needed.":'Los jueves, de 5:15 a 7:45 PM en East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). Es completamente gratis. De 5:15 a 6:45 PM puedes reservar un espacio de 15 minutos con un Navegador, también se aceptan visitas sin cita durante ese horario, pero los espacios reservados se atienden primero. De 7:00 a 7:45 PM es sin cita previa, abierto para todos.'));
+  const bookBtn=el('button','primary-btn', isEn()?'Reserve a 15-Minute Spot':'Reservar un Espacio de 15 Minutos');
+  bookBtn.onclick=()=>{ window.open(CLINICA_BOOKING_URL, '_blank', 'noopener,noreferrer'); };
+  card.appendChild(bookBtn);
+  card.appendChild(el('p','es', isEn()?'Opens Google Calendar in a new tab. No open times, or prefer not to reserve? Walk-ins are always welcome.':'Se abre Google Calendar en una pestaña nueva. ¿No hay horarios disponibles, o prefieres no reservar? Siempre puedes venir sin cita.'));
   wrap.appendChild(card);
 
   const card2=el('div','card');
@@ -3512,7 +3519,7 @@ function clinicaScreen(){
 
   const card3=el('div','card');
   card3.appendChild(el('h2','', isEn()?'Planning to stop by?':'¿Piensas pasar?'));
-  card3.appendChild(el('p','', isEn()?'No appointment is needed. Clínica is drop-in. This optional form gives us a heads-up about what you may want help with so we can be better prepared. It does not reserve a time or guarantee immediate service.':'No necesitas cita. La Clínica funciona sin cita previa. Este formulario opcional solo nos ayuda a saber con anticipación en qué podrías necesitar apoyo para estar mejor preparados. No reserva un horario ni garantiza atención inmediata.'));
+  card3.appendChild(el('p','', isEn()?'Whether you reserve a 15-minute spot above or just walk in, this optional form gives us a heads-up about what you may want help with so we can be better prepared. It does not reserve a time on its own or guarantee immediate service.':'Ya sea que reserves un espacio de 15 minutos arriba o llegues sin cita, este formulario opcional nos ayuda a saber con anticipación en qué podrías necesitar apoyo para estar mejor preparados. No reserva un horario por sí solo ni garantiza atención inmediata.'));
   const btn=el('button','primary-btn', isEn()?'Send an optional heads-up':'Enviar aviso opcional');
   btn.onclick=()=>{ window.open(getHeadsUpFormUrl(), '_blank', 'noopener,noreferrer'); };
   card3.appendChild(btn);
@@ -3521,7 +3528,7 @@ function clinicaScreen(){
 
   const card4=el('div','card');
   card4.appendChild(el('h2','', isEn()?'Prefer a private conversation instead?':'¿Prefieres una conversación privada?'));
-  card4.appendChild(el('p','', isEn()?"Clínica is a group, drop-in setting. If that doesn't feel right for your situation, you can request a one-on-one meeting with a Navigator instead. This is a request, not an instant booking, someone will follow up with you.":'La Clínica es un espacio grupal, sin cita previa. Si eso no se siente adecuado para tu situación, puedes pedir una reunión individual con un Navegador. Esto es una solicitud, no una cita inmediata, alguien te dará seguimiento.'));
+  card4.appendChild(el('p','', isEn()?"Clínica, including the reserved 15-minute spots, still happens in a shared space at the Activity Center. If you'd rather have a longer, private conversation over Zoom, you can request a one-on-one meeting with a Navigator instead. This is a request, not an instant booking, someone will follow up with you to schedule it.":'La Clínica, incluyendo los espacios reservados de 15 minutos, sigue siendo en un espacio compartido en el Activity Center. Si prefieres una conversación más larga y privada por Zoom, puedes pedir una reunión individual con un Navegador. Esto es una solicitud, no una cita inmediata, alguien te contactará para agendarla.'));
   const privBtn=el('button','secondary-btn', isEn()?'Request a Private Meeting':'Solicitar una Reunión Privada');
   privBtn.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
   card4.appendChild(privBtn);
@@ -3582,7 +3589,7 @@ function familyScreen(){
 
   const card3=el('div','card');
   card3.appendChild(el('div','section-label', isEn()?'Clínica':'Clínica'));
-  card3.appendChild(el('p','', isEn()?'Drop-in, Thursdays 5:00–8:00 PM. No appointment needed.':'Sin cita, los jueves de 5:00 a 8:00 PM. No necesitas reservar.'));
+  card3.appendChild(el('p','', isEn()?'Thursdays, 5:15–7:45 PM. Reserve a 15-minute spot, or just walk in.':'Los jueves, de 5:15 a 7:45 PM. Reserva un espacio de 15 minutos, o ven sin cita.'));
   const btn2=el('button','secondary-btn', isEn()?'Go to Clínica':'Ir a la Clínica');
   btn2.onclick=()=>{ state.screen='clinica'; render(); };
   card3.appendChild(btn2);

@@ -971,6 +971,13 @@ function homeScreen(){
     wrap.appendChild(b);
   });
 
+  const checklistCard=el('div','stage-banner');
+  checklistCard.style.background = 'linear-gradient(135deg, #8C6A3F, #8C6A3FCC)';
+  checklistCard.style.marginTop = '10px';
+  checklistCard.innerHTML = `<div class="ic">✅</div><div><h3>${isEn()?'Family Checklist':'Lista Familiar'}</h3><p>${isEn()?'A printable, step-by-step checklist for every stage':'Una lista imprimible, paso a paso, para cada etapa'}</p></div><div class="chev">›</div>`;
+  checklistCard.onclick=()=>{ window.open(FAMILY_CHECKLIST_URL, '_blank', 'noopener,noreferrer'); };
+  wrap.appendChild(checklistCard);
+
   return wrap;
 }
 
@@ -3480,6 +3487,11 @@ const PRIVATE_MEETING_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfy78
 // Weekly 15-minute reservation slots for Clínica (Thursdays 5:00–8:00 PM window), separate from the
 // longer, private one-on-one Zoom meeting request (PRIVATE_MEETING_FORM_URL above).
 const CLINICA_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ1gW1qe9LcpvySKV9vnk_v6t5Zfn7Q-N7D24uTJrKOuKNb0Djxv54ug2Y5jhrfOQbpbDlb4d8S5';
+// Standalone bilingual family checklist (Explore/Decide/Advance + Resources/Financial Aid/
+// Documents/By Situation). Lives at /checklist/ as its own static page — kept separate from
+// this single-page app on purpose (different content model: long-form reference checklist
+// with its own localStorage keys, vs. this app's short interactive Explore quiz flow).
+const FAMILY_CHECKLIST_URL = './checklist/';
 // Prefill entry IDs for the "Family ID (optional)" question added to each form.
 // If getOrCreateFamilyId() returns null (localStorage unavailable), the forms
 // open with no prefill — they still work fine without it since the question is optional.
@@ -3595,6 +3607,14 @@ function familyScreen(){
   btn2.onclick=()=>{ state.screen='clinica'; render(); };
   card3.appendChild(btn2);
   wrap.appendChild(card3);
+
+  const card4=el('div','card');
+  card4.appendChild(el('div','section-label', isEn()?'Family Checklist':'Lista Familiar'));
+  card4.appendChild(el('p','', isEn()?'A printable, step-by-step checklist covering every stage, plus resources, financial aid dates, and documents to gather.':'Una lista imprimible, paso a paso, que cubre cada etapa, además de recursos, fechas de ayuda financiera y documentos que reunir.'));
+  const btn3=el('button','secondary-btn', isEn()?'Open Family Checklist':'Abrir Lista Familiar');
+  btn3.onclick=()=>{ window.open(FAMILY_CHECKLIST_URL, '_blank', 'noopener,noreferrer'); };
+  card4.appendChild(btn3);
+  wrap.appendChild(card4);
 
   return wrap;
 }

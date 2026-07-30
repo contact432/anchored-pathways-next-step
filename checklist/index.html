@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Family Checklist | Anchored Pathways</title>
+<meta name="description" content="A free, bilingual family checklist for every pathway forward — university, community college, trade school, apprenticeship, military, or certification. From Anchored Pathways.">
+
+<!-- Favicons (shared with the main app, one level up) -->
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../favicon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="../favicon-512x512.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<meta name="theme-color" content="#14505E">
+
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Anchored Pathways">
+<meta property="og:title" content="Family Checklist — Anchored Pathways">
+<meta property="og:description" content="A free, bilingual family checklist for every pathway forward — university, community college, trade school, apprenticeship, military, or certification.">
+<meta property="og:image" content="https://contact432.github.io/anchored-pathways-next-step/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://contact432.github.io/anchored-pathways-next-step/checklist/">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Family Checklist — Anchored Pathways">
+<meta name="twitter:description" content="A free, bilingual family checklist for every pathway forward.">
+<meta name="twitter:image" content="https://contact432.github.io/anchored-pathways-next-step/og-image.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1A5F6E;
+    --navy: #14505E;
+    --gold: #F5A623;
+    --amber: #E8832A;
+    --paper: #FCFBF8;
+    --ink: #1E2B2E;
+    --line: #E4E0D5;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Work Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding-bottom: 90px;
+  }
+  header {
+    background: linear-gradient(135deg, var(--teal), var(--navy));
+    color: white;
+    padding: 24px 20px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  header .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 25px;
+    font-weight: 700;
+    margin: 4px 0 2px;
+  }
+  header p { margin: 0; font-size: 13px; opacity: 0.85; }
+
+  .lang-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.14);
+    border-radius: 999px;
+    padding: 3px;
+    flex-shrink: 0;
+  }
+  .lang-toggle button {
+    border: none;
+    background: none;
+    color: rgba(255,255,255,0.75);
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .lang-toggle button.active {
+    background: var(--gold);
+    color: var(--navy);
+  }
+
+  .progress-wrap {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.3s ease; }
+  .progress-label { font-size: 11px; margin-top: 6px; color: rgba(255,255,255,0.85); }
+
+  nav.tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 128px;
+    z-index: 19;
+    overflow-x: auto;
+  }
+  nav.tabs button {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 12px 6px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #8b8b7f;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  nav.tabs button.active { color: var(--teal); border-bottom-color: var(--gold); }
+
+  main { padding: 16px; max-width: 640px; margin: 0 auto; }
+  .stage-intro { font-size: 13.5px; color: #55605f; margin: 4px 0 18px; line-height: 1.5; }
+
+  .section { margin-bottom: 22px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: white; }
+  .section summary {
+    list-style: none; cursor: pointer; padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px;
+    color: var(--navy); background: #F4F1EA;
+  }
+  .section summary::-webkit-details-marker { display: none; }
+  .section summary .count {
+    font-family: 'Work Sans', sans-serif; font-size: 12px; font-weight: 600;
+    color: var(--amber); background: #FCEBD9; padding: 3px 9px; border-radius: 999px;
+    margin-left: 8px; white-space: nowrap;
+  }
+  .items { padding: 6px 6px 10px; }
+  label.item {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 10px;
+    border-radius: 8px; cursor: pointer; font-size: 14.5px; line-height: 1.42;
+  }
+  label.item:active { background: #F4F1EA; }
+  label.item input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--teal); flex-shrink: 0; }
+  label.item span.tag { display: block; font-size: 11px; color: var(--amber); font-weight: 600; margin-top: 2px; }
+  label.item.checked .txt { text-decoration: line-through; color: #9aa19f; }
+
+  .resource-group h3, .doc-group h3 { font-family: 'Fraunces', serif; color: var(--teal); font-size: 15px; margin: 18px 0 8px; }
+  .resource-group ul, .doc-group ul { margin: 0; padding-left: 20px; }
+  .resource-group li, .doc-group li { font-size: 14px; margin-bottom: 6px; color: #34423f; }
+
+  .cal-item { border-left: 3px solid var(--gold); padding: 6px 0 6px 12px; margin-bottom: 12px; }
+  .cal-item h4 { margin: 0 0 4px; font-size: 14px; color: var(--navy); font-family: 'Fraunces', serif; }
+  .cal-item ul { margin: 0; padding-left: 18px; font-size: 13.5px; color: #34423f; }
+
+  .pop-select {
+    width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+    font-family: 'Work Sans', sans-serif; font-size: 14px; margin-bottom: 16px;
+    color: var(--navy); background: white;
+  }
+
+  .disclaimer-box { background: #FCEBD9; border: 1px solid var(--gold); border-radius: 10px; padding: 14px; margin-bottom: 18px; }
+  .disclaimer-box h4 { margin: 0 0 6px; font-family: 'Fraunces', serif; color: var(--amber); font-size: 14px; }
+  .disclaimer-box p { margin: 0; font-size: 13px; color: var(--navy); line-height: 1.5; }
+
+  footer { text-align: center; padding: 26px 20px 10px; font-size: 12px; color: #8b8b7f; }
+  footer .es-line { font-style: italic; color: var(--teal); margin-top: 4px; display: block; }
+
+  .reset-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; background: white;
+    border-top: 1px solid var(--line); padding: 10px 16px; display: flex;
+    justify-content: center; z-index: 25;
+  }
+  .reset-bar button {
+    border: 1px solid var(--teal); color: var(--teal); background: none;
+    border-radius: 999px; padding: 8px 18px; font-size: 13px;
+    font-family: 'Work Sans', sans-serif; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top-row">
+    <div>
+      <div class="eyebrow">Anchored Pathways to Higher Education</div>
+      <h1 id="pageTitle">Explore, Decide, Advance</h1>
+      <p id="pageSubtitle">A family checklist for every pathway forward.</p>
+    </div>
+    <div class="lang-toggle" role="group" aria-label="Language / Idioma">
+      <button id="btnEn" type="button">EN</button>
+      <button id="btnEs" type="button">ES</button>
+    </div>
+  </div>
+  <p id="verifiedLine" style="font-size:11px; opacity:0.75; margin-top:8px;"></p>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main id="main"></main>
+
+<footer>
+  <span id="footerOrg">Anchored Pathways to Higher Education, Inc.</span>
+  <span class="es-line" id="footerClose"></span>
+  <div style="margin-top:14px;"><a id="appLink" href="../" style="color:var(--teal); font-weight:600; text-decoration:none; font-size:12.5px;">Open the full Anchored Pathways app →</a></div>
+</footer>
+
+<div class="reset-bar">
+  <button id="resetBtn" type="button"></button>
+</div>
+
+<script id="apdata" type="application/json">{"meta": {"title": {"en": "Explore, Decide, Advance", "es": "Explora, Decide, Avanza"}, "subtitle": {"en": "An Anchored Pathways Family Navigation Checklist", "es": "Una lista de navegación familiar de Anchored Pathways"}, "organization": "Anchored Pathways to Higher Education, Inc.", "description": {"en": "A checklist for first-generation and multilingual families in the Houston area. Every pathway (university, community college, trade school, apprenticeship, military, and certification) is treated as a real, valid option.", "es": "Una lista de verificación para familias de primera generación y multilingües en el área de Houston. Cada ruta (universidad, colegio comunitario, escuela técnica, aprendizaje, ejército y certificación) se presenta como una opción real y válida."}, "closing_line": {"en": "Because no one should walk the path alone.", "es": "Porque nadie debería recorrer el camino solo."}, "last_verified": "July 30, 2026"}, "stages": [{"id": "explore", "name": {"en": "Explore", "es": "Explora"}, "sections": [{"id": "know-yourself", "title": {"en": "Get to Know Yourself", "es": "Conocerse mejor"}, "items": [{"id": "EX-01", "text": {"en": "Talk as a family about interests, strengths, values, and what a good future looks like.", "es": "Hablen en familia sobre los intereses, las fortalezas, los valores y cómo se imaginan un buen futuro."}, "populations": ["all"]}, {"id": "EX-02", "text": {"en": "Complete a free interest or strengths assessment (Texas OnCourse, O*NET Interest Profiler, MyNextMove, CareerOneStop, or YouScience where available).", "es": "Completen una evaluación gratuita de intereses o fortalezas (Texas OnCourse, O*NET Interest Profiler, MyNextMove, CareerOneStop o YouScience, donde esté disponible)."}, "populations": ["all"]}, {"id": "EX-03", "text": {"en": "Write down three things the student is naturally good at and three things they enjoy doing.", "es": "Anoten tres cosas en las que el estudiante es naturalmente bueno y tres cosas que disfruta hacer."}, "populations": ["all"]}, {"id": "EX-04", "text": {"en": "Talk about what matters most: helping others, earning well, working with your hands, creativity, stability, staying close to family.", "es": "Conversen sobre lo que más importa: ayudar a los demás, ganar bien, trabajar con las manos, la creatividad, la estabilidad o quedarse cerca de la familia."}, "populations": ["all"]}]}, {"id": "research-careers", "title": {"en": "Research Careers", "es": "Investigar carreras"}, "items": [{"id": "EX-05", "text": {"en": "Pick 2 to 4 careers to research and look up typical starting salary in the Houston area.", "es": "Elijan de 2 a 4 carreras para investigar y busquen el salario inicial típico en el área de Houston."}, "populations": ["all"]}, {"id": "EX-06", "text": {"en": "Check job outlook (is this field growing, stable, or shrinking) using CareerOneStop or O*NET.", "es": "Revisen las perspectivas de empleo (si el campo está creciendo, estable o disminuyendo) usando CareerOneStop u O*NET."}, "populations": ["all"]}, {"id": "EX-07", "text": {"en": "Find out what education or training each career actually requires (high school diploma, certificate, associate degree, bachelor's degree, apprenticeship).", "es": "Averigüen qué educación o capacitación requiere realmente cada carrera (diploma de preparatoria, certificado, título asociado, título universitario o aprendizaje)."}, "populations": ["all"]}, {"id": "EX-08", "text": {"en": "Identify local employers in the Houston area who hire for this career.", "es": "Identifiquen empleadores locales en el área de Houston que contratan para esta carrera."}, "populations": ["all"]}, {"id": "EX-09", "text": {"en": "Learn about the day-to-day work environment (indoors/outdoors, physical demands, schedule, teamwork).", "es": "Conozcan el ambiente de trabajo diario (bajo techo o al aire libre, exigencias físicas, horario, trabajo en equipo)."}, "populations": ["all"]}]}, {"id": "know-pathways", "title": {"en": "Learn the Pathways (No One Path Is “Best”)", "es": "Conozcan las rutas (ninguna ruta es la “mejor”)"}, "items": [{"id": "EX-10", "text": {"en": "Learn what a four-year university offers and who it tends to fit well.", "es": "Conozcan lo que ofrece una universidad de cuatro años y para quién suele ser una buena opción."}, "populations": ["all"]}, {"id": "EX-11", "text": {"en": "Learn what a community college offers, including transfer agreements to four-year schools.", "es": "Conozcan lo que ofrece un colegio comunitario, incluyendo los acuerdos de transferencia a universidades de cuatro años."}, "populations": ["all"]}, {"id": "EX-12", "text": {"en": "Learn what technical and trade schools offer and which trades are in demand locally.", "es": "Conozcan lo que ofrecen las escuelas técnicas y vocacionales, y cuáles oficios tienen más demanda localmente."}, "populations": ["all"]}, {"id": "EX-13", "text": {"en": "Learn how apprenticeships work: paid on-the-job training combined with classroom learning.", "es": "Aprendan cómo funcionan los aprendizajes (apprenticeships): capacitación pagada en el trabajo combinada con clases."}, "populations": ["all"]}, {"id": "EX-14", "text": {"en": "Learn about military pathways, including education benefits and career training.", "es": "Conozcan las rutas militares, incluyendo los beneficios educativos y la capacitación profesional."}, "populations": ["all"]}, {"id": "EX-15", "text": {"en": "Learn about industry certifications that can be earned in months, not years.", "es": "Conozcan las certificaciones de la industria que se pueden obtener en meses, no en años."}, "populations": ["all"]}]}, {"id": "explore-in-person", "title": {"en": "Get Out and Explore", "es": "Salgan a explorar"}, "items": [{"id": "EX-16", "text": {"en": "Attend a college and career fair as a family.", "es": "Asistan en familia a una feria universitaria y de carreras."}, "populations": ["all"]}, {"id": "EX-17", "text": {"en": "Visit at least one college campus, trade school, or training program in person or virtually.", "es": "Visiten al menos un campus universitario, escuela técnica o programa de capacitación, en persona o de forma virtual."}, "populations": ["all"]}, {"id": "EX-18", "text": {"en": "Meet with a school counselor, academic advisor, mentor, or someone working in a field of interest.", "es": "Reúnanse con un consejero escolar, asesor académico, mentor o alguien que trabaje en un campo de interés."}, "populations": ["all"]}, {"id": "EX-19", "text": {"en": "Ask a working professional what they wish they had known before choosing their path.", "es": "Pregúntenle a un profesional en activo qué le hubiera gustado saber antes de elegir su camino."}, "populations": ["all"]}]}, {"id": "start-scholarship-research", "title": {"en": "Start Scholarship Research Early", "es": "Comiencen a investigar becas desde temprano"}, "items": [{"id": "EX-20", "text": {"en": "Create a running list of scholarships the student may qualify for, starting no later than junior year.", "es": "Creen una lista continua de becas para las que el estudiante podría calificar, comenzando a más tardar en el tercer año de preparatoria (junior year)."}, "populations": ["junior", "senior"]}, {"id": "EX-21", "text": {"en": "Set up a free scholarship-matching account (RaiseMe, BigFuture, or a local scholarship database).", "es": "Creen una cuenta gratuita para encontrar becas (RaiseMe, BigFuture o una base de datos local de becas)."}, "populations": ["all"]}, {"id": "EX-22", "text": {"en": "Ask the school counselor about local and school-specific scholarships.", "es": "Pregúntenle al consejero escolar sobre becas locales y las específicas de la escuela."}, "populations": ["all"]}]}]}, {"id": "decide", "name": {"en": "Decide", "es": "Decide"}, "sections": [{"id": "compare-pathways", "title": {"en": "Compare Pathways Side by Side", "es": "Comparen las rutas una al lado de la otra"}, "items": [{"id": "DE-01", "text": {"en": "List every pathway being seriously considered (university, community college, trade school, apprenticeship, military, certification, direct workforce entry).", "es": "Hagan una lista de todas las rutas que están considerando seriamente (universidad, colegio comunitario, escuela técnica, aprendizaje, ejército, certificación o ingreso directo al mundo laboral)."}, "populations": ["all"]}, {"id": "DE-02", "text": {"en": "Estimate the total cost of attendance for each option, including tuition, fees, books, housing, and transportation.", "es": "Calculen el costo total de cada opción, incluyendo matrícula, cuotas, libros, vivienda y transporte."}, "populations": ["all"]}, {"id": "DE-03", "text": {"en": "Estimate how much debt the family may need to take on for each option.", "es": "Calculen cuánta deuda podría necesitar asumir la familia en cada opción."}, "populations": ["all"]}, {"id": "DE-04", "text": {"en": "Estimate return on investment: expected starting salary compared to total cost and time invested.", "es": "Calculen el retorno de la inversión: el salario inicial esperado comparado con el costo total y el tiempo invertido."}, "populations": ["all"]}, {"id": "DE-05", "text": {"en": "Compare time to completion for each option (months vs. years).", "es": "Comparen el tiempo que toma terminar cada opción (meses frente a años)."}, "populations": ["all"]}, {"id": "DE-06", "text": {"en": "If starting at a community college, confirm the transfer pathway and which credits will count toward a four-year degree.", "es": "Si van a comenzar en un colegio comunitario, confirmen la ruta de transferencia y qué créditos contarán para un título de cuatro años."}, "populations": ["all"]}, {"id": "DE-07", "text": {"en": "Compare how soon each option leads to full-time paid work.", "es": "Comparen qué tan pronto lleva cada opción a un empleo pagado de tiempo completo."}, "populations": ["all"]}]}, {"id": "check-quality", "title": {"en": "Check Program Quality", "es": "Verifiquen la calidad del programa"}, "items": [{"id": "DE-08", "text": {"en": "Confirm the school or program is accredited.", "es": "Confirmen que la escuela o el programa esté acreditado."}, "populations": ["all"]}, {"id": "DE-09", "text": {"en": "Look up graduation or completion rates for the program.", "es": "Busquen las tasas de graduación o finalización del programa."}, "populations": ["all"]}, {"id": "DE-10", "text": {"en": "Look up job placement rates after graduation, if published.", "es": "Busquen las tasas de colocación laboral después de graduarse, si están publicadas."}, "populations": ["all"]}, {"id": "DE-11", "text": {"en": "Read reviews or talk to current students or recent graduates when possible.", "es": "Lean reseñas o hablen con estudiantes actuales o graduados recientes cuando sea posible."}, "populations": ["all"]}]}, {"id": "decide-together", "title": {"en": "Decide as a Family", "es": "Decidan en familia"}, "items": [{"id": "DE-12", "text": {"en": "Hold a family conversation to talk through the options honestly, including cost and distance from home.", "es": "Tengan una conversación familiar honesta sobre las opciones, incluyendo el costo y la distancia de casa."}, "populations": ["all"]}, {"id": "DE-13", "text": {"en": "Build a shortlist of 2 to 5 realistic options.", "es": "Elaboren una lista corta de 2 a 5 opciones realistas."}, "populations": ["all"]}, {"id": "DE-14", "text": {"en": "Select one primary plan.", "es": "Elijan un plan principal."}, "populations": ["all"]}, {"id": "DE-15", "text": {"en": "Select one backup plan in case the primary plan does not work out.", "es": "Elijan un plan alterno en caso de que el plan principal no funcione."}, "populations": ["all"]}]}]}, {"id": "advance", "name": {"en": "Advance", "es": "Avanza"}, "sections": [{"id": "accounts-applications", "title": {"en": "Create Accounts and Apply", "es": "Creen cuentas y apliquen"}, "items": [{"id": "AD-01", "text": {"en": "Create application accounts (ApplyTexas, Common App, or the specific school/program portal).", "es": "Creen cuentas de solicitud (ApplyTexas, Common App o el portal específico de la escuela o programa)."}, "populations": ["all"]}, {"id": "AD-02", "text": {"en": "Complete and submit college, trade school, or program applications.", "es": "Completen y envíen las solicitudes para la universidad, escuela técnica o programa."}, "populations": ["all"]}, {"id": "AD-03", "text": {"en": "Request official high school transcripts be sent to each school or program.", "es": "Soliciten que se envíen los certificados oficiales de calificaciones (transcripts) de la preparatoria a cada escuela o programa."}, "populations": ["all"]}, {"id": "AD-04", "text": {"en": "Request letters of recommendation, giving at least 3 to 4 weeks' notice.", "es": "Soliciten cartas de recomendación con al menos 3 a 4 semanas de anticipación."}, "populations": ["all"]}, {"id": "AD-05", "text": {"en": "Write and revise a personal statement or application essay.", "es": "Escriban y revisen una declaración personal o ensayo de admisión."}, "populations": ["all"]}, {"id": "AD-06", "text": {"en": "Build or update a resume, including school, work, and volunteer experience.", "es": "Elaboren o actualicen un currículum (resume), incluyendo la experiencia escolar, laboral y de voluntariado."}, "populations": ["all"]}, {"id": "AD-07", "text": {"en": "Apply for apprenticeships directly with sponsoring employers or unions, where applicable.", "es": "Soliciten aprendizajes (apprenticeships) directamente con los empleadores o sindicatos patrocinadores, cuando corresponda."}, "populations": ["all"]}, {"id": "AD-08", "text": {"en": "Apply for workforce training programs through Texas Workforce Commission or a local workforce center.", "es": "Soliciten programas de capacitación laboral a través de Texas Workforce Commission o un centro de empleo local."}, "populations": ["all"]}]}, {"id": "financial-aid-steps", "title": {"en": "Complete Financial Aid", "es": "Completen la ayuda financiera"}, "items": [{"id": "AD-09", "text": {"en": "Create an FSA ID for the student (and one parent, if the student is a dependent).", "es": "Creen un FSA ID para el estudiante (y para un padre o madre, si el estudiante es dependiente)."}, "populations": ["all"]}, {"id": "AD-10", "text": {"en": "Complete the FAFSA as soon as it opens (see Financial Aid Calendar).", "es": "Completen la FAFSA tan pronto como se abra (vean el Calendario de Ayuda Financiera)."}, "populations": ["all"]}, {"id": "AD-11", "text": {"en": "If the student cannot complete the FAFSA, ask the school's financial aid office whether TASFA fits the student's situation. As of 2026, TASFA leads to in-state tuition and full state aid only for students who can demonstrate lawful presence (for example, DACA or TPS status); rules are being litigated and can change, so confirm current eligibility with each school directly.", "es": "Si el estudiante no puede completar la FAFSA, pregunten en la oficina de ayuda financiera de la escuela si la TASFA es adecuada para su situación. A partir de 2026, la TASFA da acceso a la matrícula estatal (in-state tuition) y a la ayuda estatal completa solo para estudiantes que pueden demostrar presencia legal (por ejemplo, estatus DACA o TPS); las reglas están en litigio y pueden cambiar, así que confirmen la elegibilidad actual directamente con cada escuela."}, "populations": ["undoc_tasfa"]}, {"id": "AD-12", "text": {"en": "Complete the CSS Profile only if a specific school requires it.", "es": "Completen el CSS Profile solo si una escuela específica lo requiere."}, "populations": ["all"]}, {"id": "AD-13", "text": {"en": "Apply for scholarships on the family's running list.", "es": "Soliciten las becas de la lista que la familia ha ido preparando."}, "populations": ["all"]}, {"id": "AD-14", "text": {"en": "Respond promptly if selected for verification and submit all requested documents.", "es": "Respondan con prontitud si son seleccionados para verificación y envíen todos los documentos solicitados."}, "populations": ["all"]}]}, {"id": "dual-credit", "title": {"en": "Dual Credit and Testing", "es": "Crédito dual y exámenes"}, "items": [{"id": "AD-15", "text": {"en": "Register for dual credit courses where available and appropriate.", "es": "Inscríbanse en cursos de crédito dual donde estén disponibles y sean apropiados."}, "populations": ["junior"]}, {"id": "AD-16", "text": {"en": "Complete any required placement testing.", "es": "Completen cualquier examen de colocación (placement testing) que se requiera."}, "populations": ["all"]}, {"id": "AD-17", "text": {"en": "Send official test scores to schools that require them, if applicable.", "es": "Envíen los resultados oficiales de exámenes a las escuelas que los requieran, si aplica."}, "populations": ["all"]}]}, {"id": "enroll", "title": {"en": "Accept, Register, and Enroll", "es": "Acepten, regístrense e inscríbanse"}, "items": [{"id": "AD-18", "text": {"en": "Compare admissions offers and accept one.", "es": "Comparen las ofertas de admisión y acepten una."}, "populations": ["all"]}, {"id": "AD-19", "text": {"en": "Compare financial aid offers and accept the aid the family will use.", "es": "Comparen las ofertas de ayuda financiera y acepten la ayuda que la familia usará."}, "populations": ["all"]}, {"id": "AD-20", "text": {"en": "Submit a housing application, if living on campus.", "es": "Envíen la solicitud de vivienda, si van a vivir en el campus."}, "populations": ["all"]}, {"id": "AD-21", "text": {"en": "Register for orientation and attend with the student when possible.", "es": "Regístrense para la orientación y asistan junto con el estudiante cuando sea posible."}, "populations": ["all"]}, {"id": "AD-22", "text": {"en": "Register for classes.", "es": "Regístrense para las clases."}, "populations": ["all"]}, {"id": "AD-23", "text": {"en": "Complete immunization requirements.", "es": "Completen los requisitos de vacunación."}, "populations": ["all"]}, {"id": "AD-24", "text": {"en": "Complete residency documentation for in-state tuition, if the student qualifies. As of 2026, Texas in-state tuition and TASFA-based state aid require demonstrating lawful presence (for example DACA or TPS status); this changed in 2025 and is still being litigated, so confirm current status with the school.", "es": "Completen la documentación de residencia para la matrícula estatal (in-state tuition), si el estudiante califica. A partir de 2026, la matrícula estatal de Texas y la ayuda estatal basada en la TASFA requieren demostrar presencia legal (por ejemplo, estatus DACA o TPS); esto cambió en 2025 y sigue en litigio, así que confirmen el estatus actual con la escuela."}, "populations": ["all"]}, {"id": "AD-25", "text": {"en": "Build a personalized deadline tracker for the final weeks before the term starts.", "es": "Elaboren un rastreador personalizado de fechas límite para las últimas semanas antes de que comience el semestre."}, "populations": ["all"]}]}]}], "houston_resources": [{"category": {"en": "Colleges and Universities", "es": "Universidades y colegios"}, "items": [{"en": "University of Houston", "es": "University of Houston"}, {"en": "San Jacinto College", "es": "San Jacinto College"}, {"en": "Houston Community College", "es": "Houston Community College"}, {"en": "Lee College", "es": "Lee College"}, {"en": "Lone Star College", "es": "Lone Star College"}, {"en": "Texas State Technical College", "es": "Texas State Technical College"}]}, {"category": {"en": "Workforce and Apprenticeships", "es": "Empleo y aprendizajes"}, "items": [{"en": "Houston-area apprenticeship programs (contact local trade unions and employers directly)", "es": "Programas de aprendizaje (apprenticeships) en el área de Houston (comuníquense directamente con los sindicatos y empleadores locales)"}, {"en": "Texas Workforce Commission (twc.texas.gov)", "es": "Texas Workforce Commission (twc.texas.gov)"}]}, {"category": {"en": "Planning and Applications", "es": "Planificación y solicitudes"}, "items": [{"en": "Texas OnCourse (texasoncourse.org)", "es": "Texas OnCourse (texasoncourse.org)"}, {"en": "ApplyTexas (applytexas.org)", "es": "ApplyTexas (applytexas.org)"}, {"en": "Common App (commonapp.org)", "es": "Common App (commonapp.org)"}, {"en": "College for All Texans (collegeforalltexans.com)", "es": "College for All Texans (collegeforalltexans.com)"}]}, {"category": {"en": "Financial Aid", "es": "Ayuda financiera"}, "items": [{"en": "FAFSA (studentaid.gov)", "es": "FAFSA (studentaid.gov)"}, {"en": "TASFA (available through the school counselor or college financial aid office)", "es": "TASFA (disponible a través del consejero escolar o la oficina de ayuda financiera de la universidad)"}]}, {"category": {"en": "Scholarships", "es": "Becas"}, "items": [{"en": "RaiseMe (raise.me)", "es": "RaiseMe (raise.me)"}, {"en": "BigFuture (bigfuture.collegeboard.org)", "es": "BigFuture (bigfuture.collegeboard.org)"}, {"en": "Houston-area community and employer scholarships (ask the school counselor for a current local list)", "es": "Becas comunitarias y de empleadores en el área de Houston (pregunten al consejero escolar por una lista local actualizada)"}]}], "financial_aid_notes": [{"en": "The FAFSA typically opens October 1 each year for the following school year. Confirm the exact date at studentaid.gov, since the opening date has shifted in recent years.", "es": "La FAFSA generalmente se abre el 1 de octubre de cada año para el siguiente ciclo escolar. Confirmen la fecha exacta en studentaid.gov, ya que la fecha de apertura ha cambiado en años recientes."}, {"en": "Texas priority filing deadlines are generally in January for state financial aid programs; confirm the current year's deadline with the school counselor or college financial aid office, since state deadlines can change.", "es": "Las fechas límite prioritarias de Texas generalmente son en enero para los programas estatales de ayuda financiera; confirmen la fecha límite del año actual con el consejero escolar o la oficina de ayuda financiera, ya que las fechas estatales pueden cambiar."}, {"en": "TASFA follows the same general timeline as the FAFSA and should be filed as early as possible after it opens.", "es": "La TASFA sigue en general el mismo calendario que la FAFSA y debe presentarse lo antes posible después de que se abra."}, {"en": "The CSS Profile is only required by some private colleges. Check each school's own requirements before assuming it applies.", "es": "El CSS Profile solo lo requieren algunas universidades privadas. Verifiquen los requisitos de cada escuela antes de asumir que aplica."}, {"en": "If selected for verification, respond within the deadline given by the school. Missing a verification deadline can delay or cancel aid.", "es": "Si son seleccionados para verificación, respondan dentro del plazo indicado por la escuela. No cumplir con una fecha límite de verificación puede retrasar o cancelar la ayuda."}, {"en": "Scholarship research and applications should begin no later than the fall of junior year and continue through senior year.", "es": "La búsqueda y solicitud de becas debe comenzar a más tardar en el otoño del tercer año (junior year) y continuar durante el último año (senior year)."}, {"en": "Important update on Texas in-state tuition (verified July 2026): a federal court blocked Texas from offering in-state tuition to students without lawful immigration status in June 2025, and the Fifth Circuit Court of Appeals upheld that ruling on July 9, 2026. Students who can demonstrate lawful presence (for example, DACA or TPS status) can still qualify for in-state tuition and full TASFA-based state aid. Students without lawful presence do not currently qualify for in-state tuition, though many schools still accept a TASFA to assess eligibility for institutional aid or privately funded scholarships. This is active litigation and the rules can change again, so confirm current status directly with each school's financial aid office and, before signing any residency affidavit, consider a legal screening with a Board of Immigration Appeals (BIA) certified immigration attorney.", "es": "Actualización importante sobre la matrícula estatal de Texas (verificado en julio de 2026): un tribunal federal bloqueó que Texas ofreciera matrícula estatal a estudiantes sin estatus migratorio legal en junio de 2025, y la Corte de Apelaciones del Quinto Circuito confirmó esa decisión el 9 de julio de 2026. Los estudiantes que pueden demostrar presencia legal (por ejemplo, estatus DACA o TPS) todavía pueden calificar para la matrícula estatal y la ayuda estatal completa basada en la TASFA. Los estudiantes sin presencia legal actualmente no califican para la matrícula estatal, aunque muchas escuelas todavía aceptan la TASFA para evaluar la elegibilidad para ayuda institucional o becas privadas. Este es un litigio activo y las reglas pueden cambiar de nuevo, así que confirmen el estatus actual directamente con la oficina de ayuda financiera de cada escuela y, antes de firmar cualquier declaración jurada de residencia, consideren una evaluación legal con un abogado de inmigración certificado por el Board of Immigration Appeals (BIA)."}], "financial_aid_calendar": [{"period": {"en": "Junior Year (11th grade)", "es": "Tercer año de preparatoria (junior year)"}, "actions": [{"en": "Begin career and pathway exploration.", "es": "Comiencen a explorar carreras y rutas."}, {"en": "Start a scholarship list and begin applying to early scholarships.", "es": "Comiencen una lista de becas y empiecen a solicitar becas tempranas."}, {"en": "Research typical costs for pathways of interest.", "es": "Investiguen los costos típicos de las rutas de interés."}]}, {"period": {"en": "Senior Year, Fall", "es": "Último año de preparatoria, otoño"}, "actions": [{"en": "Create an FSA ID.", "es": "Creen un FSA ID."}, {"en": "File the FAFSA or TASFA as soon as it opens.", "es": "Presenten la FAFSA o la TASFA tan pronto como se abra."}, {"en": "Submit college, trade school, or program applications.", "es": "Envíen las solicitudes para la universidad, escuela técnica o programa."}, {"en": "Apply for scholarships.", "es": "Soliciten becas."}]}, {"period": {"en": "Senior Year, Winter/Spring", "es": "Último año de preparatoria, invierno o primavera"}, "actions": [{"en": "Confirm Texas priority deadlines have been met.", "es": "Confirmen que se cumplieron las fechas límite prioritarias de Texas."}, {"en": "Compare admissions and financial aid offers.", "es": "Comparen las ofertas de admisión y de ayuda financiera."}, {"en": "Respond to verification requests promptly.", "es": "Respondan con prontitud a las solicitudes de verificación."}, {"en": "Accept a final plan and submit deposits or enrollment steps.", "es": "Acepten un plan final y completen los depósitos o pasos de inscripción."}]}, {"period": {"en": "Adult Learners", "es": "Estudiantes adultos"}, "actions": [{"en": "File the FAFSA or TASFA regardless of age; many adult learners qualify for aid.", "es": "Presenten la FAFSA o la TASFA sin importar la edad; muchos estudiantes adultos califican para ayuda."}, {"en": "Ask the school's financial aid office about aid specific to adult and returning students.", "es": "Pregunten en la oficina de ayuda financiera de la escuela sobre la ayuda específica para estudiantes adultos que regresan a estudiar."}, {"en": "Ask about credit for prior learning, military training, or work experience.", "es": "Pregunten sobre créditos por aprendizaje previo, entrenamiento militar o experiencia laboral."}]}], "documents_checklists": [{"category": {"en": "College Applications", "es": "Solicitudes universitarias"}, "items": [{"en": "High school transcript", "es": "Certificado de calificaciones de la preparatoria (transcript)"}, {"en": "Test scores (if the school requires them)", "es": "Resultados de exámenes (si la escuela los requiere)"}, {"en": "Personal statement or essay", "es": "Declaración personal o ensayo"}, {"en": "Resume", "es": "Currículum (resume)"}, {"en": "Letters of recommendation", "es": "Cartas de recomendación"}, {"en": "Application fee or fee waiver", "es": "Cuota de solicitud o exención de cuota"}]}, {"category": {"en": "Scholarship Applications", "es": "Solicitudes de becas"}, "items": [{"en": "Resume", "es": "Currículum (resume)"}, {"en": "Personal statement or essay (may need more than one version)", "es": "Declaración personal o ensayo (puede necesitar más de una versión)"}, {"en": "Letters of recommendation", "es": "Cartas de recomendación"}, {"en": "Transcript", "es": "Certificado de calificaciones (transcript)"}, {"en": "Proof of financial need, if requested", "es": "Comprobante de necesidad financiera, si se solicita"}]}, {"category": {"en": "FAFSA / TASFA", "es": "FAFSA / TASFA"}, "items": [{"en": "FSA ID (student and parent, for FAFSA)", "es": "FSA ID (del estudiante y de un padre o madre, para la FAFSA)"}, {"en": "Social Security Number or alternative documentation, when applicable", "es": "Número de Seguro Social o documentación alternativa, cuando aplique"}, {"en": "Parent tax information (or student tax information, for independent/adult students)", "es": "Información fiscal de los padres (o del estudiante, si es independiente o adulto)"}, {"en": "W-2 forms", "es": "Formularios W-2"}, {"en": "Records of untaxed income or benefits, if applicable", "es": "Comprobantes de ingresos o beneficios no gravados, si aplica"}, {"en": "Residency documents (for TASFA)", "es": "Documentos de residencia (para la TASFA)"}]}, {"category": {"en": "Apprenticeship Applications", "es": "Solicitudes de aprendizaje (apprenticeships)"}, "items": [{"en": "Resume", "es": "Currículum (resume)"}, {"en": "High school transcript or diploma/GED", "es": "Certificado de calificaciones de la preparatoria o diploma/GED"}, {"en": "Government-issued ID", "es": "Identificación oficial con fotografía"}, {"en": "References from teachers, employers, or mentors", "es": "Referencias de maestros, empleadores o mentores"}]}, {"category": {"en": "Employment Applications", "es": "Solicitudes de empleo"}, "items": [{"en": "Resume", "es": "Currículum (resume)"}, {"en": "References", "es": "Referencias"}, {"en": "Government-issued ID", "es": "Identificación oficial con fotografía"}, {"en": "Social Security card or work authorization documentation", "es": "Tarjeta de Seguro Social o documentación de autorización de trabajo"}]}], "population_focus": {"junior": [{"en": "Complete an interest or strengths assessment (EX-02).", "es": "Completen una evaluación de intereses o fortalezas (EX-02)."}, {"en": "Research 2 to 4 careers and the education each one requires (EX-05 to EX-09).", "es": "Investiguen de 2 a 4 carreras y la educación que requiere cada una (EX-05 a EX-09)."}, {"en": "Learn the difference between all six major pathways (EX-10 to EX-15).", "es": "Conozcan la diferencia entre las seis rutas principales (EX-10 a EX-15)."}, {"en": "Attend a college and career fair (EX-16).", "es": "Asistan a una feria universitaria y de carreras (EX-16)."}, {"en": "Start a scholarship list this year (EX-20).", "es": "Comiencen una lista de becas este año (EX-20)."}, {"en": "Register for dual credit where available (AD-15).", "es": "Regístrense para crédito dual donde esté disponible (AD-15)."}, {"en": "Begin visiting campuses or training programs (EX-17).", "es": "Comiencen a visitar campus o programas de capacitación (EX-17)."}], "senior": [{"en": "Finalize the shortlist and choose a primary and backup plan (DE-13 to DE-15).", "es": "Finalicen la lista corta y elijan un plan principal y uno alterno (DE-13 a DE-15)."}, {"en": "Create an FSA ID and file the FAFSA or TASFA as soon as it opens (AD-09 to AD-11).", "es": "Creen un FSA ID y presenten la FAFSA o la TASFA tan pronto como se abra (AD-09 a AD-11)."}, {"en": "Submit all applications, including transcripts and letters of recommendation (AD-02 to AD-04).", "es": "Envíen todas las solicitudes, incluyendo transcripts y cartas de recomendación (AD-02 a AD-04)."}, {"en": "Apply for scholarships from the family's list (AD-13).", "es": "Soliciten las becas de la lista de la familia (AD-13)."}, {"en": "Compare and accept admissions and financial aid offers (AD-18 to AD-19).", "es": "Comparen y acepten las ofertas de admisión y ayuda financiera (AD-18 a AD-19)."}, {"en": "Complete orientation, registration, immunization, and residency steps (AD-21 to AD-24).", "es": "Completen la orientación, el registro, las vacunas y los pasos de residencia (AD-21 a AD-24)."}, {"en": "Build a personal deadline tracker for the final stretch (AD-25).", "es": "Elaboren un rastreador personal de fechas límite para el tramo final (AD-25)."}], "adult_learner": [{"en": "Revisit interests, strengths, and goals at this stage of life, not just at 18 (EX-01 to EX-04).", "es": "Reconsideren los intereses, las fortalezas y las metas en esta etapa de la vida, no solo a los 18 años (EX-01 a EX-04)."}, {"en": "Compare time to completion carefully, since schedules often compete with work and family (DE-05).", "es": "Comparen con cuidado el tiempo que toma terminar, ya que el horario suele competir con el trabajo y la familia (DE-05)."}, {"en": "Ask about credit for prior learning, military training, or work experience.", "es": "Pregunten sobre créditos por aprendizaje previo, entrenamiento militar o experiencia laboral."}, {"en": "File the FAFSA or TASFA. Many adult learners qualify for aid and do not realize it (AD-10 to AD-11).", "es": "Presenten la FAFSA o la TASFA. Muchos estudiantes adultos califican para ayuda sin saberlo (AD-10 a AD-11)."}, {"en": "Ask the financial aid office about resources specific to adult and returning students.", "es": "Pregunten en la oficina de ayuda financiera sobre recursos específicos para estudiantes adultos que regresan a estudiar."}, {"en": "Compare workforce entry timelines closely against household budget and schedule (DE-07).", "es": "Comparen de cerca el tiempo para entrar al mundo laboral con el presupuesto y el horario del hogar (DE-07)."}], "transfer": [{"en": "Confirm which credits will transfer before enrolling anywhere new (DE-06).", "es": "Confirmen qué créditos se transferirán antes de inscribirse en un lugar nuevo (DE-06)."}, {"en": "Get transfer agreements or articulation agreements in writing, not just verbally.", "es": "Obtengan los acuerdos de transferencia (articulation agreements) por escrito, no solo de palabra."}, {"en": "Request transcripts from every school previously attended (AD-03).", "es": "Soliciten los transcripts de cada escuela a la que asistieron anteriormente (AD-03)."}, {"en": "Meet with an advisor at the receiving school to map remaining requirements.", "es": "Reúnanse con un asesor en la nueva escuela para definir los requisitos que faltan."}, {"en": "Compare cost and time to completion at the new school, accounting for credits already earned (DE-02, DE-05).", "es": "Comparen el costo y el tiempo para terminar en la nueva escuela, tomando en cuenta los créditos ya obtenidos (DE-02, DE-05)."}, {"en": "Reapply for financial aid and scholarships at the new school (AD-10, AD-13).", "es": "Vuelvan a solicitar ayuda financiera y becas en la nueva escuela (AD-10, AD-13)."}], "undoc_tasfa": [{"en": "Before submitting any TASFA or residency affidavit, get a legal screening from a Board of Immigration Appeals (BIA) certified immigration attorney to confirm the student's current lawful-presence status.", "es": "Antes de presentar cualquier TASFA o declaración jurada de residencia, obtengan una evaluación legal con un abogado de inmigración certificado por el Board of Immigration Appeals (BIA) para confirmar el estatus actual de presencia legal del estudiante."}, {"en": "Ask each school's financial aid office directly whether the student currently qualifies for in-state tuition. As of 2026, only students who can demonstrate lawful presence (for example DACA or TPS status) qualify; this changed in 2025 and remains under litigation (AD-11, AD-24).", "es": "Pregunten directamente en la oficina de ayuda financiera de cada escuela si el estudiante actualmente califica para la matrícula estatal (in-state tuition). A partir de 2026, solo califican los estudiantes que pueden demostrar presencia legal (por ejemplo, estatus DACA o TPS); esto cambió en 2025 y sigue en litigio (AD-11, AD-24)."}, {"en": "If the student does not have lawful presence, ask whether the school still accepts a TASFA to determine eligibility for institutional aid or privately funded scholarships, since this varies by school.", "es": "Si el estudiante no tiene presencia legal, pregunten si la escuela todavía acepta la TASFA para determinar la elegibilidad para ayuda institucional o becas privadas, ya que esto varía según la escuela."}, {"en": "Research scholarships that do not require a Social Security Number or proof of citizenship.", "es": "Investiguen becas que no requieran número de Seguro Social ni comprobante de ciudadanía."}, {"en": "Do not sign or notarize a residency affidavit without confidence in the student's lawful-presence status.", "es": "No firmen ni notaricen una declaración jurada de residencia sin estar seguros del estatus de presencia legal del estudiante."}, {"en": "Keep copies of every document submitted, since some schools request the same documentation more than once.", "es": "Guarden copias de todos los documentos enviados, ya que algunas escuelas solicitan la misma documentación más de una vez."}, {"en": "Check back regularly for updates, since this area of law is actively being litigated and could change again.", "es": "Revisen actualizaciones con regularidad, ya que esta área legal está en litigio activo y podría cambiar de nuevo."}]}, "population_labels": {"junior": {"en": "Juniors (11th grade)", "es": "Estudiantes de tercer año (11.º grado)"}, "senior": {"en": "Seniors (12th grade)", "es": "Estudiantes de último año (12.º grado)"}, "adult_learner": {"en": "Adult Learners", "es": "Estudiantes adultos"}, "transfer": {"en": "Transfer Students", "es": "Estudiantes de transferencia"}, "undoc_tasfa": {"en": "Undocumented / TASFA-Eligible Students", "es": "Estudiantes indocumentados o elegibles para TASFA"}}, "legal_status_disclaimer": {"en": "A note on immigration status and Texas tuition, verified July 30, 2026: Texas in-state tuition for students without lawful immigration status (the “Texas Dream Act”) was blocked by a federal court in June 2025, and the Fifth Circuit Court of Appeals upheld that ruling on July 9, 2026. Students who can demonstrate lawful presence, such as DACA or TPS status, can still qualify for in-state tuition and full TASFA-based state aid. Students without lawful presence do not currently qualify for in-state tuition, though many schools still accept a TASFA to determine eligibility for institutional aid or privately funded scholarships. Advocacy groups have asked for further review, so this could change again. This is not legal advice. Confirm current status directly with each school's financial aid office, and before signing any residency affidavit, get a screening from a Board of Immigration Appeals (BIA) certified immigration attorney.", "es": "Una nota sobre el estatus migratorio y la matrícula de Texas, verificado el 30 de julio de 2026: la matrícula estatal de Texas para estudiantes sin estatus migratorio legal (el “Texas Dream Act”) fue bloqueada por un tribunal federal en junio de 2025, y la Corte de Apelaciones del Quinto Circuito confirmó esa decisión el 9 de julio de 2026. Los estudiantes que pueden demostrar presencia legal, como estatus DACA o TPS, todavía pueden calificar para la matrícula estatal y la ayuda estatal completa basada en la TASFA. Los estudiantes sin presencia legal actualmente no califican para la matrícula estatal, aunque muchas escuelas todavía aceptan la TASFA para determinar la elegibilidad para ayuda institucional o becas privadas. Grupos de defensa han pedido una revisión adicional, así que esto podría cambiar de nuevo. Esto no es asesoría legal. Confirmen el estatus actual directamente con la oficina de ayuda financiera de cada escuela y, antes de firmar cualquier declaración jurada de residencia, obtengan una evaluación con un abogado de inmigración certificado por el Board of Immigration Appeals (BIA)."}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('apdata').textContent);
+const STORE_KEY = 'ap_checklist_progress_v1';
+const POP_KEY = 'ap_checklist_population_v1';
+const LANG_KEY = 'ap_checklist_lang_v1';
+
+function L(obj) {
+  if (obj && typeof obj === 'object' && ('en' in obj || 'es' in obj)) {
+    return obj[lang] || obj.en;
+  }
+  return obj;
+}
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveProgress(p) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch (e) {}
+}
+let progress = loadProgress();
+let currentTab = 'explore';
+let currentPop = localStorage.getItem(POP_KEY) || 'all';
+let lang = localStorage.getItem(LANG_KEY) || 'en';
+
+const UI = {
+  en: {
+    subtitle: "A family checklist for every pathway forward.",
+    tabs: { explore: 'Explore', decide: 'Decide', advance: 'Advance', resources: 'Resources', financial: 'Financial Aid', documents: 'Documents', focus: 'By Situation' },
+    stageIntro: {
+      explore: "Get to know your student's interests and every real pathway available: university, community college, trade school, apprenticeship, military, or certification.",
+      decide: "Compare the options side by side on cost, time, and outcomes, then choose a primary plan and a backup plan as a family.",
+      advance: "Take the concrete steps to apply, pay for, and start the chosen pathway.",
+      resources: "Houston-area schools, programs, and tools worth knowing about.",
+      financial: "Key dates and a grade-by-grade financial aid calendar.",
+      documents: "Gather these documents ahead of time so nothing holds up an application.",
+      focus: "Short, priority lists for specific family situations.",
+    },
+    filterAll: "Show everything",
+    filterPrefix: "Filter: ",
+    resetBtn: "Clear all checkmarks",
+    resetConfirm: "Clear all checkmarks? This cannot be undone.",
+    disclaimerTitle: "A Note on Immigration Status and Texas Tuition",
+    keyNotes: "Key Notes",
+    footerClose: "Because no one should walk the path alone.",
+    appLink: "Open the full Anchored Pathways app →",
+    verified: (date) => `Content verified ${date}. Financial aid and immigration rules change; confirm with each school.`,
+    of: (a, b) => `${a} of ${b} steps complete`,
+  },
+  es: {
+    subtitle: "Una lista familiar para cada ruta hacia adelante.",
+    tabs: { explore: 'Explora', decide: 'Decide', advance: 'Avanza', resources: 'Recursos', financial: 'Ayuda Financiera', documents: 'Documentos', focus: 'Por Situación' },
+    stageIntro: {
+      explore: "Conozcan los intereses del estudiante y todas las rutas reales disponibles: universidad, colegio comunitario, escuela técnica, aprendizaje, ejército o certificación.",
+      decide: "Comparen las opciones una al lado de la otra en costo, tiempo y resultados, y elijan un plan principal y uno alterno en familia.",
+      advance: "Tomen los pasos concretos para solicitar, pagar y comenzar la ruta elegida.",
+      resources: "Escuelas, programas y herramientas del área de Houston que vale la pena conocer.",
+      financial: "Fechas clave y un calendario de ayuda financiera por grado escolar.",
+      documents: "Reúnan estos documentos con anticipación para que nada detenga una solicitud.",
+      focus: "Listas breves y prioritarias para situaciones familiares específicas.",
+    },
+    filterAll: "Mostrar todo",
+    filterPrefix: "Filtrar: ",
+    resetBtn: "Borrar todas las marcas",
+    resetConfirm: "¿Borrar todas las marcas? Esta acción no se puede deshacer.",
+    disclaimerTitle: "Una nota sobre el estatus migratorio y la matrícula de Texas",
+    keyNotes: "Notas clave",
+    footerClose: "Porque nadie debería recorrer el camino solo.",
+    appLink: "Abrir la aplicación completa de Anchored Pathways →",
+    verified: (date) => `Contenido verificado el ${date}. Las reglas de ayuda financiera y de estatus migratorio cambian; confirmen con cada escuela.`,
+    of: (a, b) => `${a} de ${b} pasos completados`,
+  },
+};
+
+function itemVisible(it) {
+  if (currentPop === 'all') return true;
+  return it.populations.includes('all') || it.populations.includes(currentPop);
+}
+
+function countAll() {
+  let total = 0, done = 0;
+  for (const stage of DATA.stages) {
+    for (const section of stage.sections) {
+      for (const it of section.items) {
+        total++;
+        if (progress[it.id]) done++;
+      }
+    }
+  }
+  for (const group of DATA.documents_checklists) {
+    group.items.forEach((doc, i) => {
+      const id = 'DOC-' + L(group.category) + '-' + i;
+      total++;
+      if (progress[id]) done++;
+    });
+  }
+  return { total, done };
+}
+
+function updateProgressBar() {
+  const { total, done } = countAll();
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = UI[lang].of(done, total);
+}
+
+function renderTabs() {
+  const order = ['explore', 'decide', 'advance', 'resources', 'financial', 'documents', 'focus'];
+  const nav = document.getElementById('tabs');
+  nav.innerHTML = '';
+  order.forEach(id => {
+    const btn = document.createElement('button');
+    btn.textContent = UI[lang].tabs[id];
+    btn.className = (id === currentTab) ? 'active' : '';
+    btn.onclick = () => { currentTab = id; render(); };
+    nav.appendChild(btn);
+  });
+}
+
+function checklistItem(id, text, tagLabel) {
+  const wrap = document.createElement('label');
+  wrap.className = 'item' + (progress[id] ? ' checked' : '');
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !!progress[id];
+  cb.onchange = () => {
+    progress[id] = cb.checked;
+    saveProgress(progress);
+    wrap.classList.toggle('checked', cb.checked);
+    updateProgressBar();
+  };
+  const span = document.createElement('span');
+  const txt = document.createElement('span');
+  txt.className = 'txt';
+  txt.textContent = text;
+  span.appendChild(txt);
+  if (tagLabel) {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = tagLabel;
+    span.appendChild(tag);
+  }
+  wrap.appendChild(cb);
+  wrap.appendChild(span);
+  return wrap;
+}
+
+function renderStage(stageId) {
+  const main = document.getElementById('main');
+  const stage = DATA.stages.find(s => s.id === stageId);
+  const intro = document.createElement('p');
+  intro.className = 'stage-intro';
+  intro.textContent = UI[lang].stageIntro[stageId];
+  main.appendChild(intro);
+
+  const select = document.createElement('select');
+  select.className = 'pop-select';
+  const opts = [['all', UI[lang].filterAll]].concat(
+    Object.entries(DATA.population_labels).map(([k, v]) => [k, L(v)])
+  );
+  opts.forEach(([val, label]) => {
+    const o = document.createElement('option');
+    o.value = val; o.textContent = UI[lang].filterPrefix + label;
+    if (val === currentPop) o.selected = true;
+    select.appendChild(o);
+  });
+  select.onchange = () => { currentPop = select.value; localStorage.setItem(POP_KEY, currentPop); render(); };
+  main.appendChild(select);
+
+  stage.sections.forEach(section => {
+    const visibleItems = section.items.filter(itemVisible);
+    if (!visibleItems.length) return;
+    const doneCount = visibleItems.filter(it => progress[it.id]).length;
+    const details = document.createElement('details');
+    details.className = 'section';
+    details.open = true;
+    const summary = document.createElement('summary');
+    summary.innerHTML = '<span>' + L(section.title) + '</span><span class="count">' + doneCount + '/' + visibleItems.length + '</span>';
+    details.appendChild(summary);
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'items';
+    visibleItems.forEach(it => {
+      const tag = (it.populations[0] !== 'all') ? it.populations.map(p => L(DATA.population_labels[p]) || p).join(', ') : null;
+      itemsWrap.appendChild(checklistItem(it.id, L(it.text), tag));
+    });
+    details.appendChild(itemsWrap);
+    main.appendChild(details);
+  });
+}
+
+function renderResources() {
+  const main = document.getElementById('main');
+  const intro = document.createElement('p');
+  intro.className = 'stage-intro';
+  intro.textContent = UI[lang].stageIntro.resources;
+  main.appendChild(intro);
+  const wrap = document.createElement('div');
+  wrap.className = 'resource-group';
+  for (const group of DATA.houston_resources) {
+    const h3 = document.createElement('h3'); h3.textContent = L(group.category);
+    const ul = document.createElement('ul');
+    group.items.forEach(i => { const li = document.createElement('li'); li.textContent = L(i); ul.appendChild(li); });
+    wrap.appendChild(h3); wrap.appendChild(ul);
+  }
+  main.appendChild(wrap);
+}
+
+function renderFinancial() {
+  const main = document.getElementById('main');
+  const intro = document.createElement('p');
+  intro.className = 'stage-intro';
+  intro.textContent = UI[lang].stageIntro.financial;
+  main.appendChild(intro);
+
+  if (DATA.legal_status_disclaimer) {
+    const box = document.createElement('div');
+    box.className = 'disclaimer-box';
+    const h4 = document.createElement('h4');
+    h4.textContent = UI[lang].disclaimerTitle;
+    const p = document.createElement('p');
+    p.textContent = L(DATA.legal_status_disclaimer);
+    box.appendChild(h4);
+    box.appendChild(p);
+    main.appendChild(box);
+  }
+
+  const notesSection = document.createElement('div');
+  notesSection.className = 'section';
+  const notesHeader = document.createElement('div');
+  notesHeader.style.padding = '14px 16px';
+  notesHeader.style.background = '#F4F1EA';
+  notesHeader.style.fontFamily = "'Fraunces', serif";
+  notesHeader.style.fontWeight = '600';
+  notesHeader.style.color = 'var(--navy)';
+  notesHeader.textContent = UI[lang].keyNotes;
+  notesSection.appendChild(notesHeader);
+  const notesBody = document.createElement('div');
+  notesBody.style.padding = '10px 16px 14px';
+  const ul = document.createElement('ul');
+  ul.style.margin = '0'; ul.style.paddingLeft = '18px'; ul.style.fontSize = '13.5px'; ul.style.color = '#34423f';
+  DATA.financial_aid_notes.forEach(n => { const li = document.createElement('li'); li.style.marginBottom = '8px'; li.textContent = L(n); ul.appendChild(li); });
+  notesBody.appendChild(ul);
+  notesSection.appendChild(notesBody);
+  main.appendChild(notesSection);
+
+  const calWrap = document.createElement('div');
+  calWrap.style.marginTop = '18px';
+  for (const group of DATA.financial_aid_calendar) {
+    const div = document.createElement('div');
+    div.className = 'cal-item';
+    const h4 = document.createElement('h4'); h4.textContent = L(group.period);
+    const ul2 = document.createElement('ul');
+    group.actions.forEach(a => { const li = document.createElement('li'); li.textContent = L(a); ul2.appendChild(li); });
+    div.appendChild(h4); div.appendChild(ul2);
+    calWrap.appendChild(div);
+  }
+  main.appendChild(calWrap);
+}
+
+function renderDocuments() {
+  const main = document.getElementById('main');
+  const intro = document.createElement('p');
+  intro.className = 'stage-intro';
+  intro.textContent = UI[lang].stageIntro.documents;
+  main.appendChild(intro);
+  for (const group of DATA.documents_checklists) {
+    const catLabel = L(group.category);
+    const details = document.createElement('details');
+    details.className = 'section';
+    details.open = false;
+    const doneCount = group.items.filter((doc, i) => progress['DOC-' + catLabel + '-' + i]).length;
+    const summary = document.createElement('summary');
+    summary.innerHTML = '<span>' + catLabel + '</span><span class="count">' + doneCount + '/' + group.items.length + '</span>';
+    details.appendChild(summary);
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'items';
+    group.items.forEach((doc, i) => itemsWrap.appendChild(checklistItem('DOC-' + catLabel + '-' + i, L(doc))));
+    details.appendChild(itemsWrap);
+    main.appendChild(details);
+  }
+}
+
+function renderFocus() {
+  const main = document.getElementById('main');
+  const intro = document.createElement('p');
+  intro.className = 'stage-intro';
+  intro.textContent = UI[lang].stageIntro.focus;
+  main.appendChild(intro);
+  for (const [pop, actions] of Object.entries(DATA.population_focus)) {
+    const details = document.createElement('details');
+    details.className = 'section';
+    details.open = false;
+    const summary = document.createElement('summary');
+    summary.innerHTML = '<span>' + (L(DATA.population_labels[pop]) || pop) + '</span>';
+    details.appendChild(summary);
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'items';
+    actions.forEach((a, i) => itemsWrap.appendChild(checklistItem('FOCUS-' + pop + '-' + i, L(a))));
+    details.appendChild(itemsWrap);
+    main.appendChild(details);
+  }
+}
+
+function applyStaticText() {
+  document.getElementById('pageTitle').textContent = L(DATA.meta.title);
+  document.getElementById('pageSubtitle').textContent = UI[lang].subtitle;
+  document.getElementById('resetBtn').textContent = UI[lang].resetBtn;
+  document.getElementById('footerOrg').textContent = DATA.meta.organization;
+  document.getElementById('footerClose').textContent = UI[lang].footerClose;
+  document.getElementById('appLink').textContent = UI[lang].appLink;
+  if (DATA.meta.last_verified) {
+    document.getElementById('verifiedLine').textContent = UI[lang].verified(L(DATA.meta.last_verified));
+  }
+  document.getElementById('btnEn').className = lang === 'en' ? 'active' : '';
+  document.getElementById('btnEs').className = lang === 'es' ? 'active' : '';
+}
+
+function render() {
+  applyStaticText();
+  renderTabs();
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  if (['explore', 'decide', 'advance'].includes(currentTab)) renderStage(currentTab);
+  else if (currentTab === 'resources') renderResources();
+  else if (currentTab === 'financial') renderFinancial();
+  else if (currentTab === 'documents') renderDocuments();
+  else if (currentTab === 'focus') renderFocus();
+  updateProgressBar();
+}
+
+document.getElementById('btnEn').onclick = () => { lang = 'en'; localStorage.setItem(LANG_KEY, lang); render(); };
+document.getElementById('btnEs').onclick = () => { lang = 'es'; localStorage.setItem(LANG_KEY, lang); render(); };
+
+document.getElementById('resetBtn').onclick = () => {
+  if (confirm(UI[lang].resetConfirm)) {
+    progress = {};
+    saveProgress(progress);
+    render();
+  }
+};
+
+render();
+</script>
+</body>
+</html>

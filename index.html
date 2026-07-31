@@ -3619,6 +3619,35 @@ function familyScreen(){
   return wrap;
 }
 
+/* ============ DEEP LINK SUPPORT ============
+   Lets external pages (like the Resources page cards) link straight into a
+   specific section instead of only ever landing on Home.
+   Recognized formats:
+     index.html#explore
+     index.html#decide
+     index.html#apply
+     index.html#apply-scholarships
+     index.html#apply-topic?topic=military   (topic: pay, applying, military, career, scholarships)
+   Anything unrecognized, or no hash at all, falls through to Home exactly as
+   it does today — this only ever narrows the starting screen, it never
+   breaks the existing default. */
+(function applyDeepLinkFromHash(){
+  const raw = location.hash.replace('#','');
+  if(!raw) return;
+  const [screenPart, queryPart] = raw.split('?');
+  const SAFE_DEEP_LINK_SCREENS = new Set([
+    'home','explore','decide','apply','stay','shift','clinica','family',
+    'apply-scholarships','apply-local-pathway','apply-topic',
+  ]);
+  if(!SAFE_DEEP_LINK_SCREENS.has(screenPart)) return;
+  state.screen = screenPart;
+  if(screenPart==='apply-topic' && queryPart){
+    const params = new URLSearchParams(queryPart);
+    const topic = params.get('topic');
+    if(topic && APPLY_TOPICS[topic]){ state.applyTopicKey = topic; }
+  }
+})();
+
 loadExploreProgress();
 render();
 </script>

@@ -978,6 +978,13 @@ function homeScreen(){
   checklistCard.onclick=()=>{ window.open(FAMILY_CHECKLIST_URL, '_blank', 'noopener,noreferrer'); };
   wrap.appendChild(checklistCard);
 
+  const coreTrackerCard=el('div','stage-banner');
+  coreTrackerCard.style.background = 'linear-gradient(135deg, #1A5F6E, #1A5F6ECC)';
+  coreTrackerCard.style.marginTop = '10px';
+  coreTrackerCard.innerHTML = `<div class="ic">🎓</div><div><h3>${isEn()?'Core Tracker':'Rastreador del Core'}</h3><p>${isEn()?'Check off the 42-hour core, by college and district':'Marque el core de 42 horas, por colegio y distrito'}</p></div><div class="chev">›</div>`;
+  coreTrackerCard.onclick=()=>{ window.open(CORE_TRACKER_URL, '_blank', 'noopener,noreferrer'); };
+  wrap.appendChild(coreTrackerCard);
+
   return wrap;
 }
 
@@ -3492,6 +3499,11 @@ const CLINICA_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/s
 // this single-page app on purpose (different content model: long-form reference checklist
 // with its own localStorage keys, vs. this app's short interactive Explore quiz flow).
 const FAMILY_CHECKLIST_URL = './checklist/';
+// Standalone Core Tracker tool (Texas 42-hour core curriculum by college + district
+// crosswalk). Lives at /core-tracker/ as its own static page for the same reason as
+// the checklist: a dense, checkbox-driven reference tool with its own state model,
+// separate from this app's guided Explore/Decide/Advance/Persevere/Redefine flow.
+const CORE_TRACKER_URL = './core-tracker/';
 // Prefill entry IDs for the "Family ID (optional)" question added to each form.
 // If getOrCreateFamilyId() returns null (localStorage unavailable), the forms
 // open with no prefill — they still work fine without it since the question is optional.
@@ -3615,6 +3627,14 @@ function familyScreen(){
   btn3.onclick=()=>{ window.open(FAMILY_CHECKLIST_URL, '_blank', 'noopener,noreferrer'); };
   card4.appendChild(btn3);
   wrap.appendChild(card4);
+
+  const card5=el('div','card');
+  card5.appendChild(el('div','section-label', isEn()?'Core Tracker':'Rastreador del Core'));
+  card5.appendChild(el('p','', isEn()?'For dual credit families: check off the 42-hour core curriculum using the courses your college and district publish.':'Para familias con dual credit: marque el core curriculum de 42 horas usando los cursos que publica su colegio y distrito.'));
+  const btn4=el('button','secondary-btn', isEn()?'Open Core Tracker':'Abrir Rastreador del Core');
+  btn4.onclick=()=>{ window.open(CORE_TRACKER_URL, '_blank', 'noopener,noreferrer'); };
+  card5.appendChild(btn4);
+  wrap.appendChild(card5);
 
   return wrap;
 }

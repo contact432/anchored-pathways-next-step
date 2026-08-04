@@ -63,7 +63,7 @@
 <div id="root"><div class="loading-note">Loading…</div></div>
 
 <div class="backlink-wrap" style="margin-top:14px; padding-bottom:36px;">
-  <a href="../">&larr; Open the full Anchored Pathways app</a>
+  <a href="../" id="backlink">&larr; Open the full Anchored Pathways app</a>
 </div>
 
 <!-- React (production UMD builds) -->
@@ -76,6 +76,27 @@ const { useState, useMemo } = React;
 <script src="./core-tracker.js"></script>
 <script>
   ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(CoreTracker));
+
+  // The back-link sits outside the React root, so it can't read the component's
+  // internal language state directly. The language toggle button's own label
+  // flips between "Español" (shown while in English) and "English" (shown
+  // while in Spanish), so we watch the DOM for that instead, to keep this
+  // link's copy in sync with whichever language is currently selected.
+  const backlink = document.getElementById('backlink');
+  const syncBacklinkLang = () => {
+    const isSpanish = Array.prototype.some.call(
+      document.querySelectorAll('#root button'),
+      (b) => b.textContent.trim() === 'English'
+    );
+    backlink.textContent = isSpanish
+      ? '\u2190 Abrir la app completa de Anchored Pathways'
+      : '\u2190 Open the full Anchored Pathways app';
+  };
+  new MutationObserver(syncBacklinkLang).observe(
+    document.getElementById('root'),
+    { childList: true, subtree: true, characterData: true }
+  );
+  syncBacklinkLang();
 </script>
 
 </body>

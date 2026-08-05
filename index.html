@@ -401,6 +401,9 @@ function formatVerifiedDate(iso){
 
 function buildLocalPathway(anchorId){
   const D = POSTSECONDARY_DATA;
+  // No school selected yet. Happens when this screen is opened directly by URL
+  // before a school has been picked; the caller already shows a "try again" card.
+  if(!anchorId) return null;
   const isDistrictAnchor = anchorId.startsWith('DIST_');
   const hs = isDistrictAnchor ? null : D.highSchools[anchorId];
   const dist = isDistrictAnchor ? D.districts[anchorId] : (hs ? D.districts[hs.district_id] : null);
@@ -831,26 +834,94 @@ function isEn(){ return state.lang==='en'; }
 
 /* ============ RENDER SHELL ============ */
 let previousScreen = 'home';
-function render(){
+
+/* Single source of truth for every screen in the app. The hash router below derives
+   the full set of linkable URLs from this object's keys, so adding a screen here is
+   the only step needed to make it linkable. Function declarations are hoisted, so
+   referencing screen functions defined further down this file is safe. */
+const SCREEN_MAP = {
+  home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, topic:topicScreen, family:familyScreen,
+  'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
+  'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
+  pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, stay:stayScreen, shift:shiftScreen,
+  'decide-compare':decideCompareScreen, 'decide-afford':decideAffordScreen, 'decide-questions':decideQuestionsScreen,
+  'decide-roi':occExplorerScreen, 'decide-roi-detail':occDetailScreen, 'decide-roi-compare':occCompareScreen,
+  'apply-scholarships':scholarshipsHubScreen, 'apply-scholarships-list':scholarshipsListScreen,
+  'apply-scholarships-detail':scholarshipsDetailScreen, 'apply-scholarships-saved':scholarshipsSavedScreen,
+  'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
+  'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
+};
+
+function renderScreen(){
   if(state.screen==='home' && previousScreen!=='home'){ state.homeTriageExpanded=false; }
   previousScreen = state.screen;
   const app=document.getElementById('app'); app.innerHTML='';
   app.appendChild(topbar());
-  const map={
-    home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, topic:topicScreen, family:familyScreen,
-    'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
-    'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
-    pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, stay:stayScreen, shift:shiftScreen,
-    'decide-compare':decideCompareScreen, 'decide-afford':decideAffordScreen, 'decide-questions':decideQuestionsScreen,
-    'decide-roi':occExplorerScreen, 'decide-roi-detail':occDetailScreen, 'decide-roi-compare':occCompareScreen,
-    'apply-scholarships':scholarshipsHubScreen, 'apply-scholarships-list':scholarshipsListScreen,
-    'apply-scholarships-detail':scholarshipsDetailScreen, 'apply-scholarships-saved':scholarshipsSavedScreen,
-    'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
-    'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
-  };
-  app.appendChild((map[state.screen]||homeScreen)());
+  app.appendChild((SCREEN_MAP[state.screen]||homeScreen)());
   app.appendChild(bottomnav());
 }
+
+/* ============ HASH ROUTER ============
+   Every screen gets its own URL: #explore, #apply-scholarships, and so on. The
+   app still swaps screens in place; this only keeps the address bar in sync so
+   screens can be linked to directly and so the phone back button steps backward
+   through screens instead of leaving the site.
+
+   render() stays the function the rest of the app calls. It draws the screen and
+   then syncs the hash, which means every existing `state.screen = 'x'; render();`
+   call site becomes linkable without being edited. */
+
+function isKnownScreen(name){ return Object.prototype.hasOwnProperty.call(SCREEN_MAP, name); }
+
+// Set while the router itself is driving a render, so responding to the back
+// button does not push a duplicate history entry for the screen we just landed on.
+let routerIsNavigating = false;
+
+// The 'apply-topic' screen carries a topic in the hash (#apply-topic?topic=military),
+// so the hash for the current screen is built from state, not from the name alone.
+function hashForCurrentScreen(){
+  if(state.screen==='apply-topic' && state.applyTopicKey){
+    return '#apply-topic?topic=' + encodeURIComponent(state.applyTopicKey);
+  }
+  return '#' + state.screen;
+}
+
+function syncHashToScreen(){
+  if(routerIsNavigating) return;
+  const target = hashForCurrentScreen();
+  if(location.hash === target) return;               // same screen re-rendered, nothing to push
+  if(state.screen === 'home' && !location.hash) return; // first load on Home keeps a clean URL
+  try { history.pushState(null, '', target); }
+  catch(e){ location.hash = target.slice(1); }       // file:// or restricted context, still navigable
+}
+
+function render(){
+  renderScreen();
+  syncHashToScreen();
+}
+
+// Reads a hash into state. Returns true when the hash named a real screen.
+function applyHashToState(raw){
+  const cleaned = (raw || '').replace(/^#/, '');
+  if(!cleaned) return false;
+  const [screenPart, queryPart] = cleaned.split('?');
+  if(!isKnownScreen(screenPart)) return false;
+  state.screen = screenPart;
+  if(screenPart==='apply-topic' && queryPart){
+    const topic = new URLSearchParams(queryPart).get('topic');
+    if(topic && APPLY_TOPICS[topic]){ state.applyTopicKey = topic; }
+  }
+  return true;
+}
+
+window.addEventListener('hashchange', function(){
+  routerIsNavigating = true;
+  // An empty hash means the user went back past the first screen they navigated to,
+  // which is Home, matching where they started.
+  if(!applyHashToState(location.hash)){ state.screen = 'home'; }
+  try { renderScreen(); }
+  finally { routerIsNavigating = false; }
+});
 
 function topbar(){
   const bar=el('div','topbar');
@@ -1017,6 +1088,12 @@ const TOPIC_TEXT = {
 };
 function topicScreen(){
   const wrap=el('div');
+  // No topic chosen yet. Happens when this screen is opened directly by URL,
+  // so fall back to Home rather than rendering an empty screen.
+  if(!state.topic || !TOPIC_TEXT[state.topic.key]){
+    state.screen='home';
+    return homeScreen();
+  }
   const key = state.topic.key;
   const data = TOPIC_TEXT[key];
   wrap.appendChild(screenHeader(isEn()?'Your next step':'Tu próximo paso'));
@@ -3640,32 +3717,23 @@ function familyScreen(){
 }
 
 /* ============ DEEP LINK SUPPORT ============
-   Lets external pages (like the Resources page cards) link straight into a
-   specific section instead of only ever landing on Home.
+   Lets external pages, printed handouts, and text messages link straight into a
+   specific screen instead of only ever landing on Home. Every screen in
+   SCREEN_MAP is linkable, so this no longer keeps its own separate list that
+   could drift out of date.
    Recognized formats:
      index.html#explore
-     index.html#decide
-     index.html#apply
+     index.html#decide-roi
      index.html#apply-scholarships
      index.html#apply-topic?topic=military   (topic: pay, applying, military, career, scholarships)
    Anything unrecognized, or no hash at all, falls through to Home exactly as
-   it does today — this only ever narrows the starting screen, it never
-   breaks the existing default. */
+   it did before. This only ever narrows the starting screen, it never breaks
+   the existing default. */
 (function applyDeepLinkFromHash(){
-  const raw = location.hash.replace('#','');
-  if(!raw) return;
-  const [screenPart, queryPart] = raw.split('?');
-  const SAFE_DEEP_LINK_SCREENS = new Set([
-    'home','explore','decide','apply','stay','shift','clinica','family',
-    'apply-scholarships','apply-local-pathway','apply-topic',
-  ]);
-  if(!SAFE_DEEP_LINK_SCREENS.has(screenPart)) return;
-  state.screen = screenPart;
-  if(screenPart==='apply-topic' && queryPart){
-    const params = new URLSearchParams(queryPart);
-    const topic = params.get('topic');
-    if(topic && APPLY_TOPICS[topic]){ state.applyTopicKey = topic; }
-  }
+  if(!applyHashToState(location.hash)) return;
+  // Give the first history entry a hash that matches what is on screen, so the
+  // back button has somewhere to step back to instead of leaving the site.
+  try { history.replaceState(null, '', hashForCurrentScreen()); } catch(e){}
 })();
 
 loadExploreProgress();

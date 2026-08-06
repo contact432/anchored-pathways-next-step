@@ -102,6 +102,35 @@
   .site-footer .footer-en { display:block; text-decoration:underline; text-underline-offset:3px; text-wrap:balance; }
   .site-footer .footer-es { display:block; margin-top:1px; font-style:italic; font-weight:600; text-decoration:none; text-wrap:balance; }
 
+  /* Home: Persevere and Redefine are two plain lines, not stage cards. A family
+     scanning the three choices should not have to read five colored banners to
+     find the one that says "something went wrong." */
+  .home-line { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; border-top:1px solid #EFEAE0; padding:13px 2px; cursor:pointer; font-family:var(--font-body); }
+  .home-line:last-of-type { border-bottom:1px solid #EFEAE0; }
+  .home-line .txt { flex:1; }
+  .home-line .hl-en { font-size:13px; font-weight:600; color:var(--teal-deep); line-height:1.4; }
+  .home-line .hl-es { font-size:12.5px; font-style:italic; color:var(--ink-soft); line-height:1.4; margin-top:2px; }
+  .home-line .chev { color:var(--ink-soft); font-size:17px; flex-shrink:0; }
+
+  /* Persevere. One screen, no browsing. Three situations, closed by default so a
+     person in crisis sees all three at once and opens only their own. */
+  .pv-item { border:1px solid #E7E2D6; border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--white); }
+  .pv-head { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; padding:14px 15px; cursor:pointer; font-family:var(--font-body); }
+  .pv-head .txt { flex:1; }
+  .pv-head .ph-en { font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.4; text-wrap:balance; }
+  .pv-head .ph-es { font-size:12.5px; font-style:italic; color:var(--ink-soft); line-height:1.4; margin-top:3px; text-wrap:balance; }
+  .pv-head .chev { color:var(--teal-mid); font-size:16px; flex-shrink:0; }
+  .pv-item.open { border-color:var(--teal-mid); }
+  .pv-body { padding:2px 15px 16px; border-top:1px solid #F3EFE6; }
+  .pv-lbl { font-size:10.5px; font-weight:700; letter-spacing:0.4px; color:var(--teal-deep); text-transform:uppercase; margin:14px 0 6px; }
+  .pv-body p { font-size:13px; line-height:1.55; color:var(--ink-soft); margin:0 0 6px; }
+  .pv-body p.es { font-style:italic; }
+  .pv-qs { list-style:none; padding:0; margin:0; }
+  .pv-qs li { padding:9px 0; border-bottom:1px solid #F3EFE6; }
+  .pv-qs li:last-child { border-bottom:none; }
+  .pv-qs .q-en { font-size:13px; line-height:1.5; color:var(--ink); }
+  .pv-qs .q-es { font-size:12.5px; line-height:1.5; color:var(--ink-soft); font-style:italic; margin-top:2px; }
+
   .bottomnav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:440px; background:var(--white); border-top:1px solid #E7E2D6; display:flex; justify-content:space-around; padding:9px 4px calc(9px + env(safe-area-inset-bottom)); }
   .navbtn { background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--ink-soft); font-family:var(--font-body); font-size:9.5px; font-weight:600; padding:3px 6px; }
   .navbtn.active { color:var(--teal-deep); }
@@ -599,6 +628,7 @@ const RIASEC_SPOKEN_GLOSS = {
 /* ============ STATE ============ */
 let state = {
   lang:'en', screen:'home', topic:null,
+  persevereOpen:null,   // which Persevere situation is expanded; null = all closed
   path: [],           // breadcrumb of stages visited this session
   // assessment progress — completed/results ARE persisted locally (see saveExploreProgress); everything else on this line is session-only
   valuesStep:0, valuesSelected:[], valuesRanked:[],
@@ -1093,13 +1123,34 @@ function homeScreen(){
   frameworkHeading.style.margin='28px 2px 10px';
   frameworkHeading.innerHTML=`<div style="font-family:var(--font-head); font-size:16px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:2px;">${t().resourcesSection}</div><div style="font-size:12px; color:var(--ink-soft); line-height:1.4;">${t().frameworkSubtitle}</div>`;
   wrap.appendChild(frameworkHeading);
-  t().stages.forEach(s=>{
+  // Persevere and Redefine come off the banner row. They are not a fourth and fifth
+  // thing to browse, they are the two doors a family looks for when the plan broke,
+  // and a colored card next to Explore made them read as optional stages.
+  const HOME_BANNER_KEYS = ['explore','decide','apply'];
+  t().stages.filter(s=>HOME_BANNER_KEYS.includes(s.key)).forEach(s=>{
     const b=el('div','stage-banner');
     b.style.background = `linear-gradient(135deg, ${s.c1}, ${s.c1}CC)`;
     b.innerHTML=`<div class="ic">${s.ic}</div><div><h3>${isEn()?s.en:s.es}</h3><p>${isEn()?s.descEn:s.descEs}</p></div><div class="chev">›</div>`;
     b.onclick=()=>{ state.screen = s.key==='explore'?'explore':s.key; render(); };
     wrap.appendChild(b);
   });
+
+  // Both lines always show both languages. A family in the middle of a bad week
+  // should not have to find the language toggle first.
+  const homeLines = [
+    {key:'stay',  en:'Plans change. If you fell behind or something went wrong, start here.', es:'Los planes cambian. Si te atrasaste o algo salió mal, empieza aquí.'},
+    {key:'shift', en:'Coming back after time away? Start here.', es:'¿Regresas después de un tiempo fuera? Empieza aquí.'},
+  ];
+  const linesWrap=el('div');
+  linesWrap.style.marginTop='14px';
+  linesWrap.style.marginBottom='16px';
+  homeLines.forEach(line=>{
+    const b=el('button','home-line');
+    b.innerHTML=`<div class="txt"><div class="hl-en">${line.en}</div><div class="hl-es">${line.es}</div></div><div class="chev">›</div>`;
+    b.onclick=()=>{ state.screen=line.key; if(line.key==='stay'){ state.persevereOpen=null; } render(); };
+    linesWrap.appendChild(b);
+  });
+  wrap.appendChild(linesWrap);
 
   const checklistCard=el('div','stage-banner');
   checklistCard.style.background = 'linear-gradient(135deg, #8C6A3F, #8C6A3FCC)';
@@ -3589,20 +3640,145 @@ function D_CC_NAME(ccId){
 }
 
 /* ============ PERSEVERE ============ */
+/* A person opening this screen is in trouble right now. It is one screen with no
+   onward navigation, and it never tells a family what to do or what will happen
+   to them. Drop deadlines, W policies, aid consequences, repeat-attempt rules and
+   standing thresholds all differ by institution and by term, and the research
+   found two official pages at the same college disagreeing about a drop deadline.
+   So the screen carries only four things per situation: what the decision can
+   affect, what to ask, who at their own school can answer it, and how soon. Every
+   trap is written as a question, never as a prediction. */
+const PERSEVERE_ITEMS = [
+  {
+    key:'behind',
+    headEn:'I fell behind and I am freaking out. What do I do?',
+    headEs:'Me atrasé y estoy muy angustiado. ¿Qué hago?',
+    affectEn:'This can affect the grade recorded for the class, whether you stay enrolled full time, your financial aid for this term and for the next one, and what it costs if you take the class again.',
+    affectEs:'Esto puede afectar la calificación que queda registrada en la clase, si sigues inscrito de tiempo completo, tu ayuda financiera de este periodo y del siguiente, y lo que cuesta si vuelves a tomar la clase.',
+    qs:[
+      {en:'What are my options in this class right now?', es:'¿Qué opciones tengo en esta clase en este momento?'},
+      {en:'What is the last day to drop a class in my term, and is it a different day for a short session?', es:'¿Cuál es el último día para dar de baja una clase en mi periodo, y es un día distinto para una sesión corta?'},
+      {en:'If I stay in the class, is there tutoring, an incomplete, or another option I have not been told about?', es:'Si me quedo en la clase, ¿hay tutoría, una calificación incompleta u otra opción que no me hayan mencionado?'},
+      {en:'Who do I talk to if something outside of class is the reason I fell behind?', es:'¿Con quién hablo si la razón por la que me atrasé es algo fuera de la clase?'},
+      {en:'Would anything I do now change my financial aid, this term or next term?', es:'¿Algo de lo que haga ahora cambiaría mi ayuda financiera, en este periodo o en el siguiente?'},
+    ],
+    whoEn:'Your academic advisor for the class and for registration. The financial aid office for anything about aid. These are two different offices and they answer two different questions, so ask both.',
+    whoEs:'Tu asesor académico para la clase y la inscripción. La oficina de ayuda financiera para todo lo relacionado con la ayuda. Son dos oficinas distintas y responden dos preguntas distintas, así que pregunta en las dos.',
+    whenEn:'Today. The deadline that matters here is set by your own school and it is not the same at every school.',
+    whenEs:'Hoy. La fecha límite que importa aquí la fija tu propia escuela y no es la misma en todas las escuelas.',
+  },
+  {
+    key:'failed',
+    headEn:'I failed last semester. What is my next step?',
+    headEs:'Reprobé el semestre pasado. ¿Cuál es mi siguiente paso?',
+    affectEn:'This can affect your academic standing at the school, how many hours you are allowed to take, whether your financial aid continues, whether you have to do something before you can register again, and what happens to your record if you retake the course.',
+    affectEs:'Esto puede afectar tu situación académica en la escuela, cuántas horas puedes tomar, si continúa tu ayuda financiera, si tienes que hacer algo antes de poder inscribirte de nuevo, y qué pasa con tu expediente si vuelves a tomar el curso.',
+    qs:[
+      {en:'What is my academic standing right now, and what is the exact name your school uses for it?', es:'¿Cuál es mi situación académica ahora mismo, y cuál es el nombre exacto que usa mi escuela para describirla?'},
+      {en:'Is there a limit on how many hours I am allowed to take next term?', es:'¿Hay un límite de horas que puedo tomar el próximo periodo?'},
+      {en:'Is my financial aid still active? If it is not, is there an appeal, and is there a deadline to file it?', es:'¿Mi ayuda financiera sigue activa? Si no, ¿hay una apelación y hay una fecha límite para presentarla?'},
+      {en:'If I retake this course, does the new grade replace the old one, or do both stay in my GPA?', es:'Si vuelvo a tomar este curso, ¿la nueva calificación reemplaza la anterior, o las dos se quedan en mi promedio?'},
+      {en:'If a grade can be replaced, is it the highest attempt that counts or the most recent attempt?', es:'Si una calificación se puede reemplazar, ¿cuenta el intento más alto o el intento más reciente?'},
+      {en:'Is there a higher charge if I take the same course a third time?', es:'¿Hay un cargo más alto si tomo el mismo curso por tercera vez?'},
+      {en:'Is there anything I have to complete before the system will let me register?', es:'¿Hay algo que tenga que completar antes de que el sistema me deje inscribirme?'},
+    ],
+    whoEn:'Your academic advisor for standing and registration. The financial aid office for aid and for aid appeals. An appeal of a suspension may go somewhere else entirely, such as a counseling center or a dean, so ask who receives it.',
+    whoEs:'Tu asesor académico para tu situación académica y la inscripción. La oficina de ayuda financiera para la ayuda y sus apelaciones. Una apelación de suspensión puede ir a otra parte, como un centro de consejería o un decano, así que pregunta quién la recibe.',
+    whenEn:'Today. Appeal windows are short and some of them close before the next term begins.',
+    whenEs:'Hoy. Los plazos de apelación son cortos y algunos cierran antes de que empiece el próximo periodo.',
+  },
+  {
+    key:'drop',
+    headEn:'Should I drop a class? What happens if I do?',
+    headEs:'¿Debo dar de baja una clase? ¿Qué pasa si lo hago?',
+    affectEn:'A drop can affect what appears on your transcript, whether that mark counts in your GPA, your financial aid for this term and your eligibility for the next one, whether you are still enrolled full time, whether you owe money back, how many drops you have left under the state limit, and what a repeat of the course costs.',
+    affectEs:'Una baja puede afectar lo que aparece en tu expediente, si esa marca cuenta en tu promedio, tu ayuda financiera de este periodo y tu elegibilidad para el siguiente, si sigues inscrito de tiempo completo, si tienes que devolver dinero, cuántas bajas te quedan bajo el límite estatal, y lo que cuesta repetir el curso.',
+    qs:[
+      {en:'What is the last day to drop this class for my term, and is it different for a short session?', es:'¿Cuál es el último día para dar de baja esta clase en mi periodo, y es diferente para una sesión corta?'},
+      {en:'What mark appears on my transcript if I drop, and does that mark count in my GPA?', es:'¿Qué marca aparece en mi expediente si doy de baja, y esa marca cuenta en mi promedio?'},
+      {en:'What happens if I miss that day and stop going instead?', es:'¿Qué pasa si dejo pasar esa fecha y simplemente dejo de ir?'},
+      {en:'Does this drop count against the state six-drop limit?', es:'¿Esta baja cuenta contra el límite estatal de seis bajas?'},
+      {en:'Do drops I took at another Texas public college count toward my limit here?', es:'¿Las bajas que tomé en otro colegio público de Texas cuentan para mi límite aquí?'},
+      {en:'Is there an exemption process, and is there a form for it?', es:'¿Hay un proceso de exención, y hay un formulario para eso?'},
+      {en:'Would I owe any money back if I drop now?', es:'¿Tendría que devolver dinero si doy de baja ahora?'},
+      {en:'Would this put me below full time, and what does that change?', es:'¿Esto me dejaría por debajo de tiempo completo, y qué cambia eso?'},
+      {en:'Can you send me that answer in writing?', es:'¿Me puede enviar esa respuesta por escrito?'},
+    ],
+    whoEn:'The registrar or admissions and records office for the deadline and for what appears on your transcript. The financial aid office for aid and for money owed. Your academic advisor for what comes next.',
+    whoEs:'La oficina del registrador o de admisiones y registros para la fecha límite y para lo que aparece en tu expediente. La oficina de ayuda financiera para la ayuda y el dinero que se deba. Tu asesor académico para lo que sigue.',
+    whenEn:'Before your school\u2019s deadline, and ask for that deadline now rather than reading it off a page. Two official pages at the same college can disagree, and a page can show a schedule from an earlier year without saying so. Ask a person, and ask for it in writing.',
+    whenEs:'Antes de la fecha límite de tu escuela, y pide esa fecha ahora en lugar de leerla en una página. Dos páginas oficiales del mismo colegio pueden no coincidir, y una página puede mostrar un calendario de un año anterior sin decirlo. Pregúntale a una persona y pide la respuesta por escrito.',
+  },
+];
+
 function stayScreen(){
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'Persevere':'Persevera'));
-  const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'PERSEVERE · ONGOING SUPPORT':'PERSEVERA · APOYO CONTINUO'));
-  card.appendChild(el('h2','', isEn()?'Already enrolled? We stay with you.':'¿Ya estás inscrito? Seguimos contigo.'));
-  card.appendChild(el('p','', isEn()?'Financial aid renewal reminders, check-ins, and emergency resource connections continue for 12 months after your family works with AP.':'Recordatorios de renovación de ayuda financiera, seguimiento y conexiones a recursos de emergencia continúan por 12 meses.'));
+
+  const intro=el('div','card');
+  intro.appendChild(el('div','pill', isEn()?'PERSEVERE':'PERSEVERA'));
+  intro.appendChild(el('h2','', isEn()?'You are not the first person this has happened to.':'No eres la primera persona a quien le pasa esto.'));
+  intro.appendChild(el('p','', 'The rules here are different at every school and they change from one term to the next. We will not tell you what to choose. We will tell you what the decision can affect, what to ask, and who at your school can answer it.'));
+  intro.appendChild(el('p','es', 'Las reglas aquí son diferentes en cada escuela y cambian de un periodo a otro. No te vamos a decir qué escoger. Te vamos a decir qué puede afectar la decisión, qué preguntar y quién en tu escuela puede responder.'));
+  wrap.appendChild(intro);
+
+  const list=el('div','card');
+  list.style.paddingTop='14px';
+  list.appendChild(el('div','section-label', isEn()?'Which one is you?':'¿Cuál eres tú?'));
+  list.appendChild(el('p','es', isEn()?'¿Cuál eres tú?':'Which one is you?'));
+
+  PERSEVERE_ITEMS.forEach(item=>{
+    const open = state.persevereOpen===item.key;
+    const box=el('div','pv-item'+(open?' open':''));
+
+    const head=el('button','pv-head');
+    head.setAttribute('aria-expanded', open?'true':'false');
+    head.innerHTML='<div class="txt"><div class="ph-en">'+item.headEn+'</div><div class="ph-es">'+item.headEs+'</div></div><div class="chev">'+(open?'\u25b4':'\u25be')+'</div>';
+    head.onclick=()=>{ state.persevereOpen = open ? null : item.key; render(); };
+    box.appendChild(head);
+
+    if(open){
+      const body=el('div','pv-body');
+
+      body.appendChild(el('div','pv-lbl', 'What this can affect  ·  Qué puede afectar'));
+      body.appendChild(el('p','', item.affectEn));
+      body.appendChild(el('p','es', item.affectEs));
+
+      body.appendChild(el('div','pv-lbl', 'What to ask  ·  Qué preguntar'));
+      const ul=el('ul','pv-qs');
+      item.qs.forEach(q=>{
+        const li=el('li');
+        li.innerHTML='<div class="q-en">'+q.en+'</div><div class="q-es">'+q.es+'</div>';
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+
+      body.appendChild(el('div','pv-lbl', 'Who can answer it  ·  Quién puede responder'));
+      body.appendChild(el('p','', item.whoEn));
+      body.appendChild(el('p','es', item.whoEs));
+
+      body.appendChild(el('div','pv-lbl', 'How soon to ask  ·  Qué tan pronto preguntar'));
+      body.appendChild(el('p','', item.whenEn));
+      body.appendChild(el('p','es', item.whenEs));
+
+      box.appendChild(body);
+    }
+    list.appendChild(box);
+  });
+  wrap.appendChild(list);
+
+  const help=el('div','card');
+  help.appendChild(el('h2','', isEn()?'Bring these questions to us and we will make the calls with you.':'Trae estas preguntas y hacemos las llamadas contigo.'));
+  help.appendChild(el('p','', 'Clínica is free and open to everyone. No appointment is needed.'));
+  help.appendChild(el('p','es', 'La Clínica es gratuita y abierta para todos. No se necesita cita.'));
   const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
   btn.onclick=()=>{ state.screen='clinica'; render(); };
-  card.appendChild(btn);
+  help.appendChild(btn);
   const btnPriv=el('button','secondary-btn', isEn()?'Or Request a Private Meeting':'O Solicitar una Reunión Privada');
   btnPriv.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
-  card.appendChild(btnPriv);
-  wrap.appendChild(card);
+  help.appendChild(btnPriv);
+  wrap.appendChild(help);
+
   return wrap;
 }
 

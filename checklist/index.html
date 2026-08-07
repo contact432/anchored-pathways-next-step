@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Family Checklist | Anchored Pathways</title>
 <meta name="description" content="A free, bilingual family checklist for every pathway forward — university, community college, trade school, apprenticeship, military, or certification. From Anchored Pathways.">
 
@@ -49,15 +49,20 @@
     font-family: 'Work Sans', sans-serif;
     background: var(--paper);
     color: var(--ink);
-    padding-bottom: 90px;
+    padding-bottom: 24px;
+  }
+  /* Header + tabs share one sticky container so the tab bar can never drift out
+     of view. Previously each was sticky on its own with a hardcoded top: 128px,
+     which broke whenever the header's height changed (long titles, Spanish). */
+  .sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 20;
   }
   header {
     background: linear-gradient(135deg, var(--teal), var(--navy));
     color: white;
     padding: 24px 20px 18px;
-    position: sticky;
-    top: 0;
-    z-index: 20;
   }
   .top-row {
     display: flex;
@@ -117,9 +122,6 @@
     display: flex;
     background: white;
     border-bottom: 1px solid var(--line);
-    position: sticky;
-    top: 128px;
-    z-index: 19;
     overflow-x: auto;
   }
   nav.tabs button {
@@ -184,10 +186,13 @@
   footer { text-align: center; padding: 26px 20px 10px; font-size: 12px; color: #8b8b7f; }
   footer .es-line { font-style: italic; color: var(--teal); margin-top: 4px; display: block; }
 
+  /* No longer fixed to the bottom of the viewport. It sat over the last checklist
+     item on short screens and read as a primary action; it is now the last thing
+     on the page, after the footer. */
   .reset-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; background: white;
-    border-top: 1px solid var(--line); padding: 10px 16px; display: flex;
-    justify-content: center; z-index: 25;
+    background: white;
+    border-top: 1px solid var(--line); padding: 16px; display: flex;
+    justify-content: center;
   }
   .reset-bar button {
     border: 1px solid var(--teal); color: var(--teal); background: none;
@@ -198,6 +203,7 @@
 </head>
 <body>
 
+<div class="sticky-top">
 <header>
   <div class="top-row">
     <div>
@@ -216,6 +222,7 @@
 </header>
 
 <nav class="tabs" id="tabs"></nav>
+</div>
 
 <main id="main"></main>
 
@@ -349,7 +356,11 @@ function renderTabs() {
   });
 }
 
-function checklistItem(id, text, tagLabel) {
+// onToggle lets the caller refresh its own section badge from inside this same
+// onchange handler. Without it the "2/4" count only recomputed on a full render,
+// so the item struck through and the global bar moved while the section badge
+// still read 0/4 until the page was reloaded.
+function checklistItem(id, text, tagLabel, onToggle) {
   const wrap = document.createElement('label');
   wrap.className = 'item' + (progress[id] ? ' checked' : '');
   const cb = document.createElement('input');
@@ -360,6 +371,7 @@ function checklistItem(id, text, tagLabel) {
     saveProgress(progress);
     wrap.classList.toggle('checked', cb.checked);
     updateProgressBar();
+    if (typeof onToggle === 'function') onToggle();
   };
   const span = document.createElement('span');
   const txt = document.createElement('span');
@@ -407,13 +419,22 @@ function renderStage(stageId) {
     details.className = 'section';
     details.open = true;
     const summary = document.createElement('summary');
-    summary.innerHTML = '<span>' + L(section.title) + '</span><span class="count">' + doneCount + '/' + visibleItems.length + '</span>';
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = L(section.title);
+    const countSpan = document.createElement('span');
+    countSpan.className = 'count';
+    countSpan.textContent = doneCount + '/' + visibleItems.length;
+    summary.appendChild(titleSpan);
+    summary.appendChild(countSpan);
+    const refreshSectionCount = () => {
+      countSpan.textContent = visibleItems.filter(it => progress[it.id]).length + '/' + visibleItems.length;
+    };
     details.appendChild(summary);
     const itemsWrap = document.createElement('div');
     itemsWrap.className = 'items';
     visibleItems.forEach(it => {
       const tag = (it.populations[0] !== 'all') ? it.populations.map(p => L(DATA.population_labels[p]) || p).join(', ') : null;
-      itemsWrap.appendChild(checklistItem(it.id, L(it.text), tag));
+      itemsWrap.appendChild(checklistItem(it.id, L(it.text), tag, refreshSectionCount));
     });
     details.appendChild(itemsWrap);
     main.appendChild(details);
@@ -502,11 +523,20 @@ function renderDocuments() {
     details.open = false;
     const doneCount = group.items.filter((doc, i) => progress['DOC-' + catLabel + '-' + i]).length;
     const summary = document.createElement('summary');
-    summary.innerHTML = '<span>' + catLabel + '</span><span class="count">' + doneCount + '/' + group.items.length + '</span>';
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = catLabel;
+    const countSpan = document.createElement('span');
+    countSpan.className = 'count';
+    countSpan.textContent = doneCount + '/' + group.items.length;
+    summary.appendChild(titleSpan);
+    summary.appendChild(countSpan);
+    const refreshSectionCount = () => {
+      countSpan.textContent = group.items.filter((doc, i) => progress['DOC-' + catLabel + '-' + i]).length + '/' + group.items.length;
+    };
     details.appendChild(summary);
     const itemsWrap = document.createElement('div');
     itemsWrap.className = 'items';
-    group.items.forEach((doc, i) => itemsWrap.appendChild(checklistItem('DOC-' + catLabel + '-' + i, L(doc))));
+    group.items.forEach((doc, i) => itemsWrap.appendChild(checklistItem('DOC-' + catLabel + '-' + i, L(doc), null, refreshSectionCount)));
     details.appendChild(itemsWrap);
     main.appendChild(details);
   }

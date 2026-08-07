@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anchored Pathways</title>
 <meta name="description" content="Free college, career, and financial aid guidance for first-generation families, in English and Spanish. Explore your path, get FAFSA/TASFA help, and find scholarships with Anchored Pathways.">
 
@@ -155,6 +155,10 @@
   .primary-btn { width:100%; background:var(--amber); color:var(--white); border:none; border-radius:14px; padding:14px; font-weight:700; font-size:14px; font-family:var(--font-body); cursor:pointer; margin-top:4px; }
   .primary-btn:disabled { opacity:0.4; }
   .secondary-btn { width:100%; background:transparent; color:var(--teal-deep); border:1.5px solid var(--teal-deep); border-radius:14px; padding:12px; font-weight:700; font-size:13.5px; font-family:var(--font-body); cursor:pointer; margin-top:8px; }
+
+  /* Official government / state resource links inside guide and FAQ copy. Previously these
+     domains were plain text, forcing families to retype a URL on a phone. */
+  .ext-link { color:var(--teal-deep); font-weight:700; text-decoration:underline; text-underline-offset:2px; word-break:break-word; }
 
   .field { margin-bottom:14px; }
   .field label { display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
@@ -909,7 +913,17 @@ const SCREEN_MAP = {
   'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
   'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
   'my-status':myStatusScreen,
+
+  // Friendly-name aliases. The visible stage labels are Advance, Persevere, and Redefine,
+  // but the original hashes were #apply, #stay, and #shift, so a link shared using the
+  // name a family actually sees used to fall back to Home. Both spellings now resolve.
+  // The router canonicalizes aliases via SCREEN_ALIASES below, so state.screen and the
+  // address bar keep using the original names and nothing downstream has to change.
+  persevere:stayScreen, redefine:shiftScreen, advance:applyScreen,
 };
+
+// Alias hash -> canonical screen name used everywhere else in the app.
+const SCREEN_ALIASES = { persevere:'stay', redefine:'shift', advance:'apply' };
 
 function renderScreen(){
   if(state.screen==='home' && previousScreen!=='home'){ state.homeTriageExpanded=false; }
@@ -964,8 +978,9 @@ function render(){
 function applyHashToState(raw){
   const cleaned = (raw || '').replace(/^#/, '');
   if(!cleaned) return false;
-  const [screenPart, queryPart] = cleaned.split('?');
-  if(!isKnownScreen(screenPart)) return false;
+  const [rawScreenPart, queryPart] = cleaned.split('?');
+  if(!isKnownScreen(rawScreenPart)) return false;
+  const screenPart = SCREEN_ALIASES[rawScreenPart] || rawScreenPart;
   state.screen = screenPart;
   if(screenPart==='apply-topic' && queryPart){
     const topic = new URLSearchParams(queryPart).get('topic');
@@ -1931,7 +1946,7 @@ function decideAffordScreen(){
   card.appendChild(el('p','', isEn()?'This gives you a general sense of the gap between cost and what your family might realistically cover. Your real FAFSA/TASFA numbers will be more accurate, a Navigator can walk through those with you.':'Esto te da una idea general de la diferencia entre el costo y lo que tu familia podría cubrir. Tus números reales de FAFSA/TASFA serán más precisos, un Navegador puede revisarlos contigo.'));
 
   const f1=el('div','field');
-  f1.innerHTML=`<label>${isEn()?'Estimated annual cost of the school or program':'Costo anual estimado de la escuela o programa'}</label><input type="number" id="affCost" placeholder="$10,000">`;
+  f1.innerHTML=`<label>${isEn()?'Estimated annual cost of the school or program':'Costo anual estimado de la escuela o programa'}</label><input type="number" id="affCost" placeholder="Example: 10000">`;
   card.appendChild(f1);
 
   const f2=el('div','field');
@@ -1953,8 +1968,19 @@ function decideAffordScreen(){
   card.appendChild(resultBox);
 
   const btn=el('button','primary-btn', isEn()?'See my snapshot':'Ver mi resumen');
+  // Error prevention: an empty cost field used to produce a confident but meaningless
+  // "$0" snapshot. The button stays disabled until a real number above zero is entered.
+  btn.disabled = true;
+  const costInput = f1.querySelector('#affCost');
+  const syncAffordBtn = ()=>{
+    const v = parseFloat(costInput.value);
+    btn.disabled = !(isFinite(v) && v > 0);
+  };
+  costInput.addEventListener('input', syncAffordBtn);
+  syncAffordBtn();
   btn.onclick=()=>{
     const cost = parseFloat(document.getElementById('affCost').value) || 0;
+    if(!(cost > 0)) return;
     const aidFactor = parseFloat(document.getElementById('affIncome').value);
     const knownAid = parseFloat(document.getElementById('affAid').value) || 0;
     const estAidPortion = cost * aidFactor;
@@ -2054,14 +2080,14 @@ const GUIDES = {
        bodyEn:'The FAFSA (Free Application for Federal Student Aid) and the TASFA (Texas Application for State Financial Aid) are the forms that help students access financial aid for college and career training programs.',
        bodyEs:'La FAFSA (Solicitud Gratuita de Ayuda Federal para Estudiantes) y la TASFA (Solicitud de Texas para Ayuda Financiera Estatal) son los formularios que ayudan a los estudiantes a acceder a la ayuda financiera para la universidad y programas de capacitación.'},
       {headingEn:'Which form is right for you?', headingEs:'¿Qué formulario le corresponde?',
-       listEn:["U.S. citizen, permanent resident, or eligible noncitizen → Complete the FAFSA at fafsa.gov","Not eligible for the FAFSA? You may qualify for TASFA at collegeforalltexans.com, depending on current Texas rules and school requirements","Some schools may request both FAFSA- and TASFA-related documentation depending on your status","Not sure which applies to you? Contact Anchored Pathways, we will help you figure it out without judgment"],
-       listEs:["Ciudadano de EE. UU., residente permanente, o no ciudadano elegible → Complete la FAFSA en fafsa.gov","¿No es elegible para la FAFSA? Podría calificar para TASFA en collegeforalltexans.com, según las reglas vigentes de Texas","Algunas escuelas podrían solicitar documentación de FAFSA y de TASFA según su situación","¿No está seguro de qué formulario le corresponde? Comuníquese con Anchored Pathways, le ayudaremos a determinarlo sin juzgarle"]},
+       listEn:["U.S. citizen, permanent resident, or eligible noncitizen → Complete the FAFSA at <a class=\"ext-link\" href=\"https://studentaid.gov\" target=\"_blank\" rel=\"noopener noreferrer\">fafsa.gov</a>","Not eligible for the FAFSA? You may qualify for TASFA at <a class=\"ext-link\" href=\"https://www.collegeforalltexans.com\" target=\"_blank\" rel=\"noopener noreferrer\">collegeforalltexans.com</a>, depending on current Texas rules and school requirements","Some schools may request both FAFSA- and TASFA-related documentation depending on your status","Not sure which applies to you? Contact Anchored Pathways, we will help you figure it out without judgment"],
+       listEs:["Ciudadano de EE. UU., residente permanente, o no ciudadano elegible → Complete la FAFSA en <a class=\"ext-link\" href=\"https://studentaid.gov\" target=\"_blank\" rel=\"noopener noreferrer\">fafsa.gov</a>","¿No es elegible para la FAFSA? Podría calificar para TASFA en <a class=\"ext-link\" href=\"https://www.collegeforalltexans.com\" target=\"_blank\" rel=\"noopener noreferrer\">collegeforalltexans.com</a>, según las reglas vigentes de Texas","Algunas escuelas podrían solicitar documentación de FAFSA y de TASFA según su situación","¿No está seguro de qué formulario le corresponde? Comuníquese con Anchored Pathways, le ayudaremos a determinarlo sin juzgarle"]},
       {headingEn:'When to apply', headingEs:'Cuándo solicitar',
        bodyEn:"The 2026–2027 FAFSA is available now and covers July 1, 2026 through June 30, 2027. Apply as early as possible, since federal aid and some school aid can be limited. Deadlines vary by institution, check each school's financial aid office for its priority deadline.",
        bodyEs:'La FAFSA 2026–2027 ya está disponible y cubre del 1 de julio de 2026 al 30 de junio de 2027. Solicítela lo antes posible, ya que algunos fondos son limitados. Las fechas límite varían según la institución; verifique la fecha prioritaria con la oficina de ayuda financiera de cada escuela.'},
       {headingEn:'Creating an FSA ID', headingEs:'Crear un ID de FSA',
-       bodyEn:'Before starting the FAFSA, the student and any required contributors must create an FSA ID at studentaid.gov/fsa-id, your electronic signature for the form. Some contributors without a Social Security number may still be able to create one, check the latest instructions at studentaid.gov.',
-       bodyEs:'Antes de comenzar la FAFSA, el estudiante y los contribuyentes requeridos deben crear un ID de FSA en studentaid.gov/fsa-id, su firma electrónica para el formulario. Algunos contribuyentes sin número de Seguro Social aún podrían crear uno; verifique las instrucciones más recientes en studentaid.gov.'},
+       bodyEn:'Before starting the FAFSA, the student and any required contributors must create an FSA ID at <a class="ext-link" href="https://studentaid.gov/fsa-id" target="_blank" rel="noopener noreferrer">studentaid.gov/fsa-id</a>, your electronic signature for the form. Some contributors without a Social Security number may still be able to create one, check the latest instructions at <a class="ext-link" href="https://studentaid.gov/h/apply-for-aid/fafsa" target="_blank" rel="noopener noreferrer">studentaid.gov</a>.',
+       bodyEs:'Antes de comenzar la FAFSA, el estudiante y los contribuyentes requeridos deben crear un ID de FSA en <a class="ext-link" href="https://studentaid.gov/fsa-id" target="_blank" rel="noopener noreferrer">studentaid.gov/fsa-id</a>, su firma electrónica para el formulario. Algunos contribuyentes sin número de Seguro Social aún podrían crear uno; verifique las instrucciones más recientes en <a class="ext-link" href="https://studentaid.gov/h/apply-for-aid/fafsa" target="_blank" rel="noopener noreferrer">studentaid.gov</a>.'},
       {headingEn:'Common mistakes to avoid', headingEs:'Errores comunes que evitar',
        listEn:['Waiting too long, early submission increases your chance of full aid','Mixing up student and parent information, double-check names and SSNs','Forgetting to sign and submit, all required contributors must sign electronically','Using the wrong tax year, for 2026–2027, use 2024 income and tax information'],
        listEs:['Esperar demasiado; la presentación temprana aumenta sus posibilidades de recibir toda la ayuda','Confundir la información del estudiante y del padre/madre; verifique nombres y números de Seguro Social','Olvidar firmar y enviar; todos los contribuyentes requeridos deben firmar electrónicamente','Usar el año fiscal incorrecto; para 2026–2027, use la información de ingresos de 2024']},
@@ -2775,7 +2801,7 @@ const APPLY_TOPICS = {
       {qEn:'When should we apply?', qEs:'¿Cuándo deberíamos aplicar?',
        aEn:'As early as possible, aid can be limited, and deadlines vary by school.', aEs:'Lo antes posible, la ayuda puede ser limitada, y las fechas límite varían según la escuela.'},
       {qEn:"What's an FSA ID?", qEs:'¿Qué es un ID de FSA?',
-       aEn:'Your electronic signature for the FAFSA. The student and other required family members create one at studentaid.gov before starting.', aEs:'Su firma electrónica para la FAFSA. El estudiante y otros familiares requeridos crean uno en studentaid.gov antes de comenzar.'},
+       aEn:'Your electronic signature for the FAFSA. The student and other required family members create one at <a class="ext-link" href="https://studentaid.gov/h/apply-for-aid/fafsa" target="_blank" rel="noopener noreferrer">studentaid.gov</a> before starting.', aEs:'Su firma electrónica para la FAFSA. El estudiante y otros familiares requeridos crean uno en <a class="ext-link" href="https://studentaid.gov/h/apply-for-aid/fafsa" target="_blank" rel="noopener noreferrer">studentaid.gov</a> antes de comenzar.'},
       {qEn:"What if we're not sure about our status?", qEs:'¿Y si no estamos seguros de nuestro estatus?',
        aEn:'Completely normal. A Navigator can help, privately.', aEs:'Es completamente normal. Un Navegador puede ayudarte, en privado.'},
     ],

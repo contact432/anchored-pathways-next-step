@@ -250,6 +250,25 @@ function L(obj) {
   return obj;
 }
 
+// Turns known domain mentions inside resource/note copy into tappable links so
+// families don't have to retype a URL on a phone. Limited to the domains the
+// copy actually names, so this can't invent a link target the text doesn't say.
+const RESOURCE_LINKS = {
+  'studentaid.gov': 'https://studentaid.gov',
+  'collegeforalltexans.com': 'https://www.mytexasfuture.org'
+};
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function linkifyResource(text) {
+  let out = escapeHtml(text);
+  Object.keys(RESOURCE_LINKS).forEach(domain => {
+    const href = RESOURCE_LINKS[domain];
+    out = out.split(domain).join('<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + domain + '</a>');
+  });
+  return out;
+}
+
 function loadProgress() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
   catch (e) { return {}; }
@@ -452,7 +471,7 @@ function renderResources() {
   for (const group of DATA.houston_resources) {
     const h3 = document.createElement('h3'); h3.textContent = L(group.category);
     const ul = document.createElement('ul');
-    group.items.forEach(i => { const li = document.createElement('li'); li.textContent = L(i); ul.appendChild(li); });
+    group.items.forEach(i => { const li = document.createElement('li'); li.innerHTML = linkifyResource(L(i)); ul.appendChild(li); });
     wrap.appendChild(h3); wrap.appendChild(ul);
   }
   main.appendChild(wrap);
@@ -491,7 +510,7 @@ function renderFinancial() {
   notesBody.style.padding = '10px 16px 14px';
   const ul = document.createElement('ul');
   ul.style.margin = '0'; ul.style.paddingLeft = '18px'; ul.style.fontSize = '13.5px'; ul.style.color = '#34423f';
-  DATA.financial_aid_notes.forEach(n => { const li = document.createElement('li'); li.style.marginBottom = '8px'; li.textContent = L(n); ul.appendChild(li); });
+  DATA.financial_aid_notes.forEach(n => { const li = document.createElement('li'); li.style.marginBottom = '8px'; li.innerHTML = linkifyResource(L(n)); ul.appendChild(li); });
   notesBody.appendChild(ul);
   notesSection.appendChild(notesBody);
   main.appendChild(notesSection);

@@ -3838,8 +3838,9 @@ function shiftScreen(){
 /* ============ CLÍNICA ============ */
 const HEADS_UP_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdaSHjdHPWYUb_N-SHizm_vPGUaWcSLIwPpjfzkErfekLHBVw/viewform';
 const PRIVATE_MEETING_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfy788vzYrUM8Bo1kWzM1UsmvSmrKJaJxlUyJsvsuf1URRBGg/viewform';
-// Weekly 15-minute reservation slots for Clínica (Thursdays 5:00–8:00 PM window), separate from the
-// longer, private one-on-one Zoom meeting request (PRIVATE_MEETING_FORM_URL above).
+// Weekly 30-minute reservation slots for Clínica (Thursdays 5:15–7:45 PM window, appointments
+// only — no walk-ins), separate from the longer, private one-on-one Zoom meeting request
+// (PRIVATE_MEETING_FORM_URL above).
 const CLINICA_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ1gW1qe9LcpvySKV9vnk_v6t5Zfn7Q-N7D24uTJrKOuKNb0Djxv54ug2Y5jhrfOQbpbDlb4d8S5';
 // Standalone bilingual family checklist (Explore/Decide/Advance + Resources/Financial Aid/
 // Documents/By Situation). Lives at /checklist/ as its own static page — kept separate from
@@ -3874,14 +3875,15 @@ function clinicaScreen(){
   wrap.appendChild(screenHeader(isEn()?'Clínica':'Clínica'));
 
   const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'DROP-IN THURSDAYS · NO COST':'SIN CITA LOS JUEVES · SIN COSTO'));
-  card.appendChild(el('h2','', isEn()?'Walk in Thursdays, 5:00–8:00 PM':'Venga sin cita los jueves, 5:00–8:00 PM'));
-  card.appendChild(el('p','', isEn()?"Walk in Thursdays from 5:00 PM to 8:00 PM at East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). It's completely free. Space is limited, so we recommend reserving a 15-minute spot ahead of time — walk-ins are still welcome too.":'Venga sin cita los jueves de 5:00 PM a 8:00 PM en East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). Es completamente gratis. El espacio es limitado, así que le recomendamos reservar un lugar de 15 minutos con anticipación — también aceptamos visitas sin cita.'));
-  const bookBtn=el('button','primary-btn', isEn()?'Reserve a 15-Minute Spot':'Reservar un Espacio de 15 Minutos');
+  card.appendChild(el('div','pill', isEn()?'THURSDAYS · APPOINTMENTS ONLY · NO COST':'JUEVES · SOLO CON CITA · SIN COSTO'));
+  card.appendChild(el('h2','', isEn()?'Thursdays, 5:15–7:45 PM':'Los jueves, 5:15–7:45 PM'));
+  card.appendChild(el('p','', isEn()?"Book a 30-minute appointment on Thursdays from 5:15 PM to 7:45 PM at East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). It's completely free. We're a small team, so appointments only — we hold that time for the family who books it.":'Reserva una cita de 30 minutos los jueves de 5:15 PM a 7:45 PM en East Harris County Activity Center (7340 Spencer Hwy, Pasadena, TX 77505). Es completamente gratis. Somos un equipo pequeño, así que solo trabajamos con cita — reservamos ese tiempo para la familia que lo reserva.'));
+  const bookBtn=el('button','primary-btn', isEn()?'Reserve Your 30-Minute Spot':'Reservar tu Espacio de 30 Minutos');
   bookBtn.onclick=()=>{ window.open(CLINICA_BOOKING_URL, '_blank', 'noopener,noreferrer'); };
   card.appendChild(bookBtn);
-  card.appendChild(el('p','es', isEn()?'Opens Google Calendar in a new tab. Prefer not to reserve? Walk-ins are always welcome — message us on WhatsApp for quick help, or send an optional heads-up before you come.':'Se abre Google Calendar en una pestaña nueva. ¿Prefieres no reservar? Siempre puedes venir sin cita — escríbanos por WhatsApp si necesita ayuda rápida, o envíe un aviso opcional antes de venir.'));
+  card.appendChild(el('p','es', isEn()?"Opens Google Calendar in a new tab. Can't find a time that works, or all spots are full? Message us on WhatsApp and we'll find another way to help you.":'Se abre Google Calendar en una pestaña nueva. ¿No encuentras un horario que funcione, o ya no hay espacios? Escríbenos por WhatsApp y encontraremos otra forma de ayudarte.'));
   card.appendChild(el('p','es', isEn()?'Families are welcome. Parents or guardians may come with students, but they are not required.':'Las familias son bienvenidas. Los padres o tutores pueden acompañar a los estudiantes, pero no es obligatorio.'));
+  card.appendChild(el('p','es', isEn()?'Need to cancel? Let us know so we can give the time to another family — cancel through your confirmation email or message us on WhatsApp. There is no penalty, and you can book again any time.':'¿Necesitas cancelar? Avísanos para poder dar ese horario a otra familia — cancela desde tu correo de confirmación o escríbenos por WhatsApp. No hay penalidad, y puedes reservar de nuevo cuando quieras.'));
   wrap.appendChild(card);
 
   const card2=el('div','card');
@@ -3895,17 +3897,17 @@ function clinicaScreen(){
   wrap.appendChild(card2);
 
   const card3=el('div','card');
-  card3.appendChild(el('h2','', isEn()?'Planning to stop by?':'¿Piensas pasar?'));
-  card3.appendChild(el('p','', isEn()?'Whether you reserve a 15-minute spot above or just walk in, this optional form gives us a heads-up about what you may want help with so we can be better prepared. It does not reserve a time on its own or guarantee immediate service.':'Ya sea que reserves un espacio de 15 minutos arriba o llegues sin cita, este formulario opcional nos ayuda a saber con anticipación en qué podrías necesitar apoyo para estar mejor preparados. No reserva un horario por sí solo ni garantiza atención inmediata.'));
+  card3.appendChild(el('h2','', isEn()?'Already booked your spot?':'¿Ya reservaste tu espacio?'));
+  card3.appendChild(el('p','', isEn()?'This optional form gives us a heads-up about what you may want help with ahead of your appointment, so we can be better prepared. It does not reserve a time on its own — please book your spot above first.':'Este formulario opcional nos ayuda a saber con anticipación en qué podrías necesitar apoyo antes de tu cita, para estar mejor preparados. No reserva un horario por sí solo — por favor reserva tu espacio arriba primero.'));
   const btn=el('button','primary-btn', isEn()?'Send an optional heads-up':'Enviar aviso opcional');
   btn.onclick=()=>{ window.open(getHeadsUpFormUrl(), '_blank', 'noopener,noreferrer'); };
   card3.appendChild(btn);
-  card3.appendChild(el('p','es', isEn()?'You can still come even if you do not fill out the form.':'Puedes venir aunque no llenes el formulario.'));
+  card3.appendChild(el('p','es', isEn()?'This form is optional. You still need to reserve your spot above.':'Este formulario es opcional. Aún necesitas reservar tu espacio arriba.'));
   wrap.appendChild(card3);
 
   const card4=el('div','card');
   card4.appendChild(el('h2','', isEn()?'Prefer a private conversation instead?':'¿Prefieres una conversación privada?'));
-  card4.appendChild(el('p','', isEn()?"Clínica, including the reserved 15-minute spots, still happens in a shared space at the Activity Center. If you'd rather have a longer, private conversation over Zoom, you can request a one-on-one meeting with a Navigator instead. This is a request, not an instant booking, someone will follow up with you to schedule it.":'La Clínica, incluyendo los espacios reservados de 15 minutos, sigue siendo en un espacio compartido en el Activity Center. Si prefieres una conversación más larga y privada por Zoom, puedes pedir una reunión individual con un Navegador. Esto es una solicitud, no una cita inmediata, alguien te contactará para agendarla.'));
+  card4.appendChild(el('p','', isEn()?"Clínica, including the reserved 30-minute spots, still happens in a shared space at the Activity Center. If you'd rather have a longer, private conversation over Zoom, you can request a one-on-one meeting with a Navigator instead. This is a request, not an instant booking, someone will follow up with you to schedule it.":'La Clínica, incluyendo los espacios reservados de 30 minutos, sigue siendo en un espacio compartido en el Activity Center. Si prefieres una conversación más larga y privada por Zoom, puedes pedir una reunión individual con un Navegador. Esto es una solicitud, no una cita inmediata, alguien te contactará para agendarla.'));
   const privBtn=el('button','secondary-btn', isEn()?'Request a Private Meeting':'Solicitar una Reunión Privada');
   privBtn.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
   card4.appendChild(privBtn);
@@ -3985,7 +3987,7 @@ function familyScreen(){
 
   const card3=el('div','card');
   card3.appendChild(el('div','section-label', isEn()?'Clínica':'Clínica'));
-  card3.appendChild(el('p','', isEn()?'Thursdays, 5:00–8:00 PM. Reserve a 15-minute spot, or just walk in.':'Los jueves, de 5:00 a 8:00 PM. Reserva un espacio de 15 minutos, o ven sin cita.'));
+  card3.appendChild(el('p','', isEn()?'Thursdays, 5:15–7:45 PM. Book a 30-minute spot — appointments only.':'Los jueves, de 5:15 a 7:45 PM. Reserva un espacio de 30 minutos — solo con cita.'));
   const btn2=el('button','secondary-btn', isEn()?'Go to Clínica':'Ir a la Clínica');
   btn2.onclick=()=>{ state.screen='clinica'; render(); };
   card3.appendChild(btn2);
@@ -4272,8 +4274,8 @@ function myStatusScreen(){
   const nextUp = el('div','card');
   nextUp.appendChild(myStatusLabel('Clínica', 'Clínica'));
   nextUp.appendChild(el('p','', isEn()
-    ? 'Thursdays, 5:00 to 8:00 PM. East Harris County Activity Center, 7340 Spencer Hwy, Pasadena. Reserve a spot, or just walk in.'
-    : 'Los jueves, de 5:00 a 8:00 PM. East Harris County Activity Center, 7340 Spencer Hwy, Pasadena. Reserve un espacio, o venga sin cita.'));
+    ? 'Thursdays, 5:15 to 7:45 PM. East Harris County Activity Center, 7340 Spencer Hwy, Pasadena. Appointments only — reserve your spot ahead of time.'
+    : 'Los jueves, de 5:15 a 7:45 PM. East Harris County Activity Center, 7340 Spencer Hwy, Pasadena. Solo con cita — reserva tu espacio con anticipación.'));
   const bookBtn = el('button','secondary-btn', isEn()?'Book your next Clínica visit':'Reserve su próxima visita a la Clínica');
   bookBtn.onclick = () => { window.open(CLINICA_BOOKING_URL, '_blank', 'noopener,noreferrer'); };
   nextUp.appendChild(bookBtn);

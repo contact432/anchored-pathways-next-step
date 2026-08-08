@@ -103,7 +103,7 @@
   .site-footer .footer-en { display:block; text-decoration:underline; text-underline-offset:3px; text-wrap:balance; }
   .site-footer .footer-es { display:block; margin-top:1px; font-style:italic; font-weight:600; text-decoration:none; text-wrap:balance; }
 
-  /* Home: Persevere and Redefine are two plain lines, not stage cards. A family
+  /* Home: Stay and Shift are two plain lines, not stage cards. A family
      scanning the three choices should not have to read five colored banners to
      find the one that says "something went wrong." */
   .home-line { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; border-top:1px solid #EFEAE0; padding:13px 2px; cursor:pointer; font-family:var(--font-body); }
@@ -113,7 +113,7 @@
   .home-line .hl-es { font-size:12.5px; font-style:italic; color:var(--ink-soft); line-height:1.4; margin-top:2px; }
   .home-line .chev { color:var(--ink-soft); font-size:17px; flex-shrink:0; }
 
-  /* Persevere. One screen, no browsing. Three situations, closed by default so a
+  /* Stay. One screen, no browsing. Three situations, closed by default so a
      person in crisis sees all three at once and opens only their own. */
   .pv-item { border:1px solid #E7E2D6; border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--white); }
   .pv-head { display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; padding:14px 15px; cursor:pointer; font-family:var(--font-body); }
@@ -243,8 +243,8 @@ const T = {
       {key:'explore', ic:'🧭', c1:'#257F8A', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
       {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decide', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
       {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Advance', es:'Avanza', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
-      {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Persevere', es:'Persevera', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
-      {key:'shift', ic:'🔄', c1:'#B85A26', en:'Redefine', es:'Redefine tu camino', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
+      {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Stay', es:'Quédate', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
+      {key:'shift', ic:'🔄', c1:'#B85A26', en:'Shift', es:'Cambia', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
     ],
     triage: [
       {emoji:"📝", en:"My child needs to apply for financial aid", es:"Mi hijo/a necesita solicitar ayuda financiera", key:'fafsa'},
@@ -629,7 +629,7 @@ const RIASEC_SPOKEN_GLOSS = {
 /* ============ STATE ============ */
 let state = {
   lang:'en', screen:'home', topic:null,
-  persevereOpen:null,   // which Persevere situation is expanded; null = all closed
+  stayOpen:null,   // which Stay situation is expanded; null = all closed
   path: [],           // breadcrumb of stages visited this session
   // assessment progress — completed/results ARE persisted locally (see saveExploreProgress); everything else on this line is session-only
   valuesStep:0, valuesSelected:[], valuesRanked:[],
@@ -911,7 +911,7 @@ const SCREEN_MAP = {
   'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
   'my-status':myStatusScreen,
 
-  // Friendly-name aliases. The visible stage labels are Advance, Persevere, and Redefine,
+  // Friendly-name aliases. The visible stage labels are Advance, Stay, and Shift,
   // but the original hashes were #apply, #stay, and #shift, so a link shared using the
   // name a family actually sees used to fall back to Home. Both spellings now resolve.
   // The router canonicalizes aliases via SCREEN_ALIASES below, so state.screen and the
@@ -1042,8 +1042,8 @@ function screenHeader(title, backTo){
 }
 
 /* Site footer, present on every screen.
-   Before this, the private meeting request existed only inside the Persevere and
-   Redefine screens. That made the only route to a private conversation depend on
+   Before this, the private meeting request existed only inside the Stay and
+   Shift screens. That made the only route to a private conversation depend on
    two screens surviving a redesign, and it hid that route from every family who
    never opened them. Both lines show at once regardless of the language toggle,
    matching how the rest of the app presents English and Spanish together. */
@@ -1135,7 +1135,7 @@ function homeScreen(){
   frameworkHeading.style.margin='28px 2px 10px';
   frameworkHeading.innerHTML=`<div style="font-family:var(--font-head); font-size:16px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:2px;">${t().resourcesSection}</div><div style="font-size:12px; color:var(--ink-soft); line-height:1.4;">${t().frameworkSubtitle}</div>`;
   wrap.appendChild(frameworkHeading);
-  // Persevere and Redefine come off the banner row. They are not a fourth and fifth
+  // Stay and Shift come off the banner row. They are not a fourth and fifth
   // thing to browse, they are the two doors a family looks for when the plan broke,
   // and a colored card next to Explore made them read as optional stages.
   const HOME_BANNER_KEYS = ['explore','decide','apply'];
@@ -1169,7 +1169,7 @@ function homeScreen(){
   homeLines.forEach(line=>{
     const b=el('button','home-line');
     b.innerHTML=`<div class="txt"><div class="hl-en">${line.en}</div><div class="hl-es">${line.es}</div></div><div class="chev">›</div>`;
-    b.onclick=()=>{ state.screen=line.key; if(line.key==='stay'){ state.persevereOpen=null; } render(); };
+    b.onclick=()=>{ state.screen=line.key; if(line.key==='stay'){ state.stayOpen=null; } render(); };
     linesWrap.appendChild(b);
   });
   wrap.appendChild(linesWrap);
@@ -1209,10 +1209,10 @@ const TOPIC_TEXT = {
     titleEn:"You belong in this process too", titleEs:"Tú también perteneces a este proceso",
     bodyEn:"Immigration status can make college feel closed off. There are still real options, but the rules changed in 2025 and 2026 and depend on your specific situation, including DACA or TPS status. Nothing you share at Clínica is reported anywhere, and there is no wrong answer. A Navigator can talk through what applies to you privately, no forms required to start.",
     bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Todavía existen opciones reales, pero las reglas cambiaron en 2025 y 2026 y dependen de tu situación específica, incluyendo el estatus de DACA o TPS. Nada de lo que compartas en la Clínica se reporta a ningún lugar, y no hay respuesta incorrecta. Un Navegador puede hablar contigo en privado sobre lo que aplica a tu caso, sin formularios para empezar."},
-  adult:{dest:'shift', destEn:'Redefine', destEs:'Redefine tu camino',
+  adult:{dest:'shift', destEn:'Shift', destEs:'Cambia',
     titleEn:"It's not too late to go back", titleEs:"No es demasiado tarde para regresar",
-    bodyEn:"Whether it's been a few classes or a few decades, the Redefine stage is built for adults returning to school, including credit for prior learning and evening options.",
-    bodyEs:"Sea que falten pocas clases o hayan pasado décadas, la etapa Redefine está hecha para adultos que regresan, incluyendo crédito por aprendizaje previo y horarios nocturnos."},
+    bodyEn:"Whether it's been a few classes or a few decades, the Shift stage is built for adults returning to school, including credit for prior learning and evening options.",
+    bodyEs:"Sea que falten pocas clases o hayan pasado décadas, la etapa Cambia está hecha para adultos que regresan, incluyendo crédito por aprendizaje previo y horarios nocturnos."},
   scholarships:{dest:'apply', destEn:'Advance', destEs:'Avanza',
     titleEn:"Let's build a scholarship list", titleEs:"Construyamos una lista de becas",
     bodyEn:"Most families only hear about the one big national scholarship. There are usually smaller, local ones with far less competition.",
@@ -3674,7 +3674,7 @@ function D_CC_NAME(ccId){
   return cc ? cc.college_name : ccId;
 }
 
-/* ============ PERSEVERE ============ */
+/* ============ STAY ============ */
 /* A person opening this screen is in trouble right now. It is one screen with no
    onward navigation, and it never tells a family what to do or what will happen
    to them. Drop deadlines, W policies, aid consequences, repeat-attempt rules and
@@ -3683,7 +3683,7 @@ function D_CC_NAME(ccId){
    So the screen carries only four things per situation: what the decision can
    affect, what to ask, who at their own school can answer it, and how soon. Every
    trap is written as a question, never as a prediction. */
-const PERSEVERE_ITEMS = [
+const STAY_ITEMS = [
   {
     key:'behind',
     headEn:'I fell behind and I am freaking out. What do I do?',
@@ -3748,10 +3748,10 @@ const PERSEVERE_ITEMS = [
 
 function stayScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Persevere':'Persevera'));
+  wrap.appendChild(screenHeader(isEn()?'Stay':'Quédate'));
 
   const intro=el('div','card');
-  intro.appendChild(el('div','pill', isEn()?'PERSEVERE':'PERSEVERA'));
+  intro.appendChild(el('div','pill', isEn()?'STAY':'QUÉDATE'));
   intro.appendChild(el('h2','', isEn()?'You are not the first person this has happened to.':'No eres la primera persona a quien le pasa esto.'));
   intro.appendChild(el('p','', 'The rules here are different at every school and they change from one term to the next. We will not tell you what to choose. We will tell you what the decision can affect, what to ask, and who at your school can answer it.'));
   intro.appendChild(el('p','es', 'Las reglas aquí son diferentes en cada escuela y cambian de un periodo a otro. No te vamos a decir qué escoger. Te vamos a decir qué puede afectar la decisión, qué preguntar y quién en tu escuela puede responder.'));
@@ -3762,14 +3762,14 @@ function stayScreen(){
   list.appendChild(el('div','section-label', isEn()?'Which one is you?':'¿Cuál eres tú?'));
   list.appendChild(el('p','es', isEn()?'¿Cuál eres tú?':'Which one is you?'));
 
-  PERSEVERE_ITEMS.forEach(item=>{
-    const open = state.persevereOpen===item.key;
+  STAY_ITEMS.forEach(item=>{
+    const open = state.stayOpen===item.key;
     const box=el('div','pv-item'+(open?' open':''));
 
     const head=el('button','pv-head');
     head.setAttribute('aria-expanded', open?'true':'false');
     head.innerHTML='<div class="txt"><div class="ph-en">'+item.headEn+'</div><div class="ph-es">'+item.headEs+'</div></div><div class="chev">'+(open?'\u25b4':'\u25be')+'</div>';
-    head.onclick=()=>{ state.persevereOpen = open ? null : item.key; render(); };
+    head.onclick=()=>{ state.stayOpen = open ? null : item.key; render(); };
     box.appendChild(head);
 
     if(open){
@@ -3804,8 +3804,8 @@ function stayScreen(){
 
   const help=el('div','card');
   help.appendChild(el('h2','', isEn()?'Bring these questions to us and we will make the calls with you.':'Trae estas preguntas y hacemos las llamadas contigo.'));
-  help.appendChild(el('p','', 'Clínica is free and open to everyone. No appointment is needed.'));
-  help.appendChild(el('p','es', 'La Clínica es gratuita y abierta para todos. No se necesita cita.'));
+  help.appendChild(el('p','', 'Clínica is free and open to everyone. Appointments only — book a 30-minute spot ahead of time.'));
+  help.appendChild(el('p','es', 'La Clínica es gratuita y abierta para todos. Solo con cita — reserva tu espacio de 30 minutos con anticipación.'));
   const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
   btn.onclick=()=>{ state.screen='clinica'; render(); };
   help.appendChild(btn);
@@ -3817,12 +3817,12 @@ function stayScreen(){
   return wrap;
 }
 
-/* ============ REDEFINE ============ */
+/* ============ SHIFT ============ */
 function shiftScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Redefine':'Redefine tu camino'));
+  wrap.appendChild(screenHeader(isEn()?'Shift':'Cambia'));
   const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'REDEFINE · CHANGING DIRECTION':'REDEFINE · CAMBIAR DE DIRECCIÓN'));
+  card.appendChild(el('div','pill', isEn()?'SHIFT · CHANGING DIRECTION':'CAMBIA · CAMBIAR DE DIRECCIÓN'));
   card.appendChild(el('h2','', isEn()?"It's not too late to change direction":'No es demasiado tarde para cambiar de rumbo'));
   card.appendChild(el('p','', isEn()?'Changing majors, transferring schools, returning as an adult learner, or pivoting careers, this is the stage for that conversation.':'Cambiar de carrera, transferirte de escuela, regresar como adulto o cambiar de profesión, esta es la etapa para esa conversación.'));
   const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
@@ -3841,7 +3841,7 @@ const PRIVATE_MEETING_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfy78
 // Weekly 30-minute reservation slots for Clínica (Thursdays 5:15–7:45 PM window, appointments
 // only — no walk-ins), separate from the longer, private one-on-one Zoom meeting request
 // (PRIVATE_MEETING_FORM_URL above).
-const CLINICA_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ1gW1qe9LcpvySKV9vnk_v6t5Zfn7Q-N7D24uTJrKOuKNb0Djxv54ug2Y5jhrfOQbpbDlb4d8S5';
+const CLINICA_BOOKING_URL = 'https://calendar.app.google/p7fbg4UiDJpzyWfW9';
 // Standalone bilingual family checklist (Explore/Decide/Advance + Resources/Financial Aid/
 // Documents/By Situation). Lives at /checklist/ as its own static page — kept separate from
 // this single-page app on purpose (different content model: long-form reference checklist
@@ -3851,7 +3851,7 @@ const FAMILY_CHECKLIST_URL = './checklist/';
 // college's own published core across 13 Texas colleges/universities — no district or
 // high-school crosswalk). Lives at /core-tracker/ as its own static page for the same
 // reason as the checklist: a dense, checkbox-driven reference tool with its own state
-// model, separate from this app's guided Explore/Decide/Advance/Persevere/Redefine flow.
+// model, separate from this app's guided Explore/Decide/Advance/Stay/Shift flow.
 const CORE_TRACKER_URL = './core-tracker/';
 // Printable pathway workbooks (Family Navigation, College, Career and Trade, Military).
 // Lives at /workbooks/ as its own static page, same reasoning as the checklist above:

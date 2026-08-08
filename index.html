@@ -36,11 +36,12 @@
   :root {
     --teal-deep: #1A5F6E;
     --teal-navy: #14505E;
-    --teal-mid: #2A8A96;
+    --teal-mid: #257F8A;
     --teal-bright: #3AABB8;
     --gold: #F5A623;
     --amber: #E8832A;
     --burnt: #C4612A;
+    --ap-ink-deep: #0C333D;
     --white: #FFFFFF;
     --ink: #16323A;
     --ink-soft: #4A6B72;
@@ -62,13 +63,13 @@
   .brand-name { font-family:var(--font-head); font-weight:600; font-size:14.5px; }
   .lang-toggle { display:flex; background:rgba(255,255,255,0.14); border-radius:999px; padding:3px; font-size:12px; font-weight:600; }
   .lang-toggle button { border:none; background:transparent; color:rgba(255,255,255,0.75); padding:6px 12px; border-radius:999px; cursor:pointer; font-family:var(--font-body); font-weight:600; font-size:12px; }
-  .lang-toggle button.active { background:var(--gold); color:var(--teal-navy); }
+  .lang-toggle button.active { background:var(--gold); color:var(--ap-ink-deep); }
   .greeting { margin-top:16px; position:relative; z-index:1; }
   .greeting h1 { font-family:var(--font-head); font-weight:600; font-size:20px; line-height:1.25; margin:0 0 4px; }
   .greeting p { margin:0; font-size:13px; color:rgba(255,255,255,0.8); line-height:1.4; }
   .stage-crumb { display:flex; align-items:center; gap:6px; margin-top:14px; position:relative; z-index:1; flex-wrap:wrap; }
   .crumb-chip { font-size:12px; font-weight:700; padding:4px 9px; border-radius:999px; background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.65); letter-spacing:0.3px; }
-  .crumb-chip.active { background:var(--gold); color:var(--teal-navy); }
+  .crumb-chip.active { background:var(--gold); color:var(--ap-ink-deep); }
   .crumb-arrow { color:rgba(255,255,255,0.35); font-size:12px; }
 
   .content { padding:16px 18px 8px; flex:1; }
@@ -150,9 +151,9 @@
   .step-list { list-style:none; padding:0; margin:0; }
   .step-list li { display:flex; gap:10px; font-size:13px; color:var(--ink); padding:8px 0; border-bottom:1px solid #F3EFE6; }
   .step-list li:last-child { border-bottom:none; }
-  .step-num { width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--teal-navy); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-num { width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--ap-ink-deep); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 
-  .primary-btn { width:100%; background:var(--amber); color:var(--teal-navy); border:none; border-radius:14px; padding:14px; font-weight:700; font-size:14px; font-family:var(--font-body); cursor:pointer; margin-top:4px; }
+  .primary-btn { width:100%; background:var(--amber); color:var(--ap-ink-deep); border:none; border-radius:14px; padding:14px; font-weight:700; font-size:14px; font-family:var(--font-body); cursor:pointer; margin-top:4px; }
   .primary-btn:disabled { opacity:0.4; }
   .secondary-btn { width:100%; background:transparent; color:var(--teal-deep); border:1.5px solid var(--teal-deep); border-radius:14px; padding:12px; font-weight:700; font-size:13.5px; font-family:var(--font-body); cursor:pointer; margin-top:8px; }
 
@@ -171,7 +172,7 @@
 
   .chip-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
   .chip { padding:9px 13px; border-radius:999px; border:1.5px solid #E7E2D6; font-size:12.5px; font-weight:600; cursor:pointer; background:var(--white); color:var(--ink); }
-  .chip.picked { background:var(--gold); border-color:var(--gold); color:var(--teal-navy); }
+  .chip.picked { background:var(--gold); border-color:var(--gold); color:var(--ap-ink-deep); }
   .chip-counter { font-size:12px; color:var(--ink-soft); font-weight:600; margin:8px 2px 14px; }
 
   .rank-item { display:flex; align-items:center; gap:10px; background:var(--white); border:1.5px solid #E7E2D6; border-radius:12px; padding:10px 12px; margin-bottom:8px; font-size:13.5px; font-weight:600; }
@@ -239,11 +240,11 @@ const T = {
     navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navApply:"Advance", navMe:"Family",
     back:"Back",
     stages: [
-      {key:'explore', ic:'🧭', c1:'#2A8A96', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
+      {key:'explore', ic:'🧭', c1:'#257F8A', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
       {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decide', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
       {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Advance', es:'Avanza', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
       {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Persevere', es:'Persevera', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
-      {key:'shift', ic:'🔄', c1:'#C4612A', en:'Redefine', es:'Redefine tu camino', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
+      {key:'shift', ic:'🔄', c1:'#B85A26', en:'Redefine', es:'Redefine tu camino', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
     ],
     triage: [
       {emoji:"📝", en:"My child needs to apply for financial aid", es:"Mi hijo/a necesita solicitar ayuda financiera", key:'fafsa'},
@@ -1139,15 +1140,18 @@ function homeScreen(){
   // and a colored card next to Explore made them read as optional stages.
   const HOME_BANNER_KEYS = ['explore','decide','apply'];
   // Text stays white on backgrounds that aren't part of the WCAG-flagged set (Deep Teal here).
-  // Cards whose c1 is Bright Gold / Mid Amber / Bright Teal / Mid Teal / Burnt Orange switch to
-  // Navy Teal text per the contrast pass — only where Navy improves contrast over white (Bright Gold, Mid Amber, Bright Teal).
-  // Mid Teal and Burnt Orange are intentionally excluded: Navy Teal on those backgrounds tests WORSE than white
-  // (Mid Teal white=4.06:1/navy=2.21:1, Burnt Orange white=4.13:1/navy=2.18:1), so white text stays there per product decision.
-  const FLAGGED_BANNER_BG = ['#F5A623', '#E8832A', '#3AABB8'];
+  // Cards whose c1 is Bright Gold / Mid Amber switch to --ap-ink-deep text (dedicated ink color for
+  // Gold/Amber contexts). Bright Teal keeps Navy Teal text (Navy still improves contrast there and
+  // --ap-ink-deep is reserved for Gold/Amber only, per product decision).
+  // Mid Teal and Burnt Orange are intentionally excluded from any text-color swap: white text tests
+  // better than a dark ink color on those two backgrounds, so white stays there per product decision.
+  const INK_DEEP_BANNER_BG = ['#F5A623', '#E8832A'];
+  const NAVY_BANNER_BG = ['#3AABB8'];
   t().stages.filter(s=>HOME_BANNER_KEYS.includes(s.key)).forEach(s=>{
     const b=el('div','stage-banner');
     b.style.background = `linear-gradient(135deg, ${s.c1}, ${s.c1}CC)`;
-    if (FLAGGED_BANNER_BG.includes(s.c1)) { b.style.color = 'var(--teal-navy)'; }
+    if (INK_DEEP_BANNER_BG.includes(s.c1)) { b.style.color = 'var(--ap-ink-deep)'; }
+    else if (NAVY_BANNER_BG.includes(s.c1)) { b.style.color = 'var(--teal-navy)'; }
     b.innerHTML=`<div class="ic">${s.ic}</div><div><h3>${isEn()?s.en:s.es}</h3><p>${isEn()?s.descEn:s.descEs}</p></div><div class="chev">›</div>`;
     b.onclick=()=>{ state.screen = s.key==='explore'?'explore':s.key; render(); };
     wrap.appendChild(b);
@@ -1283,8 +1287,8 @@ function resetConfirmScreen(){
   card.appendChild(el('h2','', isEn()?'Start Explore over?':'¿Empezar Explorar de nuevo?'));
   card.appendChild(el('p','', isEn()?'This will clear your values, strengths, interests, personality, vision reflection, and Path Profile results. This cannot be undone.':'Esto borrará tus respuestas sobre valores, fortalezas, intereses, personalidad, tu reflexión sobre el futuro y los resultados de tu Perfil de Camino. No se puede deshacer.'));
   const destructive=el('button','primary-btn', isEn()?'Clear my Explore results':'Borrar mis resultados de Explorar');
-  destructive.style.background = '#C4612A';
-  // Override the .primary-btn navy text color: on Burnt Orange, white (4.13:1) tests better than Navy Teal (2.18:1).
+  destructive.style.background = '#B85A26';
+  // Override the .primary-btn navy text color: on Burnt Orange, white tests better than a dark ink color.
   destructive.style.color = 'var(--white)';
   destructive.onclick=()=>{ resetExploreState(); state.screen='explore'; render(); };
   card.appendChild(destructive);
@@ -2021,11 +2025,11 @@ function decideQuestionsScreen(){
   const tabs=el('div','lang-toggle');
   tabs.style.background='#EEF6F5'; tabs.style.width='fit-content'; tabs.style.margin='0 18px 14px';
   const tSchools=document.createElement('button'); tSchools.textContent=isEn()?'Schools':'Escuelas';
-  tSchools.style.color = state.questionsTab==='schools' ? '#14505E' : '#4A6B72';
+  tSchools.style.color = state.questionsTab==='schools' ? '#0C333D' : '#4A6B72';
   tSchools.style.background = state.questionsTab==='schools' ? '#F5A623' : 'transparent';
   tSchools.onclick=()=>{ state.questionsTab='schools'; render(); };
   const tEmployers=document.createElement('button'); tEmployers.textContent=isEn()?'Employers':'Empleadores';
-  tEmployers.style.color = state.questionsTab==='employers' ? '#14505E' : '#4A6B72';
+  tEmployers.style.color = state.questionsTab==='employers' ? '#0C333D' : '#4A6B72';
   tEmployers.style.background = state.questionsTab==='employers' ? '#F5A623' : 'transparent';
   tEmployers.onclick=()=>{ state.questionsTab='employers'; render(); };
   tabs.appendChild(tSchools); tabs.appendChild(tEmployers);

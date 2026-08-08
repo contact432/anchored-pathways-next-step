@@ -3961,7 +3961,26 @@ function familyScreen(){
   const dots=el('div','progress-dots'); for(let i=0;i<4;i++) dots.appendChild(el('span', i<n?'done':''));
   card2.appendChild(dots);
   card2.appendChild(el('p','', exploreProgressText(n)));
-  if(n>0){ const btn=el('button','secondary-btn', isEn()?'View Path Profile':'Ver Perfil de Camino'); btn.onclick=()=>{state.screen='pathprofile';render();}; card2.appendChild(btn); }
+
+  // Inline "at a glance" summary, so results are visible right here on the Family tab
+  // instead of requiring a tap into the full Path Profile. Only shows categories that
+  // have actually been completed; mirrors the same rows/styling as the Path Profile
+  // "What you shared" card for a consistent look.
+  if(n>0){
+    const glanceRows=[];
+    if(state.results.values) glanceRows.push({label:isEn()?'Top values':'Valores principales', val: state.results.values.slice(0,3).map(v=>isEn()?v.en:v.es).join(', ')});
+    if(state.results.strengths) glanceRows.push({label:isEn()?'Top strengths':'Fortalezas principales', val: state.results.strengths.map(s=>isEn()?s.en:s.es).join(', ')});
+    if(state.results.personality) glanceRows.push({label:isEn()?'Personality':'Personalidad', val: `${state.results.personality.code} · ${state.results.personality.name}`});
+    if(state.results.interests) glanceRows.push({label:isEn()?'Interest areas':'Áreas de interés', val: state.results.interests.map(r=>isEn()?r.en:r.es).join(', ')});
+    if(glanceRows.length){
+      const glance=el('div','profile-summary-card');
+      glance.style.margin='10px 0 4px';
+      glance.appendChild(el('h3','', isEn()?'What you shared':'Lo que compartiste'));
+      glanceRows.forEach(r=>{ const row=el('div','summary-row'); row.innerHTML=`<span>${r.label}</span><b>${r.val}</b>`; glance.appendChild(row); });
+      card2.appendChild(glance);
+    }
+    const btn=el('button','secondary-btn', isEn()?'View Path Profile':'Ver Perfil de Camino'); btn.style.marginTop='10px'; btn.onclick=()=>{state.screen='pathprofile';render();}; card2.appendChild(btn);
+  }
   wrap.appendChild(card2);
 
   const card3=el('div','card');

@@ -243,8 +243,8 @@ const T = {
       {key:'explore', ic:'🧭', c1:'#257F8A', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
       {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decide', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
       {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Advance', es:'Avanza', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
-      {key:'stay', ic:'🌱', c1:'#3AABB8', en:'Stay', es:'Quédate', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
-      {key:'shift', ic:'🔄', c1:'#B85A26', en:'Shift', es:'Cambia', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
+      {key:'persist', ic:'🌱', c1:'#3AABB8', en:'Stay', es:'Quédate', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
+      {key:'redefine', ic:'🔄', c1:'#B85A26', en:'Shift', es:'Cambia', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
     ],
     triage: [
       {emoji:"📝", en:"My child needs to apply for financial aid", es:"Mi hijo/a necesita solicitar ayuda financiera", key:'fafsa'},
@@ -902,7 +902,7 @@ const SCREEN_MAP = {
   home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, topic:topicScreen, family:familyScreen,
   'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
   'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
-  pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, stay:stayScreen, shift:shiftScreen,
+  pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, persist:stayScreen, redefine:shiftScreen,
   'decide-compare':decideCompareScreen, 'decide-afford':decideAffordScreen, 'decide-questions':decideQuestionsScreen,
   'decide-roi':occExplorerScreen, 'decide-roi-detail':occDetailScreen, 'decide-roi-compare':occCompareScreen,
   'apply-scholarships':scholarshipsHubScreen, 'apply-scholarships-list':scholarshipsListScreen,
@@ -911,16 +911,17 @@ const SCREEN_MAP = {
   'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
   'my-status':myStatusScreen,
 
-  // Friendly-name aliases. The visible stage labels are Advance, Stay, and Shift,
-  // but the original hashes were #apply, #stay, and #shift, so a link shared using the
-  // name a family actually sees used to fall back to Home. Both spellings now resolve.
+  // Friendly-name aliases. The current canonical hashes are #persist and #redefine, but
+  // #stay, #shift, and #persevere were all used at one point or another, so any link
+  // shared using an older name still resolves instead of falling back to Home.
   // The router canonicalizes aliases via SCREEN_ALIASES below, so state.screen and the
-  // address bar keep using the original names and nothing downstream has to change.
-  persevere:stayScreen, redefine:shiftScreen, advance:applyScreen,
+  // address bar always end up on the current canonical name and nothing downstream
+  // has to change.
+  persevere:stayScreen, stay:stayScreen, shift:shiftScreen, advance:applyScreen,
 };
 
 // Alias hash -> canonical screen name used everywhere else in the app.
-const SCREEN_ALIASES = { persevere:'stay', redefine:'shift', advance:'apply' };
+const SCREEN_ALIASES = { persevere:'persist', stay:'persist', shift:'redefine', advance:'apply' };
 
 function renderScreen(){
   if(state.screen==='home' && previousScreen!=='home'){ state.homeTriageExpanded=false; }
@@ -1014,7 +1015,7 @@ function topbar(){
     const g=el('div','greeting'); g.appendChild(el('h1','',t().hello)); g.appendChild(el('p','',t().sub)); bar.appendChild(g);
   }
   // stage breadcrumb shown on every stage-related screen
-  const stageScreens = ['explore','decide','apply','stay','shift','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-afford','decide-questions','decide-roi','decide-roi-detail','decide-roi-compare','apply-scholarships','apply-scholarships-list','apply-scholarships-detail','apply-scholarships-saved','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide'];
+  const stageScreens = ['explore','decide','apply','persist','redefine','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-afford','decide-questions','decide-roi','decide-roi-detail','decide-roi-compare','apply-scholarships','apply-scholarships-list','apply-scholarships-detail','apply-scholarships-saved','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide'];
   if(stageScreens.includes(state.screen)){
     const active = state.screen.startsWith('assess') || state.screen==='pathprofile' ? 'explore'
                  : state.screen.startsWith('decide-') ? 'decide'
@@ -1160,8 +1161,8 @@ function homeScreen(){
   // Both lines always show both languages. A family in the middle of a bad week
   // should not have to find the language toggle first.
   const homeLines = [
-    {key:'stay',  en:'Plans change. If you fell behind or something went wrong, start here.', es:'Los planes cambian. Si te atrasaste o algo salió mal, empieza aquí.'},
-    {key:'shift', en:'Coming back after time away? Start here.', es:'¿Regresas después de un tiempo fuera? Empieza aquí.'},
+    {key:'persist',  en:'Plans change. If you fell behind or something went wrong, start here.', es:'Los planes cambian. Si te atrasaste o algo salió mal, empieza aquí.'},
+    {key:'redefine', en:'Coming back after time away? Start here.', es:'¿Regresas después de un tiempo fuera? Empieza aquí.'},
   ];
   const linesWrap=el('div');
   linesWrap.style.marginTop='14px';
@@ -1169,7 +1170,7 @@ function homeScreen(){
   homeLines.forEach(line=>{
     const b=el('button','home-line');
     b.innerHTML=`<div class="txt"><div class="hl-en">${line.en}</div><div class="hl-es">${line.es}</div></div><div class="chev">›</div>`;
-    b.onclick=()=>{ state.screen=line.key; if(line.key==='stay'){ state.stayOpen=null; } render(); };
+    b.onclick=()=>{ state.screen=line.key; if(line.key==='persist'){ state.stayOpen=null; } render(); };
     linesWrap.appendChild(b);
   });
   wrap.appendChild(linesWrap);
@@ -1209,7 +1210,7 @@ const TOPIC_TEXT = {
     titleEn:"You belong in this process too", titleEs:"Tú también perteneces a este proceso",
     bodyEn:"Immigration status can make college feel closed off. There are still real options, but the rules changed in 2025 and 2026 and depend on your specific situation, including DACA or TPS status. Nothing you share at Clínica is reported anywhere, and there is no wrong answer. A Navigator can talk through what applies to you privately, no forms required to start.",
     bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Todavía existen opciones reales, pero las reglas cambiaron en 2025 y 2026 y dependen de tu situación específica, incluyendo el estatus de DACA o TPS. Nada de lo que compartas en la Clínica se reporta a ningún lugar, y no hay respuesta incorrecta. Un Navegador puede hablar contigo en privado sobre lo que aplica a tu caso, sin formularios para empezar."},
-  adult:{dest:'shift', destEn:'Shift', destEs:'Cambia',
+  adult:{dest:'redefine', destEn:'Shift', destEs:'Cambia',
     titleEn:"It's not too late to go back", titleEs:"No es demasiado tarde para regresar",
     bodyEn:"Whether it's been a few classes or a few decades, the Shift stage is built for adults returning to school, including credit for prior learning and evening options.",
     bodyEs:"Sea que falten pocas clases o hayan pasado décadas, la etapa Cambia está hecha para adultos que regresan, incluyendo crédito por aprendizaje previo y horarios nocturnos."},

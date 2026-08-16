@@ -1962,25 +1962,21 @@ function decideAffordScreen(){
   const card=el('div','card');
   card.appendChild(el('div','pill', isEn()?'ROUGH ESTIMATE, NOT OFFICIAL':'ESTIMADO APROXIMADO, NO OFICIAL'));
   card.appendChild(el('h2','', isEn()?'A starting point for the conversation':'Un punto de partida para la conversación'));
-  card.appendChild(el('p','', isEn()?'This gives you a general sense of the gap between cost and what your family might realistically cover. Your real FAFSA/TASFA numbers will be more accurate, a Navigator can walk through those with you.':'Esto te da una idea general de la diferencia entre el costo y lo que tu familia podría cubrir. Tus números reales de FAFSA/TASFA serán más precisos, un Navegador puede revisarlos contigo.'));
+  card.appendChild(el('p','', isEn()?'This gives you a general sense of the gap between cost and the aid you already know about. Your real FAFSA/TASFA numbers or the school’s official financial aid offer will be more accurate, a Navigator can walk through those with you.':'Esto te da una idea general de la diferencia entre el costo y la ayuda que ya conoces. Tus números reales de FAFSA/TASFA o la oferta oficial de ayuda financiera de la escuela serán más precisos, un Navegador puede revisarlos contigo.'));
 
   const f1=el('div','field');
-  f1.innerHTML=`<label>${isEn()?'Estimated annual cost of the school or program':'Costo anual estimado de la escuela o programa'}</label><input type="number" id="affCost" placeholder="Example: 10000">`;
+  f1.innerHTML=`<label>${isEn()?'Estimated annual cost of the school or program':'Costo anual estimado de la escuela o programa'}</label><input type="number" id="affCost" placeholder="Example: 10000">
+    <p style="font-size:11px;color:var(--ink-soft);margin:4px 2px 0;">${isEn()?'Use the school’s published cost, net price calculator, or financial aid information if you have it.':'Usa el costo publicado por la escuela, su calculadora de precio neto o la información de ayuda financiera si la tienes.'}</p>`;
   card.appendChild(f1);
 
   const f2=el('div','field');
-  f2.innerHTML=`<label>${isEn()?'Household income range':'Rango de ingreso familiar'}</label>
-    <select id="affIncome">
-      <option value="0.85">${isEn()?'Under $30,000':'Menos de $30,000'}</option>
-      <option value="0.65">${isEn()?'$30,000–$50,000':'$30,000–$50,000'}</option>
-      <option value="0.45">${isEn()?'$50,000–$75,000':'$50,000–$75,000'}</option>
-      <option value="0.25">${isEn()?'$75,000–$100,000':'$75,000–$100,000'}</option>
-      <option value="0.10">${isEn()?'Over $100,000':'Más de $100,000'}</option>
-    </select>`;
+  f2.innerHTML=`<label>${isEn()?'Grants and scholarships you already know about (optional)':'Becas y subvenciones que ya sabes que recibirás (opcional)'}</label><input type="number" id="affGrants" placeholder="$0">
+    <p style="font-size:11px;color:var(--ink-soft);margin:4px 2px 0;">${isEn()?'Only include aid you have actually been offered or can reasonably confirm.':'Incluye solamente ayuda que realmente te hayan ofrecido o que puedas confirmar.'}</p>`;
   card.appendChild(f2);
 
   const f3=el('div','field');
-  f3.innerHTML=`<label>${isEn()?'Scholarships or grants you already expect (optional)':'Becas o subvenciones que ya esperas (opcional)'}</label><input type="number" id="affAid" placeholder="$0">`;
+  f3.innerHTML=`<label>${isEn()?'Other financial aid you already know about (optional)':'Otra ayuda financiera que ya conoces (opcional)'}</label><input type="number" id="affOtherAid" placeholder="$0">
+    <p style="font-size:11px;color:var(--ink-soft);margin:4px 2px 0;">${isEn()?'For example, confirmed tuition assistance or other aid. Do not include loans unless you intentionally want to compare borrowing.':'Por ejemplo, asistencia de matrícula confirmada u otra ayuda. No incluyas préstamos a menos que quieras comparar intencionalmente cuánto pedirías prestado.'}</p>`;
   card.appendChild(f3);
 
   const resultBox=el('div'); resultBox.id='affResult';
@@ -2000,27 +1996,29 @@ function decideAffordScreen(){
   btn.onclick=()=>{
     const cost = parseFloat(document.getElementById('affCost').value) || 0;
     if(!(cost > 0)) return;
-    const aidFactor = parseFloat(document.getElementById('affIncome').value);
-    const knownAid = parseFloat(document.getElementById('affAid').value) || 0;
-    const estAidPortion = cost * aidFactor;
-    const netPrice = Math.max(0, cost - knownAid - estAidPortion);
+    const grantsScholarships = parseFloat(document.getElementById('affGrants').value) || 0;
+    const otherKnownAid = parseFloat(document.getElementById('affOtherAid').value) || 0;
+    const remainingAmount = Math.max(0, cost - grantsScholarships - otherKnownAid);
     resultBox.innerHTML = `
       <div class="profile-summary-card" style="margin:14px 0 4px;">
         <h3>${isEn()?'The math, laid out':'El cálculo, explicado'}</h3>
-        <div class="summary-row"><span>${isEn()?'Total cost':'Costo total'}</span><b>$${cost.toLocaleString()}</b></div>
-        <div class="summary-row"><span>${isEn()?'Known scholarships':'Becas conocidas'}</span><b>$${knownAid.toLocaleString()}</b></div>
-        <div class="summary-row"><span>${isEn()?'Estimated aid range':'Rango de ayuda estimada'}</span><b>~$${Math.round(estAidPortion).toLocaleString()}</b></div>
-        <div class="summary-row"><span>${isEn()?'Cost minus known aid and estimate':'Costo menos ayuda conocida y estimada'}</span><b>~$${Math.round(netPrice).toLocaleString()}/yr</b></div>
+        <div class="summary-row"><span>${isEn()?'Estimated annual cost':'Costo anual estimado'}</span><b>$${cost.toLocaleString()}</b></div>
+        <div class="summary-row"><span>${isEn()?'Known grants & scholarships':'Becas y subvenciones conocidas'}</span><b>−$${grantsScholarships.toLocaleString()}</b></div>
+        <div class="summary-row"><span>${isEn()?'Other known aid':'Otra ayuda conocida'}</span><b>−$${otherKnownAid.toLocaleString()}</b></div>
+        <div class="summary-row"><span>${isEn()?'Remaining amount to plan for':'Cantidad restante por planificar'}</span><b>$${Math.round(remainingAmount).toLocaleString()}/yr</b></div>
       </div>
-      <p style="font-size:12px;color:var(--ink-soft);margin:10px 4px 0;">${isEn()
-        ? "This is simple math from the numbers you entered, not a prediction of what your family will actually pay. A Navigator can help you turn this into a real plan."
-        : 'Este es un cálculo simple con los números que ingresaste, no una predicción de lo que tu familia realmente pagará. Un Navegador puede ayudarte a convertir esto en un plan real.'}</p>`;
+      <p style="font-size:12px;color:var(--ink-soft);margin:10px 4px 0;"><b>${isEn()?'This is not your final college bill.':'Esta no es tu factura final de la universidad.'}</b><br>${isEn()
+        ? "This calculation only subtracts the aid you entered from the cost you entered. Your actual cost may change after the school determines your financial aid."
+        : 'Este cálculo solamente resta la ayuda que ingresaste del costo que ingresaste. Tu costo real puede cambiar después de que la escuela determine tu ayuda financiera.'}</p>
+      <p style="font-size:12px;color:var(--ink-soft);margin:10px 4px 0;"><b>${isEn()?'Best next step:':'Mejor próximo paso:'}</b> ${isEn()
+        ? "Compare this number with the school's official net price calculator or your financial aid offer. If you already have a FAFSA/TASFA result or financial aid offer and are not sure what it means, bring it to AP Clínica."
+        : 'Compara esta cantidad con la calculadora oficial de precio neto de la escuela o con tu oferta de ayuda financiera. Si ya tienes un resultado de FAFSA/TASFA o una oferta de ayuda financiera y no sabes cómo interpretarla, tráela a AP Clínica.'}</p>`;
   };
   card.appendChild(btn);
   wrap.appendChild(card);
 
   const note=el('div','locked-card');
-  note.innerHTML=`<div class="lock-ic">ℹ️</div><p>${isEn()?'This uses a simplified estimate, not the federal FAFSA formula. Bring your actual FAFSA/TASFA Student Aid Report to Clínica for real numbers.':'Esto usa un estimado simplificado, no la fórmula federal de FAFSA. Trae tu Reporte de Ayuda Estudiantil real a la Clínica para números precisos.'}</p>`;
+  note.innerHTML=`<div class="lock-ic">ℹ️</div><p>${isEn()?'This only subtracts the aid you enter from the cost you enter, it does not estimate financial aid or predict your FAFSA/TASFA result. Bring your actual FAFSA/TASFA Student Aid Report to Clínica for real numbers.':'Esto solamente resta la ayuda que ingresas del costo que ingresas, no estima ayuda financiera ni predice tu resultado de FAFSA/TASFA. Trae tu Reporte de Ayuda Estudiantil real a la Clínica para números precisos.'}</p>`;
   wrap.appendChild(note);
 
   return wrap;

@@ -3955,12 +3955,12 @@ function familyScreen(){
     idBox.style.cssText='font-size:22px;font-weight:700;letter-spacing:0.5px;color:var(--teal-deep);background:var(--cream,#F7F3EC);border-radius:10px;padding:14px 16px;text-align:center;margin:10px 0;font-family:monospace;';
     idBox.textContent = familyId;
     idCard.appendChild(idBox);
-    const copyBtn=el('button','secondary-btn', isEn()?'Copy ID':'Copiar ID');
+    const copyBtn=el('button','secondary-btn', isEn()?'Copy Code':'Copiar código');
     copyBtn.onclick=()=>{
       if(navigator.clipboard && navigator.clipboard.writeText){
         navigator.clipboard.writeText(familyId);
-        copyBtn.textContent = isEn()?'Copied':'Copiado';
-        setTimeout(()=>{ copyBtn.textContent = isEn()?'Copy ID':'Copiar ID'; }, 1500);
+        copyBtn.textContent = isEn()?'Code copied':'Código copiado';
+        setTimeout(()=>{ copyBtn.textContent = isEn()?'Copy Code':'Copiar código'; }, 1500);
       }
     };
     idCard.appendChild(copyBtn);

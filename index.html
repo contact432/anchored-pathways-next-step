@@ -209,8 +209,7 @@
   .career-card h4 { margin:0 0 3px; font-size:13.5px; font-family:var(--font-head); font-weight:600; }
   .career-card p { margin:0; font-size:12px; color:var(--ink-soft); }
 
-  /* Print rules. Screen layout is untouched; this only affects printed pages,
-     which matters for the My Status sheet families take to Clinica. */
+  /* Print rules. Screen layout is untouched; this only affects printed pages. */
   @media print {
     .topbar, .bottomnav, .back-btn, .lang-toggle, .primary-btn, .secondary-btn { display:none !important; }
     .site-footer { display:none !important; }
@@ -923,7 +922,6 @@ const SCREEN_MAP = {
   'apply-scholarships-detail':scholarshipsDetailScreen, 'apply-scholarships-saved':scholarshipsSavedScreen,
   'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
   'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
-  'my-status':myStatusScreen,
 
   // Friendly-name aliases. The current canonical hashes are #persist and #redefine, but
   // #stay, #shift, and #persevere were all used at one point or another, so any link
@@ -1856,9 +1854,6 @@ function decideScreen(){
   card2.appendChild(btn);
   wrap.appendChild(card2);
 
-  const locked=el('div','locked-card');
-  locked.innerHTML=`<div class="lock-ic">🔒</div><p>${isEn()?'A full school list builder and saved decision notebook are part of the Year 2 Cohort build-out.':'Un constructor de listas de escuelas completo y un cuaderno de decisiones guardado son parte de la Cohorte del Año 2.'}</p>`;
-  wrap.appendChild(locked);
   return wrap;
 }
 
@@ -3868,6 +3863,13 @@ const FAMILY_CHECKLIST_URL = './checklist/';
 // reason as the checklist: a dense, checkbox-driven reference tool with its own state
 // model, separate from this app's guided Explore/Decide/Advance/Stay/Shift flow.
 const CORE_TRACKER_URL = './core-tracker/';
+// My AP is the authenticated, personalized case-management dashboard on the Wix site
+// (Members Area). It owns a student's actual AP status, next steps, applications,
+// financial aid status, scholarships being pursued, documents, and AP support.
+// Next Step (this app) stays public/no-login and hands off to My AP for anyone already
+// working with Anchored Pathways. IMPORTANT: this must be the real published My AP URL
+// before publishing — do not invent one. Confirm with the site owner and replace below.
+const MY_AP_URL = 'PASTE_CURRENT_MY_AP_URL_HERE';
 // Prefill entry IDs for the "Family ID (optional)" question added to each form.
 // If getOrCreateFamilyId() returns null (localStorage unavailable), the forms
 // open with no prefill — they still work fine without it since the question is optional.
@@ -3945,10 +3947,10 @@ function familyScreen(){
   const familyId = getOrCreateFamilyId();
   if(familyId){
     const idCard=el('div','card');
-    idCard.appendChild(el('div','section-label', isEn()?'Your Family ID':'Tu ID Familiar'));
+    idCard.appendChild(el('div','section-label', isEn()?'Your AP Reference Code':'Tu Código de Referencia de AP'));
     idCard.appendChild(el('p','', isEn()
-      ? "Share this with a Navigator at Clínica or on a form so they can find you, no need to repeat everything."
-      : 'Comparte esto con un Navegador en la Clínica o en un formulario para que puedan encontrarte, sin necesidad de repetir todo.'));
+      ? "Share this optional reference code with a Navigator or on an AP form if you want help matching this device's Next Step visit to your conversation."
+      : 'Comparte este código de referencia opcional con un Navegador o en un formulario de AP si quieres ayudar a relacionar esta visita de Next Step con tu conversación.'));
     const idBox=document.createElement('div');
     idBox.style.cssText='font-size:22px;font-weight:700;letter-spacing:0.5px;color:var(--teal-deep);background:var(--cream,#F7F3EC);border-radius:10px;padding:14px 16px;text-align:center;margin:10px 0;font-family:monospace;';
     idBox.textContent = familyId;
@@ -3963,8 +3965,8 @@ function familyScreen(){
     };
     idCard.appendChild(copyBtn);
     idCard.appendChild(el('p','es', isEn()
-      ? "This code isn't tied to an account. A different phone or a cleared browser gets a new one."
-      : 'Este código no está vinculado a una cuenta. Otro teléfono o un navegador borrado obtiene uno nuevo.'));
+      ? "This is not your My AP account or student ID. It only lives on this device. A different device or cleared browser may create a different code."
+      : 'Este no es tu cuenta de Mi AP ni el ID del estudiante. Solo existe en este dispositivo. Otro dispositivo o un navegador borrado puede crear un código diferente.'));
     wrap.appendChild(idCard);
   }
 
@@ -4020,300 +4022,30 @@ function familyScreen(){
   card5.appendChild(btn4);
   wrap.appendChild(card5);
 
-  // My Status: the in-app twin of the paper sheet used at Clínica. Stays inside the
-  // app rather than opening a new tab, since it reuses the Family ID shown above.
+  // My AP: hand-off to the authenticated, personalized Wix dashboard for anyone already
+  // working with Anchored Pathways. Next Step itself stays public/no-login.
   const card6=el('div','card');
-  card6.appendChild(el('div','section-label', isEn()?'My Status':'Mi Estado'));
-  card6.appendChild(el('p','', isEn()?'The same sheet Navigators use on paper at Clínica. Track your stage, applications, financial aid, scholarships, and documents in one place.':'La misma hoja que los Navegadores usan en papel en la Clínica. Registre su etapa, solicitudes, ayuda financiera, becas y documentos en un solo lugar.'));
-  const btn5=el('button','secondary-btn', isEn()?'Open My Status':'Abrir Mi Estado');
-  btn5.onclick=()=>{ state.screen='my-status'; render(); };
+  card6.appendChild(el('div','section-label', isEn()?'My AP':'Mi AP'));
+  card6.appendChild(el('h2','', isEn()?'Already working with Anchored Pathways?':'¿Ya estás trabajando con Anchored Pathways?'));
+  card6.appendChild(el('p','', isEn()
+    ? 'Sign in to My AP to see your personal plan, next steps, applications, financial aid status, scholarships, documents, and AP support.'
+    : 'Inicia sesión en Mi AP para ver tu plan personal, próximos pasos, solicitudes, estado de ayuda financiera, becas, documentos y apoyo de AP.'));
+  const myApUrlPending = MY_AP_URL === 'PASTE_CURRENT_MY_AP_URL_HERE';
+  const btn5=el('button','secondary-btn', isEn()
+    ? (myApUrlPending ? 'Open My AP (link coming soon)' : 'Open My AP')
+    : (myApUrlPending ? 'Abrir Mi AP (enlace próximamente)' : 'Abrir Mi AP'));
+  if(myApUrlPending){
+    btn5.disabled = true;
+    btn5.style.opacity = '0.55';
+    btn5.style.cursor = 'not-allowed';
+  } else {
+    btn5.onclick=()=>{ window.open(MY_AP_URL, '_blank', 'noopener,noreferrer'); };
+  }
   card6.appendChild(btn5);
+  card6.appendChild(el('p','es', isEn()
+    ? 'Next Step stays available without an account for exploring options, comparing pathways, and learning how the process works.'
+    : 'Next Step sigue disponible sin una cuenta para explorar opciones, comparar caminos y aprender cómo funciona el proceso.'));
   wrap.appendChild(card6);
-
-  return wrap;
-}
-
-/* ============ MY STATUS ============
-   The in-app version of the My Status paper sheet used at Clínica. Field for field
-   the same as the paper version, so a family sees the same layout and wording in
-   both places. Everything a family types stays in this browser under one key.
-   It is a shared worksheet, not an account and not a submission. */
-
-const MY_STATUS_KEY = 'ap_my_status_v1';
-
-const MY_STATUS_APPLICATION_STATUSES = [
-  {key:'submitted', en:'Submitted',  es:'Enviada'},
-  {key:'accepted',  en:'Accepted',   es:'Aceptada'},
-  {key:'pending',   en:'Pending',    es:'Pendiente'},
-  {key:'needsdocs', en:'Needs Docs', es:'Faltan Documentos'},
-];
-const MY_STATUS_AID_STATUSES = [
-  {key:'notstarted',   en:'Not Started',         es:'No Iniciado'},
-  {key:'submitted',    en:'Submitted',           es:'Enviado'},
-  {key:'verification', en:'Verification Needed', es:'Verificación Necesaria'},
-  {key:'complete',     en:'Complete',            es:'Completo'},
-];
-const MY_STATUS_SCHOLARSHIP_STATUSES = [
-  {key:'researching', en:'Researching', es:'Investigando'},
-  {key:'applied',     en:'Applied',     es:'Aplicada'},
-  {key:'awarded',     en:'Awarded',     es:'Otorgada'},
-  {key:'denied',      en:'Denied',      es:'Denegada'},
-];
-const MY_STATUS_DOC_STATUSES = [
-  {key:'needed',   en:'Needed',   es:'Necesario'},
-  {key:'received', en:'Received', es:'Recibido'},
-];
-
-function loadMyStatus(){
-  try { return JSON.parse(localStorage.getItem(MY_STATUS_KEY)) || {}; }
-  catch(e){ return {}; } // storage unavailable, the sheet still works for this visit
-}
-function saveMyStatus(data){
-  try { localStorage.setItem(MY_STATUS_KEY, JSON.stringify(data)); } catch(e){}
-}
-function clearMyStatus(){
-  try { localStorage.removeItem(MY_STATUS_KEY); } catch(e){}
-}
-
-// Two lines, English then Spanish beneath, so both are on the page at once.
-function myStatusLabel(en, es){
-  const box = el('div');
-  box.appendChild(el('div','section-label', en));
-  const sub = el('div','section-label', es);
-  sub.style.cssText = 'text-transform:none;font-style:italic;font-weight:600;margin:-8px 2px 10px;';
-  box.appendChild(sub);
-  return box;
-}
-
-function myStatusTextField(data, key, en, es, multiline){
-  const f = el('div','field');
-  const lab = document.createElement('label');
-  lab.appendChild(document.createTextNode(en));
-  const es2 = el('span','', ' / ' + es);
-  es2.style.cssText = 'font-style:italic;font-weight:600;';
-  lab.appendChild(es2);
-  f.appendChild(lab);
-  const input = document.createElement(multiline ? 'textarea' : 'input');
-  if(!multiline) input.type = 'text';
-  input.value = data[key] || '';
-  input.oninput = () => { data[key] = input.value; saveMyStatus(data); };
-  f.appendChild(input);
-  return f;
-}
-
-// A single-choice row of options, matching the "circle one" boxes on the paper sheet.
-function myStatusPicker(data, key, options, onPick){
-  const row = el('div');
-  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px;';
-  options.forEach(opt => {
-    const b = el('button', 'choice-opt' + (data[key]===opt.key ? ' picked' : ''),
-      opt.en + '<br><span style="font-style:italic;font-weight:600;opacity:0.85;">' + opt.es + '</span>');
-    b.style.cssText = 'width:auto;flex:1 1 auto;margin-bottom:0;padding:9px 12px;font-size:12.5px;text-align:center;';
-    b.onclick = () => {
-      data[key] = (data[key]===opt.key) ? null : opt.key;   // tapping again clears it
-      saveMyStatus(data);
-      if(onPick) onPick();
-    };
-    row.appendChild(b);
-  });
-  return row;
-}
-
-// Repeating rows: a name field plus a status picker. Used for applications,
-// scholarships, and documents, which are the same shape on the paper sheet.
-function myStatusRows(data, prefix, count, nameEn, nameEs, statuses, rerender){
-  const box = el('div');
-  for(let i=0; i<count; i++){
-    const rowWrap = el('div');
-    rowWrap.style.cssText = 'border:1.5px solid #E7E2D6;border-radius:14px;padding:12px 13px;margin-bottom:10px;background:var(--white);';
-    rowWrap.appendChild(myStatusTextField(data, prefix+'_name_'+i, nameEn, nameEs));
-    rowWrap.appendChild(myStatusPicker(data, prefix+'_status_'+i, statuses, rerender));
-    box.appendChild(rowWrap);
-  }
-  return box;
-}
-
-function myStatusScreen(){
-  const data = loadMyStatus();
-  const wrap = el('div');
-  const rerender = () => { render(); };
-
-  wrap.appendChild(screenHeader(isEn()?'My Status':'Mi Estado', 'family'));
-
-  // What this is, and where the answers live.
-  const intro = el('div','card');
-  intro.appendChild(el('div','pill', isEn()?'SAVED ON THIS DEVICE':'GUARDADO EN ESTE DISPOSITIVO'));
-  intro.appendChild(el('h2','', isEn()?'My Status':'Mi Estado'));
-  intro.appendChild(el('p','', isEn()
-    ? 'This is the same sheet Navigators use on paper at Clínica, field for field. You can fill it in here with your Navigator, or print it and bring it with you.'
-    : 'Esta es la misma hoja que los Navegadores usan en papel en la Clínica, campo por campo. Puede completarla aquí con su Navegador, o imprimirla y traerla con usted.'));
-  const privacyNote = el('div','no-print');
-  privacyNote.appendChild(el('div','divider'));
-  privacyNote.appendChild(el('p','', isEn()
-    ? 'What you type stays on this device. Nothing is sent to Anchored Pathways. Anyone who uses this device afterward could see it unless you use Finish and Clear at the bottom.'
-    : 'Lo que escribe se queda en este dispositivo. No se envía nada a Anchored Pathways. Cualquier persona que use este dispositivo después podría verlo, a menos que use Terminar y Borrar al final.'));
-  intro.appendChild(privacyNote);
-  wrap.appendChild(intro);
-
-  // Who this belongs to.
-  const who = el('div','card');
-  who.appendChild(myStatusLabel('Who this belongs to', 'A quién pertenece'));
-  who.appendChild(myStatusTextField(data, 'familyName', 'Family name', 'Nombre de familia'));
-
-  const familyId = getOrCreateFamilyId();
-  if(familyId){
-    const idF = el('div','field');
-    const idLab = document.createElement('label');
-    idLab.appendChild(document.createTextNode('Family ID'));
-    const idEs = el('span','', ' / ID de Familia');
-    idEs.style.cssText = 'font-style:italic;font-weight:600;';
-    idLab.appendChild(idEs);
-    idF.appendChild(idLab);
-    const idBox = el('div','', familyId);
-    idBox.style.cssText = 'font-size:19px;font-weight:700;letter-spacing:0.5px;color:var(--teal-deep);background:var(--cream,#F7F3EC);border-radius:12px;padding:12px 14px;text-align:center;font-family:monospace;';
-    idF.appendChild(idBox);
-    who.appendChild(idF);
-  }
-  who.appendChild(myStatusTextField(data, 'navigator', 'Your Navigator', 'Su Navegador'));
-  wrap.appendChild(who);
-
-  // Stage tracker, using the app's own stage names so the wording matches Home.
-  const stageCard = el('div','card');
-  stageCard.appendChild(myStatusLabel('Stage Tracker', 'Rastreador de Etapas'));
-  const stageOpts = T.en.stages.map(s => ({key:s.key, en:s.en, es:s.es}));
-  stageCard.appendChild(myStatusPicker(data, 'stage', stageOpts, rerender));
-  stageCard.appendChild(el('p','', isEn()
-    ? "Mark the current stage. It's normal to move back and forth."
-    : 'Marque la etapa actual. Es normal moverse hacia adelante y atrás.'));
-  stageCard.appendChild(el('p','es', isEn()
-    ? 'Marque la etapa actual. Es normal moverse hacia adelante y atrás.'
-    : "Mark the current stage. It's normal to move back and forth."));
-  wrap.appendChild(stageCard);
-
-  // What's Next: three open lines, with the paper sheet's empty-state wording.
-  const nextCard = el('div','card');
-  nextCard.appendChild(myStatusLabel("📋 What's Next", '📋 Próximos Pasos'));
-  for(let i=0; i<3; i++){
-    nextCard.appendChild(myStatusTextField(data, 'next_'+i, 'Next step ' + (i+1), 'Próximo paso ' + (i+1)));
-  }
-  const anyNext = [0,1,2].some(i => (data['next_'+i]||'').trim());
-  if(!anyNext){
-    nextCard.appendChild(el('p','', isEn()
-      ? 'Nothing pending right now. Your Navigator will add next steps here after your next visit.'
-      : 'No hay nada pendiente por ahora. Su Navegador agregará los próximos pasos aquí después de su próxima visita.'));
-    nextCard.appendChild(el('p','es', isEn()
-      ? 'No hay nada pendiente por ahora. Su Navegador agregará los próximos pasos aquí después de su próxima visita.'
-      : 'Nothing pending right now. Your Navigator will add next steps here after your next visit.'));
-  }
-  wrap.appendChild(nextCard);
-
-  // Applications.
-  const appCard = el('div','card');
-  appCard.appendChild(myStatusLabel('📄 Applications', '📄 Solicitudes'));
-  appCard.appendChild(myStatusRows(data, 'app', 3, 'School or program', 'Escuela o programa', MY_STATUS_APPLICATION_STATUSES, rerender));
-  const anyApp = [0,1,2].some(i => (data['app_name_'+i]||'').trim() || data['app_status_'+i]);
-  if(!anyApp){
-    appCard.appendChild(el('p','', isEn()?'No applications tracked yet.':'Aún no hay solicitudes registradas.'));
-    appCard.appendChild(el('p','es', isEn()?'Aún no hay solicitudes registradas.':'No applications tracked yet.'));
-  }
-  wrap.appendChild(appCard);
-
-  // Financial aid, with the paper sheet's explainer shown only when it applies.
-  const aidCard = el('div','card');
-  aidCard.appendChild(myStatusLabel('💰 Financial Aid', '💰 Ayuda Financiera'));
-  aidCard.appendChild(myStatusPicker(data, 'aid', MY_STATUS_AID_STATUSES, rerender));
-  if(data.aid === 'verification'){
-    aidCard.appendChild(el('div','divider'));
-    aidCard.appendChild(el('p','', isEn()
-      ? 'This means the school needs more documents from you before your aid can be finalized. Ask your Navigator if you are not sure what is missing.'
-      : 'Esto significa que la escuela necesita más documentos suyos antes de finalizar su ayuda. Pregunte a su Navegador si no está seguro de qué falta.'));
-    aidCard.appendChild(el('p','es', isEn()
-      ? 'Esto significa que la escuela necesita más documentos suyos antes de finalizar su ayuda. Pregunte a su Navegador si no está seguro de qué falta.'
-      : 'This means the school needs more documents from you before your aid can be finalized. Ask your Navigator if you are not sure what is missing.'));
-  }
-  wrap.appendChild(aidCard);
-
-  // Scholarships.
-  const schCard = el('div','card');
-  schCard.appendChild(myStatusLabel('🎓 Scholarships', '🎓 Becas'));
-  schCard.appendChild(myStatusRows(data, 'sch', 2, 'Scholarship', 'Beca', MY_STATUS_SCHOLARSHIP_STATUSES, rerender));
-  const anySch = [0,1].some(i => (data['sch_name_'+i]||'').trim() || data['sch_status_'+i]);
-  if(!anySch){
-    schCard.appendChild(el('p','', isEn()?'No scholarships tracked yet.':'Aún no hay becas registradas.'));
-    schCard.appendChild(el('p','es', isEn()?'Aún no hay becas registradas.':'No scholarships tracked yet.'));
-  }
-  const schBtn = el('button','secondary-btn', isEn()?'Search scholarships':'Buscar becas');
-  schBtn.onclick = () => { state.screen='apply-scholarships'; render(); };
-  schCard.appendChild(schBtn);
-  wrap.appendChild(schCard);
-
-  // Documents needed.
-  const docCard = el('div','card');
-  docCard.appendChild(myStatusLabel('📁 Documents Needed', '📁 Documentos Necesarios'));
-  docCard.appendChild(myStatusRows(data, 'doc', 3, 'Document', 'Documento', MY_STATUS_DOC_STATUSES, rerender));
-  wrap.appendChild(docCard);
-
-  // Who updated it, and when.
-  const updCard = el('div','card');
-  updCard.appendChild(myStatusLabel('Last updated', 'Última actualización'));
-  updCard.appendChild(myStatusTextField(data, 'updatedBy', 'Updated by', 'Actualizado por'));
-  const dF = el('div','field');
-  const dLab = document.createElement('label');
-  dLab.appendChild(document.createTextNode('On'));
-  const dEs = el('span','', ' / El');
-  dEs.style.cssText = 'font-style:italic;font-weight:600;';
-  dLab.appendChild(dEs);
-  dF.appendChild(dLab);
-  const dIn = document.createElement('input');
-  dIn.type = 'date';
-  dIn.value = data.updatedOn || '';
-  dIn.onchange = () => { data.updatedOn = dIn.value; saveMyStatus(data); };
-  dF.appendChild(dIn);
-  updCard.appendChild(dF);
-  wrap.appendChild(updCard);
-
-  // Clínica and the checklist.
-  const nextUp = el('div','card');
-  nextUp.appendChild(myStatusLabel('Clínica', 'Clínica'));
-  nextUp.appendChild(el('p','', isEn()
-    ? 'Thursdays, 5:15 to 7:45 PM. East Harris County Activity Center, 7340 Spencer Hwy, Pasadena. Appointments only — reserve your spot ahead of time.'
-    : 'Los jueves, de 5:15 a 7:45 PM. East Harris County Activity Center, 7340 Spencer Hwy, Pasadena. Solo con cita — reserva tu espacio con anticipación.'));
-  const bookBtn = el('button','secondary-btn', isEn()?'Book your next Clínica visit':'Reserve su próxima visita a la Clínica');
-  bookBtn.onclick = () => { window.open(CLINICA_BOOKING_URL, '_blank', 'noopener,noreferrer'); };
-  nextUp.appendChild(bookBtn);
-  wrap.appendChild(nextUp);
-
-  // Print, then clear. Both matter most on a shared device at a community center.
-  const actions = el('div','card no-print');
-  actions.appendChild(myStatusLabel('Print or clear', 'Imprimir o borrar'));
-  const printBtn = el('button','secondary-btn', isEn()?'Print this page / Imprimir esta página':'Imprimir esta página / Print this page');
-  printBtn.onclick = () => { window.print(); };
-  actions.appendChild(printBtn);
-
-  const clearBtn = el('button','primary-btn', 'Finish and Clear / Terminar y Borrar');
-  clearBtn.style.marginTop = '10px';
-  clearBtn.onclick = () => {
-    const msg = 'This erases everything saved on this page on this device. This cannot be undone.\n\nEsto borra todo lo guardado en esta página en este dispositivo. Esto no se puede deshacer.';
-    if(!window.confirm(msg)) return;
-    clearMyStatus();
-    state.myStatusCleared = true;
-    render();
-  };
-  actions.appendChild(clearBtn);
-
-  if(state.myStatusCleared){
-    const done = el('div','confirm-box');
-    done.appendChild(el('p','', 'Your answers are gone from this device.'));
-    done.appendChild(el('p','es', 'Sus respuestas ya no están en este dispositivo.'));
-    actions.appendChild(done);
-    state.myStatusCleared = false;
-  }
-  wrap.appendChild(actions);
-
-  const closing = el('div','card');
-  closing.appendChild(el('p','', 'Because no one should walk the path alone.'));
-  closing.appendChild(el('p','es', 'Porque nadie debería recorrer el camino solo.'));
-  wrap.appendChild(closing);
 
   return wrap;
 }

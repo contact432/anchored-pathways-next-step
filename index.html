@@ -3967,9 +3967,9 @@ const CORE_TRACKER_URL = './core-tracker/';
 // (Members Area). It owns a student's actual AP status, next steps, applications,
 // financial aid status, scholarships being pursued, documents, and AP support.
 // Next Step (this app) stays public/no-login and hands off to My AP for anyone already
-// working with Anchored Pathways. IMPORTANT: this must be the real published My AP URL
-// before publishing — do not invent one. Confirm with the site owner and replace below.
-const MY_AP_URL = 'PASTE_CURRENT_MY_AP_URL_HERE';
+// working with Anchored Pathways. This is the real published Wix My AP member page —
+// confirmed with the site owner. If it ever moves, update only this constant.
+const MY_AP_URL = 'https://www.anchoredpathways.org/my-pathway';
 // Prefill entry IDs for the "Family ID (optional)" question added to each form.
 // If getOrCreateFamilyId() returns null (localStorage unavailable), the forms
 // open with no prefill — they still work fine without it since the question is optional.

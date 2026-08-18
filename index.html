@@ -1985,6 +1985,12 @@ function explorePracticalScreen(){
   const dwTa=document.createElement('textarea');
   dwTa.placeholder = isEn()?'Optional...':'Opcional...';
   dwTa.value = state.dontWantReflection || '';
+  // Keep state in sync on every keystroke (without forcing a re-render, so the cursor/
+  // focus isn't disturbed while typing). This screen also has chip buttons that DO call
+  // render() immediately, which rebuilds this textarea from state — without this listener,
+  // typing here and then clicking a chip before clicking Continue would silently wipe
+  // whatever was typed.
+  dwTa.oninput = ()=>{ state.dontWantReflection = dwTa.value; };
   dwField.appendChild(dwTa);
   dontWantCard.appendChild(dwField);
   const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
@@ -2496,6 +2502,10 @@ function buildExploreSummaryText(){
     const o = EDUCATION_OPENNESS_OPTIONS.find(x=>x.id===state.results.practical.educationOpenness);
     if(o) lines.push((isEn()?'Education/training openness: ':'Apertura a educaci\u00f3n/capacitaci\u00f3n: ') + (isEn()?o.en:o.es));
   }
+  // Verbatim, presence-only — never interpreted, categorized, or matched against anything.
+  if(state.dontWantReflection && state.dontWantReflection.trim()){
+    lines.push((isEn()?"Things I'd rather avoid: ":'Cosas que preferir\u00eda evitar: ') + state.dontWantReflection.trim());
+  }
   if(state.results.savedPossibilities && state.results.savedPossibilities.length>0){
     const names = state.results.savedPossibilities.map(key=>{
       const c = findCareerByKey(key);
@@ -2575,7 +2585,8 @@ function pathProfileScreen(){
   }
 
   // ---- Practical Preferences (Explore Phase 1, Screen D) ----
-  if(state.results.practical && (state.results.practical.educationOpenness || (state.results.practical.mattersMost && state.results.practical.mattersMost.length>0))){
+  const hasDontWant = state.dontWantReflection && state.dontWantReflection.trim();
+  if(state.results.practical && (state.results.practical.educationOpenness || (state.results.practical.mattersMost && state.results.practical.mattersMost.length>0) || hasDontWant)){
     const practCard=el('div','card');
     practCard.appendChild(el('div','section-label', isEn()?'Practical Preferences':'Preferencias Pr\u00e1cticas'));
     if(state.results.practical.educationOpenness){
@@ -2587,6 +2598,15 @@ function pathProfileScreen(){
       const p2=document.createElement('p'); p2.style.marginTop='6px';
       p2.innerHTML = `<b>${isEn()?'What matters most: ':'Lo m\u00e1s importante: '}</b>${labels.join(', ')}`;
       practCard.appendChild(p2);
+    }
+    // Verbatim, presence-only echo of the optional "anything you don't want" reflection from
+    // Screen D. Never interpreted, categorized, or matched against anything \u2014 shown exactly
+    // as written, only if the student wrote something.
+    if(hasDontWant){
+      const p3=document.createElement('p'); p3.style.marginTop='6px';
+      const b3=document.createElement('b'); b3.textContent = isEn()?"Things I'd rather avoid: ":'Cosas que preferir\u00eda evitar: ';
+      p3.appendChild(b3); p3.appendChild(document.createTextNode(state.dontWantReflection));
+      practCard.appendChild(p3);
     }
     wrap.appendChild(practCard);
   }

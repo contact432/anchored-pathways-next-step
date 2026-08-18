@@ -1112,7 +1112,7 @@ const SCREEN_MAP = {
 
   // Explore Phase 1 (2026) route screens.
   'explore-orientation':exploreOrientationScreen, 'explore-reflect':exploreReflectScreen,
-  'explore-onet':exploreOnetStubScreen, 'explore-practical':explorePracticalScreen,
+  'explore-onet':exploreOnetScreen, 'explore-practical':explorePracticalScreen,
   'explore-careers':exploreCareersScreen, 'explore-investigate':exploreInvestigateScreen,
   'explore-compare':exploreCompareScreen, 'explore-family':exploreFamilyScreen,
   'explore-conversation':exploreConversationScreen, 'explore-share':exploreShareScreen,
@@ -1926,22 +1926,127 @@ function exploreReflectScreen(){
   return wrap;
 }
 
-function exploreOnetStubScreen(){
+/* ============ O*NET INTEREST PROFILER WIDGET ============
+   Official embeddable widget from services.onetcenter.org. The delivered
+   script (read directly from the network response, since O*NET does not
+   publish its internal behavior anywhere) works like this:
+     - It scans the whole document every 500ms for elements with class
+       'embed-onet-ip' (English) or 'embed-onet-ip-es' (Spanish).
+     - The first time it finds ANY such element(s), it attaches a closed
+       shadow root with a static intro card (title image, description,
+       and two buttons) to every matching element, then permanently
+       stops polling. It never runs again after that.
+     - Both buttons are plain <form target="_blank"> submissions that open
+       the real assessment in a NEW browser tab on onetinterestprofiler.org.
+       The 30-question activity and its results live entirely on O*NET's
+       own site — nothing about answers or results ever reaches this app,
+       and there is no documented callback of any kind.
+   Because the poller only ever fires once, recreating a fresh container
+   div every time this screen renders (as the stub did) would only work
+   the very first visit — on any revisit the new div would never be
+   found, since polling already stopped. So instead we create the two
+   container elements exactly once for the whole page lifetime, park them
+   on document.body (outside #app, so renderScreen()'s app.innerHTML=''
+   never destroys them), and simply move the correct-language node into
+   this screen's placeholder on every render. Moving an existing DOM node
+   preserves its attached shadow root and content, so the already-loaded
+   widget reappears instantly on revisit, on language switch, and on
+   back/forward navigation — with the script loaded only once, ever. */
+let onetScriptLoaded = false;
+let onetLoadFailed = false;
+let onetContainerEn = null;
+let onetContainerEs = null;
+
+function onetEnsureContainers(){
+  if(!onetContainerEn){
+    onetContainerEn = document.createElement('div');
+    onetContainerEn.className = 'embed-onet-ip';
+    onetContainerEn.style.display = 'none';
+    document.body.appendChild(onetContainerEn);
+  }
+  if(!onetContainerEs){
+    onetContainerEs = document.createElement('div');
+    onetContainerEs.className = 'embed-onet-ip-es';
+    onetContainerEs.style.display = 'none';
+    document.body.appendChild(onetContainerEs);
+  }
+}
+
+function onetLoadScript(){
+  if(onetScriptLoaded) return;
+  onetScriptLoaded = true;
+  onetEnsureContainers(); // containers must exist before/around script execution so its poller finds them
+  const s = document.createElement('script');
+  s.src = 'https://services.onetcenter.org/embed/onet-ip.js?x-api-key=ofEEB-kBeKE-e5M6Y-xJOB5';
+  s.onerror = function(){
+    onetLoadFailed = true;
+    if(state.screen==='explore-onet') render();
+  };
+  document.head.appendChild(s);
+}
+
+// Moves the correct-language persistent container into the given placeholder
+// element (which lives inside the freshly-rendered screen tree). Re-parenting
+// an existing node preserves its shadow root/content — no re-fetch, no re-init.
+function onetAttachToPlaceholder(placeholderEl){
+  onetEnsureContainers();
+  const target = isEn() ? onetContainerEn : onetContainerEs;
+  const other = isEn() ? onetContainerEs : onetContainerEn;
+  other.style.display = 'none';
+  target.style.display = '';
+  placeholderEl.appendChild(target);
+}
+
+function exploreOnetScreen(){
+  onetLoadScript(); // idempotent: only the very first call actually loads the script
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'A Deeper Interest Tool':'Una Herramienta de Intereses M\u00e1s Profunda','explore-reflect'));
-  const card=el('div','card');
-  card.appendChild(el('div','pill', isEn()?'COMING SOON':'PR\u00d3XIMAMENTE'));
-  card.appendChild(el('h2','', isEn()?"We're Working on Adding This":'Estamos Trabajando en Agregar Esto'));
-  card.appendChild(el('p','', isEn()
-    ? "There's a well-established, free interest assessment from the U.S. Department of Labor (the O*NET Mini Interest Profiler) that we'd like to add here once Anchored Pathways finishes registering for official access. It's not available yet, so this step doesn't do anything right now."
-    : 'Existe una evaluaci\u00f3n de intereses gratuita y bien establecida del Departamento de Trabajo de EE. UU. (el O*NET Mini Interest Profiler) que nos gustar\u00eda agregar aqu\u00ed una vez que Anchored Pathways termine de registrarse para el acceso oficial. Todav\u00eda no est\u00e1 disponible, as\u00ed que este paso no hace nada por ahora.'));
-  card.appendChild(el('p','', isEn()
-    ? "We're not going to put a homemade quiz here as a stand-in. This step is completely optional and doesn't block anything else in Explore."
-    : 'No vamos a poner un examen hecho por nosotros aqu\u00ed como sustituto. Este paso es completamente opcional y no bloquea nada m\u00e1s en Explorar.'));
+
+  const introCard=el('div','card');
+  introCard.appendChild(el('h2','', isEn()?'What kinds of work sound interesting to you?':'\u00bfQu\u00e9 tipos de trabajo te parecen interesantes?'));
+  introCard.appendChild(el('p','', isEn()
+    ? "This activity includes about 30 short questions about work activities. Your results can help you notice patterns in what interests you and identify careers worth exploring. They do not determine what career you should choose."
+    : 'Esta actividad incluye aproximadamente 30 preguntas breves sobre diferentes actividades laborales. Tus resultados pueden ayudarte a reconocer patrones en tus intereses e identificar carreras que vale la pena explorar. No determinan qu\u00e9 carrera debes elegir.'));
+  wrap.appendChild(introCard);
+
+  const widgetCard=el('div','card');
+  if(onetLoadFailed){
+    const failMsg=el('p','', isEn()
+      ? "This activity isn't available right now. That's okay — this step is optional and won't block anything else in Explore."
+      : 'Esta actividad no est\u00e1 disponible en este momento. Est\u00e1 bien \u2014 este paso es opcional y no bloquea nada m\u00e1s en Explorar.');
+    widgetCard.appendChild(failMsg);
+  } else {
+    const placeholder=el('div','');
+    placeholder.style.minHeight='120px';
+    widgetCard.appendChild(placeholder);
+    onetAttachToPlaceholder(placeholder);
+  }
+  wrap.appendChild(widgetCard);
+
+  // Required O*NET attribution (exact license wording preserved verbatim; a
+  // Spanish gloss is added alongside for readability, never replacing it).
+  const attrCard=el('div','card');
+  const attrEn=document.createElement('p');
+  attrEn.style.fontSize='12px'; attrEn.style.opacity='0.75'; attrEn.style.margin='0';
+  attrEn.textContent = 'This site incorporates information from O*NET Web Services by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET\u00ae is a trademark of USDOL/ETA.';
+  attrCard.appendChild(attrEn);
+  if(!isEn()){
+    const attrEs=document.createElement('p');
+    attrEs.style.fontSize='12px'; attrEs.style.opacity='0.75'; attrEs.style.margin='6px 0 0';
+    attrEs.textContent = 'Este sitio incluye informaci\u00f3n de O*NET Web Services del Departamento de Trabajo de EE. UU. (USDOL/ETA). O*NET\u00ae es una marca registrada de USDOL/ETA.';
+    attrCard.appendChild(attrEs);
+  }
+  wrap.appendChild(attrCard);
+
+  const preserveCard=el('div','card');
+  preserveCard.appendChild(el('p','', isEn()
+    ? "Heads up: this activity opens on the official O*NET site in a new tab, and your results stay there \u2014 Next Step doesn't see or save them automatically. If you'd like to bring your results to My Explore Profile or share them with your Navigator, take a screenshot of your results page, or write down your top interest areas somewhere you'll remember before you close that tab."
+    : 'Aviso: esta actividad se abre en el sitio oficial de O*NET en una pesta\u00f1a nueva, y tus resultados se quedan ah\u00ed \u2014 Next Step no los ve ni los guarda autom\u00e1ticamente. Si quieres llevar tus resultados a Mi Perfil de Exploraci\u00f3n o compartirlos con tu Navegador, toma una captura de pantalla de tu p\u00e1gina de resultados, o escribe tus \u00e1reas de inter\u00e9s principales en alg\u00fan lugar donde las recuerdes antes de cerrar esa pesta\u00f1a.'));
   const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
   btn.onclick=()=>{ state.screen='explore-practical'; render(); };
-  card.appendChild(btn);
-  wrap.appendChild(card);
+  preserveCard.appendChild(btn);
+  wrap.appendChild(preserveCard);
+
   return wrap;
 }
 

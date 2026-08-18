@@ -250,7 +250,7 @@ const T = {
     resourcesSection: "Where would you like to begin?",
     frameworkSubtitle: "Wherever you are right now, there's a place to start.",
     chooseTopic: "Tell us what's going on",
-    navHome:"Home", navExplore:"Explore", navClinica:"Clínica", navApply:"Advance", navMe:"Family",
+    navHome:"Home", navExplore:"Explore", navClinica:"Support", navApply:"Advance", navMe:"Family",
     back:"Back",
     stages: [
       {key:'explore', ic:'🧭', c1:'#257F8A', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
@@ -275,7 +275,7 @@ const T = {
     resourcesSection: "¿Por dónde te gustaría empezar?",
     frameworkSubtitle: "Estés donde estés ahora mismo, hay un lugar por dónde empezar.",
     chooseTopic: "Cuéntanos qué está pasando",
-    navHome:"Inicio", navExplore:"Explora", navClinica:"Clínica", navApply:"Avanza", navMe:"Familia",
+    navHome:"Inicio", navExplore:"Explora", navClinica:"Apoyo", navApply:"Avanza", navMe:"Familia",
     back:"Atrás",
     stages: null, // filled below to mirror EN structurally
     triage: [
@@ -721,8 +721,8 @@ function renderLocalPathwayCTA(cta){
   } else if(cta.type==='dualcredit'){
     wrap.appendChild(el('p','es', isEn()?'This is a verified dual credit partnership at your school.':'Esta es una colaboración de crédito dual verificada en tu escuela.'));
     wrap.appendChild(el('p','', isEn()?`Ask your school counselor about ${cta.record.program_name}.`:`Pregúntale a tu consejero escolar sobre ${cta.record.program_name}.`));
-    const btn=el('button','secondary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
-    btn.onclick=()=>{ state.screen='clinica'; render(); };
+    const btn=el('button','secondary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+    btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
     wrap.appendChild(btn);
   } else if(cta.type==='scholarships'){
     wrap.appendChild(el('p','es', isEn()?"Several scholarships are connected to your school or area, though no single verified program stood out above the rest.":'Varias becas están conectadas con tu escuela o zona, aunque ningún programa verificado se destacó por encima de los demás.'));
@@ -731,8 +731,8 @@ function renderLocalPathwayCTA(cta){
     wrap.appendChild(btn);
   } else {
     wrap.appendChild(el('p','', isEn()?"We didn't find a single strongest lead for this school yet, a Navigator can help you look further.":'Aún no encontramos una pista principal clara para esta escuela, un Navegador puede ayudarte a buscar más.'));
-    const btn=el('button','primary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
-    btn.onclick=()=>{ state.screen='clinica'; render(); };
+    const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+    btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
     wrap.appendChild(btn);
   }
   return wrap;
@@ -1099,7 +1099,7 @@ let previousScreen = 'home';
    the only step needed to make it linkable. Function declarations are hoisted, so
    referencing screen functions defined further down this file is safe. */
 const SCREEN_MAP = {
-  home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, topic:topicScreen, family:familyScreen,
+  home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, 'navigator-meet':navigatorMeetScreen, topic:topicScreen, family:familyScreen,
   'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
   'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
   pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, persist:stayScreen, redefine:shiftScreen,
@@ -1281,7 +1281,7 @@ function bottomnav(){
   const nav=el('div','bottomnav');
   const items=[
     {ic:'🏠', label:t().navHome, screen:'home'},
-    {ic:'📅', label:t().navClinica, screen:'clinica'},
+    {ic:'🤝', label:t().navClinica, screen:'navigator-meet'},
     {ic:'📝', label:t().navApply, screen:'apply'},
     {ic:'👪', label:t().navMe, screen:'family'},
   ];
@@ -1412,10 +1412,10 @@ const TOPIC_TEXT = {
     titleEn:"That's a fair question to ask", titleEs:"Es una pregunta justa",
     bodyEn:"College is one path, not the only one. Decide compares cost, time, salary, and outlook across college, trade, and apprenticeship options, side by side.",
     bodyEs:"La universidad es un camino, no el único. Decide compara costo, tiempo, salario y perspectiva entre universidad, oficio y aprendizaje, lado a lado."},
-  undoc:{dest:'clinica', destEn:'Get Help at Clínica', destEs:'Recibe Ayuda en la Clínica',
+  undoc:{dest:'navigator-meet', destEn:'Talk with an AP Navigator', destEs:'Hablar con un Navegador de AP',
     titleEn:"You belong in this process too", titleEs:"Tú también perteneces a este proceso",
-    bodyEn:"Immigration status can make college feel closed off. There are still real options, but the rules changed in 2025 and 2026 and depend on your specific situation, including DACA or TPS status. Nothing you share at Clínica is reported anywhere, and there is no wrong answer. A Navigator can talk through what applies to you privately, no forms required to start.",
-    bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Todavía existen opciones reales, pero las reglas cambiaron en 2025 y 2026 y dependen de tu situación específica, incluyendo el estatus de DACA o TPS. Nada de lo que compartas en la Clínica se reporta a ningún lugar, y no hay respuesta incorrecta. Un Navegador puede hablar contigo en privado sobre lo que aplica a tu caso, sin formularios para empezar."},
+    bodyEn:"Immigration status can make college feel closed off. There are still real options, but the rules changed in 2025 and 2026 and depend on your specific situation, including DACA or TPS status. Nothing you share with a Navigator is reported anywhere, and there is no wrong answer. A Navigator can talk through what applies to you privately, no forms required to start.",
+    bodyEs:"El estatus migratorio puede hacer que la universidad se sienta cerrada. Todavía existen opciones reales, pero las reglas cambiaron en 2025 y 2026 y dependen de tu situación específica, incluyendo el estatus de DACA o TPS. Nada de lo que compartas con un Navegador se reporta a ningún lugar, y no hay respuesta incorrecta. Un Navegador puede hablar contigo en privado sobre lo que aplica a tu caso, sin formularios para empezar."},
   adult:{dest:'redefine', destEn:'Redefine', destEs:'Redefine tu camino',
     titleEn:"It's not too late to go back", titleEs:"No es demasiado tarde para regresar",
     bodyEn:"Whether it's been a few classes or a few decades, the Redefine stage is built for adults returning to school, including credit for prior learning and evening options.",
@@ -1440,12 +1440,12 @@ function topicScreen(){
   card.appendChild(el('h2','',isEn()?data.titleEn:data.titleEs));
   card.appendChild(el('p','',isEn()?data.bodyEn:data.bodyEs));
   card.appendChild(el('p','es',isEn()?data.bodyEs:data.bodyEn));
-  const primary=el('button','primary-btn', data.dest==='clinica' ? (isEn()?data.destEn:data.destEs) : (isEn()?`Go to ${data.destEn}`:`Ir a ${data.destEs}`));
+  const primary=el('button','primary-btn', data.dest==='navigator-meet' ? (isEn()?data.destEn:data.destEs) : (isEn()?`Go to ${data.destEn}`:`Ir a ${data.destEs}`));
   primary.onclick=()=>{ state.screen=data.dest; render(); };
   card.appendChild(primary);
-  if(data.dest!=='clinica'){
-    const sec=el('button','secondary-btn',isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
-    sec.onclick=()=>{ state.screen='clinica'; render(); };
+  if(data.dest!=='navigator-meet'){
+    const sec=el('button','secondary-btn',isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+    sec.onclick=()=>{ state.screen='navigator-meet'; render(); };
     card.appendChild(sec);
   }
   wrap.appendChild(card);
@@ -2173,7 +2173,7 @@ function exploreInvestigateScreen(){
   actionsCard.appendChild(compareBtn);
 
   const helpBtn=el('button','secondary-btn', isEn()?'I Need Help Understanding This':'Necesito Ayuda Para Entender Esto');
-  helpBtn.onclick=()=>{ state.screen='clinica'; render(); };
+  helpBtn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   actionsCard.appendChild(helpBtn);
   wrap.appendChild(actionsCard);
 
@@ -2266,8 +2266,8 @@ function exploreCompareScreen(){
       card.appendChild(link);
     } else {
       const none=document.createElement('p'); none.textContent = isEn()
-        ?"We don't have structured information on this yet in Next Step. That's exactly the kind of question a Navigator can help you dig into at Cl\u00ednica."
-        :'A\u00fan no tenemos informaci\u00f3n estructurada sobre esto en Next Step. Ese es exactamente el tipo de pregunta con la que un Navegador puede ayudarte en la Cl\u00ednica.';
+        ?"We don't have structured information on this yet in Next Step. That's exactly the kind of question a Navigator can help you dig into."
+        :'A\u00fan no tenemos informaci\u00f3n estructurada sobre esto en Next Step. Ese es exactamente el tipo de pregunta con la que un Navegador puede ayudarte.';
       card.appendChild(none);
     }
     wrap.appendChild(card);
@@ -2281,12 +2281,12 @@ function exploreCompareScreen(){
   ta.value = state.compareOpenQuestion || '';
   qCard.appendChild(field);
   field.appendChild(ta);
-  qCard.appendChild(el('p','', isEn()?"For questions specific to your situation, a Navigator at Cl\u00ednica can help you work through them.":'Para preguntas espec\u00edficas de tu situaci\u00f3n, un Navegador en la Cl\u00ednica puede ayudarte a resolverlas.'));
+  qCard.appendChild(el('p','', isEn()?"For questions specific to your situation, a Navigator can help you work through them.":'Para preguntas espec\u00edficas de tu situaci\u00f3n, un Navegador puede ayudarte a resolverlas.'));
   const saveBtn=el('button','secondary-btn', isEn()?'Save this question':'Guardar esta pregunta');
   saveBtn.onclick=()=>{ state.compareOpenQuestion = ta.value.trim(); render(); };
   qCard.appendChild(saveBtn);
-  const clinicaBtn=el('button','secondary-btn', isEn()?'Talk it through at Cl\u00ednica':'Hablarlo en la Cl\u00ednica');
-  clinicaBtn.onclick=()=>{ state.screen='clinica'; render(); };
+  const clinicaBtn=el('button','secondary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  clinicaBtn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   qCard.appendChild(clinicaBtn);
   wrap.appendChild(qCard);
 
@@ -2662,8 +2662,8 @@ function pathProfileScreen(){
   card2.appendChild(el('div','pill', isEn()?'NEXT STEP':'PRÓXIMO PASO'));
   card2.appendChild(el('h2','', isEn()?'A Good Next Step':'Un buen próximo paso'));
   card2.appendChild(el('p','', isEn()?"Our Career Exploration workshop builds on what you've shared here, connecting what matters to you with real paths forward.":'Nuestro taller de Exploración de Carreras se basa en lo que has compartido aquí, conectando lo que te importa con caminos reales hacia adelante.'));
-  const btn1=el('button','secondary-btn', isEn()?'Talk it through at Clínica':'Hablarlo en la Clínica');
-  btn1.onclick=()=>{ state.screen='clinica'; render(); };
+  const btn1=el('button','secondary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  btn1.onclick=()=>{ state.screen='navigator-meet'; render(); };
   card2.appendChild(btn1);
   wrap.appendChild(card2);
 
@@ -2710,7 +2710,7 @@ function pathProfileScreen(){
   // ---- Share With My Navigator ----
   const shareCard=el('div','card');
   shareCard.appendChild(el('h2','', isEn()?'Share With My Navigator':'Compartir Con Mi Navegador'));
-  shareCard.appendChild(el('p','', isEn()?"Bring what you've explored here into a conversation with a Navigator at Cl\u00ednica.":'Lleva lo que has explorado aqu\u00ed a una conversaci\u00f3n con un Navegador en la Cl\u00ednica.'));
+  shareCard.appendChild(el('p','', isEn()?"Bring what you've explored here into a conversation with a Navigator.":'Lleva lo que has explorado aqu\u00ed a una conversaci\u00f3n con un Navegador.'));
   const shareBtn=el('button','secondary-btn', isEn()?'Go to Share With My Navigator':'Ir a Compartir Con Mi Navegador');
   shareBtn.onclick=()=>{ state.screen='explore-share'; render(); };
   shareCard.appendChild(shareBtn);
@@ -2841,10 +2841,10 @@ function decideScreen(){
   wrap.appendChild(grid);
 
   const card2=el('div','card');
-  card2.appendChild(el('h2','', isEn()?'Talk it through in person':'Hablarlo en persona'));
-  card2.appendChild(el('p','', isEn()?'A Navigator can build a full Family Affordability Snapshot and school list with you at Clínica.':'Un Navegador puede construir un Resumen de Asequibilidad Familiar completo contigo en la Clínica.'));
-  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
-  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  card2.appendChild(el('h2','', isEn()?'Talk it through with a Navigator':'Hablarlo con un Navegador'));
+  card2.appendChild(el('p','', isEn()?'A Navigator can build a full Family Affordability Snapshot and school list with you.':'Un Navegador puede construir un Resumen de Asequibilidad Familiar completo contigo.'));
+  const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   card2.appendChild(btn);
   wrap.appendChild(card2);
 
@@ -2937,9 +2937,9 @@ function decideCompareScreen(){
   disclaimer.appendChild(el('p','', isEn()?'Licensing rules, lawful presence requirements, and work authorization rules vary by occupation and Texas board, and can change. This comparison is general guidance only, not legal or financial advice. Always verify current requirements with the school, employer, or relevant Texas licensing board before enrolling or applying.':'Las reglas de licencia, presencia legal y autorización de trabajo varían según la ocupación y la junta de Texas, y pueden cambiar. Esta comparación es guía general, no asesoría legal o financiera. Siempre verifica los requisitos actuales con la escuela, el empleador o la junta de licencias de Texas correspondiente.'));
   wrap.appendChild(disclaimer);
 
-  const btn=el('button','primary-btn', isEn()?'Talk through my results at Clínica':'Hablar mis resultados en la Clínica');
+  const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
   btn.style.margin='4px 18px 16px'; btn.style.width='calc(100% - 36px)';
-  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   wrap.appendChild(btn);
 
   return wrap;
@@ -3721,8 +3721,8 @@ function occDetailScreen(){
   next.appendChild(el('p','', isEn()
     ? 'Numbers like these are a starting point for a conversation, not an answer on their own. A Navigator can help you check what a specific program near you actually costs.'
     : 'Números como estos son un punto de partida para una conversación, no una respuesta por sí solos. Un Navegador puede ayudarte a revisar cuánto cuesta realmente un programa cerca de ti.'));
-  const b1=el('button','primary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
-  b1.onclick=()=>{ state.screen='clinica'; render(); };
+  const b1=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  b1.onclick=()=>{ state.screen='navigator-meet'; render(); };
   next.appendChild(b1);
   const b2=el('button','secondary-btn', isEn()?'See Training Programs Near Us':'Ver Programas de Capacitación Cerca');
   b2.onclick=()=>{ state.applyTopicKey='career'; state.screen='apply-topic'; render(); };
@@ -3781,8 +3781,8 @@ function occCompareScreen(){
   const b=el('button','secondary-btn', isEn()?'Change Selection':'Cambiar Selección');
   b.onclick=()=>{ state.screen='decide-roi'; render(); };
   actions.appendChild(b);
-  const b2=el('button','primary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
-  b2.onclick=()=>{ state.screen='clinica'; render(); };
+  const b2=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  b2.onclick=()=>{ state.screen='navigator-meet'; render(); };
   actions.appendChild(b2);
   wrap.appendChild(actions);
   return wrap;
@@ -3794,7 +3794,7 @@ const APPLY_TOPICS = {
     teaserEn:"Grants, loans, FAFSA, TASFA, what applies to your family.", teaserEs:'Becas, préstamos, FAFSA, TASFA, qué aplica para tu familia.',
     bodyEn:"FAFSA and TASFA are the two forms that unlock financial aid, grants, scholarships, and loans, for college or job training. If you're a U.S. citizen, permanent resident, or eligible noncitizen, you'll complete the FAFSA. If you're not eligible for the FAFSA, you may qualify for TASFA instead, depending on current Texas rules. Not sure which one applies to your family? Anchored Pathways will help you figure it out, without judgment.",
     bodyEs:'FAFSA y TASFA son los dos formularios que abren la puerta a la ayuda financiera, becas, subvenciones y préstamos, para la universidad o capacitación laboral. Si es ciudadano de EE. UU., residente permanente, o no ciudadano elegible, completará la FAFSA. Si no es elegible para la FAFSA, podría calificar para TASFA, según las reglas vigentes de Texas. ¿No está seguro de cuál le corresponde a su familia? Anchored Pathways le ayudará a averiguarlo, sin juzgarle.',
-    actions:[{type:'clinica', labelEn:'Talk It Through at Clínica', labelEs:'Hablarlo en la Clínica'}],
+    actions:[{type:'clinica', labelEn:'Talk with an AP Navigator', labelEs:'Hablar con un Navegador de AP'}],
     guideKeys:['fafsaTasfa'],
     faqs:[
       {qEn:"What's the actual difference between FAFSA and TASFA?", qEs:'¿Cuál es la diferencia real entre FAFSA y TASFA?',
@@ -3813,7 +3813,7 @@ const APPLY_TOPICS = {
     bodyEn:"Every school asks for a few things when you apply, usually your grades (called a transcript), sometimes test scores or a short essay. Deadlines matter more than they seem, some scholarship money goes to whoever applies first, so missing one can mean waiting a full year. Worried about the application fee? You can often get it waived, just ask.",
     bodyEs:'Cada escuela pide algunas cosas cuando aplicas, normalmente tus calificaciones (llamado historial académico o transcript), a veces resultados de exámenes o un ensayo corto. Las fechas límite importan más de lo que parece, parte del dinero de becas va a quien aplique primero, así que perder una puede significar esperar un año completo. ¿Te preocupa la cuota de solicitud? Casi siempre se puede pedir que te la quiten, solo pregunta.',
     actions:[{type:'screen', screen:'apply-local-pathway', labelEn:"See What's Available Near Us", labelEs:'Ver Qué Hay Disponible Cerca de Ti'},
-             {type:'clinica', labelEn:'Talk It Through at Clínica', labelEs:'Hablarlo en la Clínica'}],
+             {type:'clinica', labelEn:'Talk with an AP Navigator', labelEs:'Hablar con un Navegador de AP'}],
     guideKeys:[], // no College Applications guide yet — attaches here without redesign once one exists
     faqs:[
       {qEn:'What documents do we need?', qEs:'¿Qué documentos necesitamos?',
@@ -3832,7 +3832,7 @@ const APPLY_TOPICS = {
     bodyEn:"Military service is a real path after high school, one that can include education benefits, career training, and a paycheck. There are several ways in, ROTC while in college, enlisting directly, part-time through the National Guard, or Officer Candidate School after a degree, and each works differently. Requirements and benefits vary by branch and can change, so it's worth talking to an official recruiter and a Navigator before deciding, not after.",
     bodyEs:'El servicio militar es un camino real después de la preparatoria, uno que puede incluir beneficios educativos, capacitación profesional y un salario. Hay varias formas de ingresar, ROTC durante la universidad, alistarse directamente, tiempo parcial con la Guardia Nacional, o la Escuela de Candidatos a Oficial después de un título, y cada una funciona diferente. Los requisitos y beneficios varían según la rama y pueden cambiar, así que vale la pena hablar con un reclutador oficial y un Navegador antes de decidir, no después.',
     actions:[{type:'screen', screen:'decide-compare', labelEn:'Compare Military to Other Paths', labelEs:'Comparar el Ejército con Otros Caminos', preset:'mil'},
-             {type:'clinica', labelEn:'Talk It Through at Clínica', labelEs:'Hablarlo en la Clínica'}],
+             {type:'clinica', labelEn:'Talk with an AP Navigator', labelEs:'Hablar con un Navegador de AP'}],
     guideKeys:['military'],
     faqs:[
       {qEn:"What's the difference between ROTC and just enlisting?", qEs:'¿Cuál es la diferencia entre ROTC y alistarse directamente?',
@@ -3962,7 +3962,7 @@ function applyTopicScreen(){
   topic.actions.forEach((action,i)=>{
     const btn=el('button', i===0?'primary-btn':'secondary-btn', isEn()?action.labelEn:action.labelEs);
     btn.onclick=()=>{
-      if(action.type==='clinica'){ state.screen='clinica'; render(); }
+      if(action.type==='clinica'){ state.screen='navigator-meet'; render(); }
       else if(action.type==='screen'){
         if(action.screen==='decide-compare' && action.preset){
           state.compareA = action.preset==='mil' ? 'mil' : 'trade';
@@ -4034,8 +4034,8 @@ function guideScreen(){
   const closingCard=el('div','card');
   closingCard.appendChild(el('div','section-label', isEn()?'How Anchored Pathways Can Help':'Cómo Puede Ayudar Anchored Pathways'));
   closingCard.appendChild(el('p','', isEn()?guide.closingEn:guide.closingEs));
-  const btn=el('button','primary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
-  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   closingCard.appendChild(btn);
   wrap.appendChild(closingCard);
 
@@ -4335,10 +4335,10 @@ function renderScholarshipResultsInto(container){
     empty.appendChild(allBtn);
 
     empty.appendChild(el('p','es', isEn()
-      ? "Your school's own financial aid office is also a good general resource, and a Navigator can help you look further at Clínica."
-      : 'La oficina de ayuda financiera de tu propia escuela también es un buen recurso general, y un Navegador puede ayudarte a buscar más en la Clínica.'));
-    const clinicaBtn=el('button','secondary-btn', isEn()?'Talk It Through at Clínica':'Hablarlo en la Clínica');
-    clinicaBtn.onclick=()=>{ state.screen='clinica'; render(); };
+      ? "Your school's own financial aid office is also a good general resource, and a Navigator can help you look further."
+      : 'La oficina de ayuda financiera de tu propia escuela también es un buen recurso general, y un Navegador puede ayudarte a buscar más.'));
+    const clinicaBtn=el('button','secondary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+    clinicaBtn.onclick=()=>{ state.screen='navigator-meet'; render(); };
     empty.appendChild(clinicaBtn);
     container.appendChild(empty);
   } else {
@@ -4415,9 +4415,9 @@ function scholarshipsDetailScreen(){
   }
 
   const disclaimer=el('div','card');
-  disclaimer.appendChild(el('p','', isEn()?"This is general information from AP's own research, not a determination of eligibility. Policies, deadlines, and requirements can change. A Navigator can help you confirm current details at Clínica.":'Esta es información general de la propia investigación de AP, no una determinación de elegibilidad. Las políticas, fechas límite y requisitos pueden cambiar. Un Navegador puede ayudarte a confirmar los detalles actuales en la Clínica.'));
-  const clinicaBtn=el('button','secondary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
-  clinicaBtn.onclick=()=>{ state.screen='clinica'; render(); };
+  disclaimer.appendChild(el('p','', isEn()?"This is general information from AP's own research, not a determination of eligibility. Policies, deadlines, and requirements can change. A Navigator can help you confirm current details.":'Esta es información general de la propia investigación de AP, no una determinación de elegibilidad. Las políticas, fechas límite y requisitos pueden cambiar. Un Navegador puede ayudarte a confirmar los detalles actuales.'));
+  const clinicaBtn=el('button','secondary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  clinicaBtn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   disclaimer.appendChild(clinicaBtn);
   wrap.appendChild(disclaimer);
 
@@ -4807,14 +4807,11 @@ function stayScreen(){
 
   const help=el('div','card');
   help.appendChild(el('h2','', isEn()?'Bring these questions to us and we will make the calls with you.':'Trae estas preguntas y hacemos las llamadas contigo.'));
-  help.appendChild(el('p','', 'Clínica is free and open to everyone. Appointments only — book a 30-minute spot ahead of time.'));
-  help.appendChild(el('p','es', 'La Clínica es gratuita y abierta para todos. Solo con cita — reserva tu espacio de 30 minutos con anticipación.'));
-  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
-  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  help.appendChild(el('p','', 'An AP Navigator can meet with you virtually or in person at Clínica, which is free, open to everyone, and appointment-only.'));
+  help.appendChild(el('p','es', 'Un Navegador de AP puede reunirse contigo virtualmente o en persona en la Clínica, que es gratuita, abierta para todos y solo con cita.'));
+  const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   help.appendChild(btn);
-  const btnPriv=el('button','secondary-btn', isEn()?'Or Request a Private Meeting':'O Solicitar una Reunión Privada');
-  btnPriv.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
-  help.appendChild(btnPriv);
   wrap.appendChild(help);
 
   return wrap;
@@ -4828,12 +4825,9 @@ function shiftScreen(){
   card.appendChild(el('div','pill', isEn()?'REDEFINE · CHANGING DIRECTION':'REDEFINE · CAMBIAR DE DIRECCIÓN'));
   card.appendChild(el('h2','', isEn()?"It's not too late to change direction":'No es demasiado tarde para cambiar de rumbo'));
   card.appendChild(el('p','', isEn()?'Changing majors, transferring schools, returning as an adult learner, or pivoting careers, this is the stage for that conversation.':'Cambiar de carrera, transferirte de escuela, regresar como adulto o cambiar de profesión, esta es la etapa para esa conversación.'));
-  const btn=el('button','primary-btn', isEn()?'Get Help at Clínica':'Recibe Ayuda en la Clínica');
-  btn.onclick=()=>{ state.screen='clinica'; render(); };
+  const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
+  btn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   card.appendChild(btn);
-  const btnPriv=el('button','secondary-btn', isEn()?'Or Request a Private Meeting':'O Solicitar una Reunión Privada');
-  btnPriv.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
-  card.appendChild(btnPriv);
   wrap.appendChild(card);
 
   // Patch 4: Starting Again guide connected here, from the existing Redefine stage
@@ -4886,6 +4880,38 @@ function withFamilyIdPrefill(baseUrl, entryParam){
 }
 function getHeadsUpFormUrl(){ return withFamilyIdPrefill(HEADS_UP_FORM_URL, HEADS_UP_FAMILY_ID_ENTRY); }
 function getPrivateMeetingFormUrl(){ return withFamilyIdPrefill(PRIVATE_MEETING_FORM_URL, PRIVATE_MEETING_FAMILY_ID_ENTRY); }
+
+/* ============ HOW WOULD YOU LIKE TO MEET? (AP Navigator routing choice) ============
+   AP Navigator support is the umbrella service. Virtual video meetings and in-person
+   AP Clínica are two ways to receive that support — this screen is the single place
+   every generic "get help" CTA in the app routes to, so Clínica is never presented as
+   the only human-support option. Both destinations below are verified, existing routes:
+   the virtual option opens PRIVATE_MEETING_FORM_URL (a request form, not an instant
+   booking), and the in-person option goes to the existing, unmodified clinicaScreen(). */
+function navigatorMeetScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'How would you like to meet?':'¿Cómo prefieres reunirte?', 'home'));
+
+  const intro=el('div','card');
+  intro.appendChild(el('p','', isEn()
+    ? 'AP Navigator support is available both virtually and in person. Pick whichever works better for you.'
+    : 'El apoyo de un Navegador de AP está disponible tanto virtualmente como en persona. Elige lo que te funcione mejor.'));
+  wrap.appendChild(intro);
+
+  const virtualCard=el('button','triage-card');
+  virtualCard.style.width='100%'; virtualCard.style.marginBottom='10px';
+  virtualCard.innerHTML=`<div class="emoji">💻</div><div style="flex:1;"><div class="txt-en">${isEn()?'Meet virtually':'Reunirme virtualmente'}</div><div class="txt-es">${isEn()?'Request or schedule a video conversation from anywhere.':'Solicita o programa una conversación por video desde cualquier lugar.'}</div></div><div class="chev">›</div>`;
+  virtualCard.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
+  wrap.appendChild(virtualCard);
+
+  const inPersonCard=el('button','triage-card');
+  inPersonCard.style.width='100%';
+  inPersonCard.innerHTML=`<div class="emoji">📍</div><div style="flex:1;"><div class="txt-en">${isEn()?'Visit AP Clínica in person':'Visitar AP Clínica en persona'}</div><div class="txt-es">${isEn()?'View current Clínica locations, dates, hours, and participation information.':'Consulta las ubicaciones, fechas, horarios y requisitos disponibles.'}</div></div><div class="chev">›</div>`;
+  inPersonCard.onclick=()=>{ state.screen='clinica'; render(); };
+  wrap.appendChild(inPersonCard);
+
+  return wrap;
+}
 
 function clinicaScreen(){
   const wrap=el('div');

@@ -1948,79 +1948,20 @@ function exploreReflectScreen(){
   return wrap;
 }
 
-/* ============ O*NET INTEREST PROFILER WIDGET ============
-   Official embeddable widget from services.onetcenter.org. The delivered
-   script (read directly from the network response, since O*NET does not
-   publish its internal behavior anywhere) works like this:
-     - It scans the whole document every 500ms for elements with class
-       'embed-onet-ip' (English) or 'embed-onet-ip-es' (Spanish).
-     - The first time it finds ANY such element(s), it attaches a closed
-       shadow root with a static intro card (title image, description,
-       and two buttons) to every matching element, then permanently
-       stops polling. It never runs again after that.
-     - Both buttons are plain <form target="_blank"> submissions that open
-       the real assessment in a NEW browser tab on onetinterestprofiler.org.
-       The 30-question activity and its results live entirely on O*NET's
-       own site — nothing about answers or results ever reaches this app,
-       and there is no documented callback of any kind.
-   Because the poller only ever fires once, recreating a fresh container
-   div every time this screen renders (as the stub did) would only work
-   the very first visit — on any revisit the new div would never be
-   found, since polling already stopped. So instead we create the two
-   container elements exactly once for the whole page lifetime, park them
-   on document.body (outside #app, so renderScreen()'s app.innerHTML=''
-   never destroys them), and simply move the correct-language node into
-   this screen's placeholder on every render. Moving an existing DOM node
-   preserves its attached shadow root and content, so the already-loaded
-   widget reappears instantly on revisit, on language switch, and on
-   back/forward navigation — with the script loaded only once, ever. */
-let onetScriptLoaded = false;
-let onetLoadFailed = false;
-let onetContainerEn = null;
-let onetContainerEs = null;
-
-function onetEnsureContainers(){
-  if(!onetContainerEn){
-    onetContainerEn = document.createElement('div');
-    onetContainerEn.className = 'embed-onet-ip';
-    onetContainerEn.style.display = 'none';
-    document.body.appendChild(onetContainerEn);
-  }
-  if(!onetContainerEs){
-    onetContainerEs = document.createElement('div');
-    onetContainerEs.className = 'embed-onet-ip-es';
-    onetContainerEs.style.display = 'none';
-    document.body.appendChild(onetContainerEs);
-  }
-}
-
-function onetLoadScript(){
-  if(onetScriptLoaded) return;
-  onetScriptLoaded = true;
-  onetEnsureContainers(); // containers must exist before/around script execution so its poller finds them
-  const s = document.createElement('script');
-  s.src = 'https://services.onetcenter.org/embed/onet-ip.js?x-api-key=ofEEB-kBeKE-e5M6Y-xJOB5';
-  s.onerror = function(){
-    onetLoadFailed = true;
-    if(state.screen==='explore-onet') render();
-  };
-  document.head.appendChild(s);
-}
-
-// Moves the correct-language persistent container into the given placeholder
-// element (which lives inside the freshly-rendered screen tree). Re-parenting
-// an existing node preserves its shadow root/content — no re-fetch, no re-init.
-function onetAttachToPlaceholder(placeholderEl){
-  onetEnsureContainers();
-  const target = isEn() ? onetContainerEn : onetContainerEs;
-  const other = isEn() ? onetContainerEs : onetContainerEn;
-  other.style.display = 'none';
-  target.style.display = '';
-  placeholderEl.appendChild(target);
-}
+/* ============ O*NET INTEREST PROFILER — DIRECT-LINK INTEGRATION ============
+   The official O*NET embeddable widget (services.onetcenter.org/embed/onet-ip.js)
+   was removed. Real-device 375x812 testing found its closed-shadow-root intro
+   card clipped at the mobile viewport edge, and the implementation review
+   confirmed the widget never contained the assessment itself \u2014 it only ever
+   opened the real 30-question activity on onetinterestprofiler.org in a new
+   tab. Since the widget added no functionality beyond that link, it is
+   replaced here with a direct, language-conditional link to the same official
+   destination the widget's own buttons pointed to. No script is loaded from
+   O*NET, and no O*NET code runs inside this app at any point \u2014 the O*NET
+   site is only ever contacted after the student explicitly taps the CTA below. */
+const ONET_ACTIVITY_URL = { en: 'https://onetinterestprofiler.org/p/activities', es: 'https://onetinterestprofiler.org/es/p/activities' };
 
 function exploreOnetScreen(){
-  onetLoadScript(); // idempotent: only the very first call actually loads the script
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'A Deeper Interest Tool':'Una Herramienta de Intereses M\u00e1s Profunda','explore-reflect'));
 
@@ -2031,19 +1972,23 @@ function exploreOnetScreen(){
     : 'Esta actividad incluye aproximadamente 30 preguntas breves sobre diferentes actividades laborales. Tus resultados pueden ayudarte a reconocer patrones en tus intereses e identificar carreras que vale la pena explorar. No determinan qu\u00e9 carrera debes elegir.'));
   wrap.appendChild(introCard);
 
-  const widgetCard=el('div','card');
-  if(onetLoadFailed){
-    const failMsg=el('p','', isEn()
-      ? "This activity isn't available right now. That's okay — this step is optional and won't block anything else in Explore."
-      : 'Esta actividad no est\u00e1 disponible en este momento. Est\u00e1 bien \u2014 este paso es opcional y no bloquea nada m\u00e1s en Explorar.');
-    widgetCard.appendChild(failMsg);
-  } else {
-    const placeholder=el('div','');
-    placeholder.style.minHeight='120px';
-    widgetCard.appendChild(placeholder);
-    onetAttachToPlaceholder(placeholder);
-  }
-  wrap.appendChild(widgetCard);
+  // ---- Direct-link CTA to the official O*NET Interest Profiler ----
+  const ctaCard=el('div','card');
+  const ctaBtn=document.createElement('a');
+  ctaBtn.className='primary-btn';
+  ctaBtn.style.display='block'; ctaBtn.style.textAlign='center'; ctaBtn.style.textDecoration='none'; ctaBtn.style.boxSizing='border-box';
+  ctaBtn.href = isEn() ? ONET_ACTIVITY_URL.en : ONET_ACTIVITY_URL.es;
+  ctaBtn.target='_blank'; ctaBtn.rel='noopener';
+  ctaBtn.textContent = isEn() ? 'Start the O*NET Interest Profiler' : 'Comenzar el Perfil de Intereses O*NET';
+  ctaCard.appendChild(ctaBtn);
+
+  const ctaNote=document.createElement('p');
+  ctaNote.style.margin='12px 0 0'; ctaNote.style.fontSize='14px';
+  ctaNote.textContent = isEn()
+    ? "This opens the official O*NET site in a new tab. It includes about 30 questions. When you're done, come back here \u2014 you can optionally record the three interest areas shown in your results below. Next Step does not automatically see or save your O*NET responses or results."
+    : 'Esto abre el sitio oficial de O*NET en una pesta\u00f1a nueva. Incluye aproximadamente 30 preguntas. Cuando termines, regresa aqu\u00ed \u2014 puedes registrar de forma opcional las tres \u00e1reas de inter\u00e9s que aparezcan en tus resultados, abajo. Next Step no ve ni guarda autom\u00e1ticamente tus respuestas o resultados de O*NET.';
+  ctaCard.appendChild(ctaNote);
+  wrap.appendChild(ctaCard);
 
   // Required O*NET attribution (exact license wording preserved verbatim; a
   // Spanish gloss is added alongside for readability, never replacing it).
@@ -2060,13 +2005,14 @@ function exploreOnetScreen(){
   }
   wrap.appendChild(attrCard);
 
-  // ---- Privacy explanation (corrected) ----
-  // Distinguishes three separate things rather than one blanket "leaves this app's
-  // privacy boundary" statement: (1) what Next Step's own code does and doesn't send,
-  // (2) ordinary web-request metadata that loading any external script/site involves,
-  // and (3) that O*NET's own site handles the actual activity under its own policy.
-  // No claim here is made that hasn't been directly confirmed against O*NET's own
-  // published privacy statement (linked below) or basic, well-established web behavior.
+  // ---- Privacy explanation (revised for the direct-link architecture) ----
+  // Distinguishes three separate things: (1) what Next Step's own code does and
+  // doesn't send, (2) that O*NET only receives routine request metadata AFTER the
+  // student chooses to open the link (not when this screen loads, since no O*NET
+  // script or resource is fetched by this screen at all), and (3) that O*NET's own
+  // site handles the actual activity under its own policy. No claim here is made
+  // that hasn't been directly confirmed against O*NET's own published privacy
+  // statement (linked below) or basic, well-established web behavior.
   const privacyCard=el('div','card');
   privacyCard.appendChild(el('div','section-label', isEn()?'How your privacy works here':'C\u00f3mo funciona tu privacidad aqu\u00ed'));
   const priv1=document.createElement('p'); priv1.style.margin='0 0 8px';
@@ -2076,13 +2022,13 @@ function exploreOnetScreen(){
   privacyCard.appendChild(priv1);
   const priv2=document.createElement('p'); priv2.style.margin='0 0 8px';
   priv2.textContent = isEn()
-    ? "Loading the O*NET script and opening the O*NET site may transmit routine request information \u2014 such as your IP address, browser/device information, and the page you came from \u2014 the same way any website request does. This isn't something Next Step controls."
-    : 'Cargar el script de O*NET y abrir el sitio de O*NET puede transmitir informaci\u00f3n habitual de solicitud \u2014 como tu direcci\u00f3n IP, informaci\u00f3n de tu navegador/dispositivo, y la p\u00e1gina desde la que llegaste \u2014 de la misma manera en que lo hace cualquier solicitud a un sitio web. Esto no es algo que Next Step controle.';
+    ? "This screen does not load any O*NET script or contact O*NET's site on its own. O*NET only receives routine request information \u2014 such as your IP address, browser/device information, and the page you came from \u2014 after you choose to tap the button above and open its site, the same way any website request does. This isn't something Next Step controls."
+    : 'Esta pantalla no carga ning\u00fan script de O*NET ni contacta el sitio de O*NET por su cuenta. O*NET solo recibe informaci\u00f3n habitual de solicitud \u2014 como tu direcci\u00f3n IP, informaci\u00f3n de tu navegador/dispositivo, y la p\u00e1gina desde la que llegaste \u2014 despu\u00e9s de que elijas tocar el bot\u00f3n de arriba y abras su sitio, de la misma manera en que lo hace cualquier solicitud a un sitio web. Esto no es algo que Next Step controle.';
   privacyCard.appendChild(priv2);
   const priv3=document.createElement('p'); priv3.style.margin='0';
   priv3.innerHTML = isEn()
-    ? 'Your activity responses and results are handled entirely on O*NET\u2019s own site, under O*NET\u2019s own privacy practices, once you leave this screen. See <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">O*NET\u2019s official privacy statement</a>.'
-    : 'Tus respuestas de la actividad y tus resultados se manejan por completo en el sitio propio de O*NET, bajo las pr\u00e1cticas de privacidad de O*NET, una vez que sales de esta pantalla. Consulta la <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">declaraci\u00f3n oficial de privacidad de O*NET</a>.';
+    ? 'Your activity responses and results are handled entirely on O*NET\u2019s own site, under O*NET\u2019s own privacy practices, once you open that link. See <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">O*NET\u2019s official privacy statement</a>.'
+    : 'Tus respuestas de la actividad y tus resultados se manejan por completo en el sitio propio de O*NET, bajo las pr\u00e1cticas de privacidad de O*NET, una vez que abras ese enlace. Consulta la <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">declaraci\u00f3n oficial de privacidad de O*NET</a>.';
   privacyCard.appendChild(priv3);
   wrap.appendChild(privacyCard);
 

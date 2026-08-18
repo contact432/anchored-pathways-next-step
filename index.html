@@ -331,12 +331,125 @@ const RIASEC = [
 ];
 // Career + credential recommendations keyed by RIASEC top code (simplified mapping for demo)
 const CAREER_MAP = {
-  R:[{en:'HVAC Technician',es:'Técnico de HVAC',credEn:'Certificate, 6–12 months',credEs:'Certificado, 6–12 meses'},{en:'Electrician',es:'Electricista',credEn:'Apprenticeship, 4 years paid',credEs:'Aprendizaje, 4 años pagado'}],
-  I:[{en:'Registered Nurse',es:'Enfermero/a Registrado/a',credEn:'Associate or Bachelor\'s degree',credEs:'Título asociado o licenciatura'},{en:'Lab Technician',es:'Técnico de Laboratorio',credEn:'Associate degree',credEs:'Título asociado'}],
-  A:[{en:'Graphic Designer',es:'Diseñador/a Gráfico',credEn:'Bachelor\'s or portfolio-based',credEs:'Licenciatura o portafolio'},{en:'Radio/Media Production',es:'Producción de Medios',credEn:'Certificate or Associate',credEs:'Certificado o título asociado'}],
-  S:[{en:'Teacher',es:'Maestro/a',credEn:'Bachelor\'s degree + certification',credEs:'Licenciatura + certificación'},{en:'Social Worker',es:'Trabajador/a Social',credEn:'Bachelor\'s degree',credEs:'Licenciatura'}],
-  E:[{en:'Business / Sales',es:'Negocios / Ventas',credEn:'Associate or Bachelor\'s',credEs:'Título asociado o licenciatura'},{en:'Small Business Owner',es:'Dueño/a de Pequeño Negocio',credEn:'Certificate + on-the-job',credEs:'Certificado + experiencia laboral'}],
-  C:[{en:'Accounting Technician',es:'Técnico Contable',credEn:'Associate degree',credEs:'Título asociado'},{en:'Medical Records / Billing',es:'Registros / Facturación Médica',credEn:'Certificate, under 1 year',credEs:'Certificado, menos de 1 año'}],
+  R:[{en:'HVAC Technician',es:'Técnico de HVAC',credEn:'Certificate, 6–12 months',credEs:'Certificado, 6–12 meses',
+      blurbEn:'Installs and repairs the heating, cooling, and ventilation systems in homes and buildings.',blurbEs:'Instala y repara los sistemas de calefacción, aire acondicionado y ventilación en casas y edificios.',
+      tags:['workingWithHands','jobStability','workingOutdoors'], occId:'occ-hvacr-technician'},
+     {en:'Electrician',es:'Electricista',credEn:'Apprenticeship, 4 years paid',credEs:'Aprendizaje, 4 años pagado',
+      blurbEn:'Installs and maintains the wiring and electrical systems that power homes, businesses, and equipment.',blurbEs:'Instala y da mantenimiento al cableado y los sistemas eléctricos que dan energía a casas, negocios y equipos.',
+      tags:['workingWithHands','jobStability','income'], occId:'occ-electrician'}],
+  I:[{en:'Registered Nurse',es:'Enfermero/a Registrado/a',credEn:'Associate or Bachelor\'s degree',credEs:'Título asociado o licenciatura',
+      blurbEn:'Provides direct patient care, coordinates treatment, and educates patients and families in clinics, hospitals, and other settings.',blurbEs:'Brinda cuidado directo a pacientes, coordina tratamientos y educa a pacientes y familias en clínicas, hospitales y otros entornos.',
+      tags:['helpingPeople','jobStability','opportunityToGrow'], occId:'occ-registered-nurse'},
+     {en:'Lab Technician',es:'Técnico de Laboratorio',credEn:'Associate degree',credEs:'Título asociado',
+      blurbEn:'Runs tests on samples, such as blood or tissue, that help doctors diagnose and treat patients.',blurbEs:'Realiza pruebas en muestras, como sangre o tejido, que ayudan a los médicos a diagnosticar y tratar a los pacientes.',
+      tags:['helpingPeople','jobStability'], occId:null},
+     ],
+  A:[{en:'Graphic Designer',es:'Diseñador/a Gráfico',credEn:'Bachelor\'s or portfolio-based',credEs:'Licenciatura o portafolio',
+      blurbEn:'Creates visual concepts for print, digital, and brand materials, communicating ideas through images, layout, and typography.',blurbEs:'Crea conceptos visuales para materiales impresos, digitales y de marca, comunicando ideas a través de imágenes, diseño y tipografía.',
+      tags:['creativity','flexibility'], occId:null},
+     {en:'Radio/Media Production',es:'Producción de Medios',credEn:'Certificate or Associate',credEs:'Certificado o título asociado',
+      blurbEn:'Records, edits, and produces audio or video content for broadcast, streaming, or social media.',blurbEs:'Graba, edita y produce contenido de audio o video para transmisión, streaming o redes sociales.',
+      tags:['creativity','flexibility'], occId:null}],
+  S:[{en:'Teacher',es:'Maestro/a',credEn:'Bachelor\'s degree + certification',credEs:'Licenciatura + certificación',
+      blurbEn:'Plans lessons and teaches students in a specific subject or grade level in a school setting.',blurbEs:'Planea lecciones y enseña a estudiantes en una materia o nivel de grado específico en un entorno escolar.',
+      tags:['helpingPeople','timeWithFamily'], occId:null},
+     {en:'Social Worker',es:'Trabajador/a Social',credEn:'Bachelor\'s degree',credEs:'Licenciatura',
+      blurbEn:'Helps individuals and families access resources and navigate challenges such as housing, healthcare, or family issues.',blurbEs:'Ayuda a personas y familias a acceder a recursos y enfrentar retos como vivienda, salud o asuntos familiares.',
+      tags:['helpingPeople'], occId:null}],
+  E:[{en:'Business / Sales',es:'Negocios / Ventas',credEn:'Associate or Bachelor\'s',credEs:'Título asociado o licenciatura',
+      blurbEn:'Builds relationships with customers or clients and helps match them with products or services that fit their needs.',blurbEs:'Construye relaciones con clientes y les ayuda a encontrar productos o servicios que se ajusten a sus necesidades.',
+      tags:['leadership','income','opportunityToGrow'], occId:null},
+     {en:'Small Business Owner',es:'Dueño/a de Pequeño Negocio',credEn:'Certificate + on-the-job',credEs:'Certificado + experiencia laboral',
+      blurbEn:'Runs an independent business, handling everything from day-to-day operations to long-term planning.',blurbEs:'Dirige un negocio independiente, manejando desde las operaciones del día a día hasta la planeación a largo plazo.',
+      tags:['leadership','independence'], occId:null}],
+  C:[{en:'Accounting Technician',es:'Técnico Contable',credEn:'Associate degree',credEs:'Título asociado',
+      blurbEn:'Tracks financial records, processes transactions, and helps keep an organization\'s books accurate and up to date.',blurbEs:'Lleva registros financieros, procesa transacciones y ayuda a mantener actualizados y correctos los libros de una organización.',
+      tags:['jobStability','income'], occId:null},
+     {en:'Medical Records / Billing',es:'Registros / Facturación Médica',credEn:'Certificate, under 1 year',credEs:'Certificado, menos de 1 año',
+      blurbEn:'Manages patient records and processes insurance billing for a clinic, hospital, or medical office.',blurbEs:'Administra los expedientes de pacientes y procesa la facturación de seguros para una clínica, hospital u oficina médica.',
+      tags:['jobStability','flexibility'], occId:null}],
+};
+
+/* ============ EXPLORE PHASE 1 (2026) — new shared option lists ============
+   These are new, hand-authored, descriptive-only vocabularies added for the Explore Phase 1
+   rebuild. None of them produce a score, percentage, or ranking — they exist only so a few
+   screens (Practical Preferences, Careers Worth Exploring, Explore Together) can reference the
+   same set of ids and render consistent bilingual labels. See EXPLORE_PHASE1_REPORT.md for the
+   full design rationale, including why this list is intentionally separate from the existing
+   VALUES array (broad life values) rather than a replacement for it. */
+const PRACTICAL_MATTERS_OPTIONS = [
+  {id:'income', en:'Income', es:'Ingresos'},
+  {id:'jobStability', en:'Job stability', es:'Estabilidad laboral'},
+  {id:'helpingPeople', en:'Helping people', es:'Ayudar a las personas'},
+  {id:'creativity', en:'Creativity', es:'Creatividad'},
+  {id:'flexibility', en:'Flexibility', es:'Flexibilidad'},
+  {id:'timeWithFamily', en:'Time with family', es:'Tiempo con la familia'},
+  {id:'workingWithHands', en:'Working with my hands', es:'Trabajar con mis manos'},
+  {id:'independence', en:'Independence', es:'Independencia'},
+  {id:'leadership', en:'Leadership', es:'Liderazgo'},
+  {id:'workingOutdoors', en:'Working outdoors', es:'Trabajar al aire libre'},
+  {id:'opportunityToGrow', en:'Opportunity to grow', es:'Oportunidad de crecer'},
+  {id:'other', en:'Something else', es:'Algo más'},
+];
+const EDUCATION_OPENNESS_OPTIONS = [
+  {id:'soon', en:'I want to start working soon', es:'Quiero empezar a trabajar pronto'},
+  {id:'oneTwoYears', en:'About 1–2 years', es:'Aproximadamente 1–2 años'},
+  {id:'fourYears', en:'About 4 years', es:'Aproximadamente 4 años'},
+  {id:'gradOk', en:'Graduate/professional school could be okay', es:'Una escuela de posgrado o profesional podría estar bien'},
+  {id:'notSure', en:"I don't know yet", es:'Aún no lo sé'},
+];
+// Parent-side priorities (Explore Together, Reflection 1) — deliberately its own list, not the
+// same ids as PRACTICAL_MATTERS_OPTIONS, because a parent's framing of the same underlying
+// concern is often worded differently from a student's. PARENT_STUDENT_OVERLAP_MAP below is the
+// only place these two lists are compared, and only for descriptive "Our Conversation" text.
+const PARENT_PRIORITIES_OPTIONS = [
+  {id:'financialStability', en:'Financial stability', es:'Estabilidad financiera'},
+  {id:'jobSecurity', en:'Job security', es:'Seguridad laboral'},
+  {id:'enjoyingWork', en:'Enjoying their work', es:'Que disfrute su trabajo'},
+  {id:'helpingOthers', en:'Helping others', es:'Ayudar a otros'},
+  {id:'stayingNearFamily', en:'Staying near family', es:'Quedarse cerca de la familia'},
+  {id:'opportunityToGrow', en:'Opportunity to grow', es:'Oportunidad de crecer'},
+  {id:'workLifeBalance', en:'Work-life balance', es:'Equilibrio entre trabajo y vida'},
+  {id:'lowDebt', en:'Finishing education without too much debt', es:'Terminar sus estudios sin demasiada deuda'},
+  {id:'other', en:'Something else', es:'Algo más'},
+];
+const PARENT_HELP_STYLE_OPTIONS = [
+  {id:'research', en:'Research options', es:'Investigar opciones'},
+  {id:'tellSafest', en:'Tell them what I think is safest', es:'Decirle lo que creo que es más seguro'},
+  {id:'askThinking', en:"Ask what they're thinking", es:'Preguntarle qué está pensando'},
+  {id:'shareExperience', en:'Share my own experiences', es:'Compartir mis propias experiencias'},
+  {id:'encourageOther', en:'Encourage them to talk with someone else', es:'Animarle a hablar con alguien más'},
+  {id:'worryCost', en:'Worry about cost', es:'Preocuparme por el costo'},
+{id:'giveSpace', en:'Give them space', es:'Darle espacio'},
+  {id:'notSureHow', en:"I'm not sure how to help", es:'No estoy segura/o cómo ayudar'},
+];
+const PARENT_INVOLVEMENT_OPTIONS = [
+  {id:'aLot', en:'A lot', es:'Mucho'},
+  {id:'some', en:'Some', es:'Algo'},
+  {id:'aLittle', en:'A little', es:'Un poco'},
+  {id:'notTalked', en:"We haven't talked about it", es:'No hemos hablado de eso'},
+];
+// Reflection 3 topics — each routes to an existing, already-built AP tool when a parent selects
+// "I want help," per the brief's instruction to answer with an existing resource before ever
+// suggesting a human handoff.
+const PARENT_COMFORT_TOPICS = [
+  {id:'collegeVsCC', en:'College vs. community college', es:'Universidad vs. colegio comunitario', screen:'decide-compare'},
+  {id:'certificates', en:'Certificates / technical training', es:'Certificados / capacitación técnica', screen:'apply-topic', topic:'career'},
+  {id:'apprenticeships', en:'Apprenticeships', es:'Aprendizajes (apprenticeships)', screen:'apply-topic', topic:'career'},
+  {id:'military', en:'Military / service pathways', es:'Caminos militares / de servicio', screen:'apply-topic', topic:'military'},
+  {id:'financialAid', en:'Financial aid', es:'Ayuda financiera', screen:'apply-topic', topic:'pay'},
+  {id:'costs', en:'College / program costs', es:'Costos de universidad / programas', screen:'decide-afford'},
+  {id:'scholarships', en:'Scholarships', es:'Becas', screen:'apply-scholarships-list'},
+  {id:'majorsToCareers', en:'How majors connect to careers', es:'Cómo las carreras universitarias se conectan con profesiones', screen:'explore'},
+  {id:'howLongInSchool', en:'How long careers require in school', es:'Cuánto tiempo de estudio requieren las profesiones', screen:'decide-roi'},
+];
+// Used only by "Our Conversation" to generate descriptive (never scored) overlap text between a
+// parent's Reflection 1 answers and a student's Practical Preferences (Screen D) answers.
+const PARENT_STUDENT_OVERLAP_MAP = {
+  financialStability:['income','jobStability'], jobSecurity:['jobStability'],
+  enjoyingWork:['creativity','helpingPeople','independence'], helpingOthers:['helpingPeople'],
+  stayingNearFamily:['timeWithFamily'], opportunityToGrow:['opportunityToGrow'],
+  workLifeBalance:['flexibility','timeWithFamily'], lowDebt:['jobStability'],
 };
 
 /* ============ PHASE 4: SCHOLARSHIP & FUNDING NAVIGATOR — NORMALIZED DATA ============
@@ -709,10 +822,19 @@ let state = {
   strengthsStep:0, strengthsSelected:[], strengthsTop3:[],
   persoStep:0, persoAnswers:[],
   interestStep:0, interestSelected:[], interestDone:false,
-  completed: {values:false, strengths:false, personality:false, interests:false},
-  results: {values:null, strengths:null, personality:null, interests:null},
+  completed: {values:false, strengths:false, personality:false, interests:false, practical:false},
+  results: {values:null, strengths:null, personality:null, interests:null, practical:null, savedPossibilities:[]},
   // Phase 2: the vision reflection is the opening frame, not a 5th scored assessment
   visionAsked:false, visionReflection:'',
+  // Explore Phase 1 (2026): route/reflection state. Per the Explore Phase 1 brief, open-text
+  // reflections and every parent-side field here are SESSION-ONLY and are deliberately excluded
+  // from saveExploreProgress() below — see EXPLORE_PHASE1_REPORT.md privacy section.
+  exploreRoute:null,               // 'forme' | 'compare' | 'family' | null — which entry route this session picked
+  assessmentReturnTo:'explore',    // lets Values/Strengths screens return to Explore-for-Me Screen B instead of the hub when reused there
+  enjoyReflection:'', curiousField:'', dontWantReflection:'',
+  exploreInvestigateKey:null,      // {group:'R', idx:0} — which CAREER_MAP card Screen F is currently investigating
+  compareIdeas:['','','',''], compareOpenQuestion:'',
+  familyStep:0, parentPriorities:[], parentHelpStyle:null, parentInvolvement:null, parentComfort:{},
   // Phase 4: Scholarship & Funding Navigator
   scholarshipCategory:null, scholarshipSearch:'', scholarshipEligFilters:[], scholarshipSchool:'any', scholarshipSort:'none',
   scholarshipRegion:'any', scholarshipAmountBrowse:'any',
@@ -737,9 +859,14 @@ function resetExploreState(){
   state.strengthsStep=0; state.strengthsSelected=[]; state.strengthsTop3=[];
   state.persoStep=0; state.persoAnswers=[];
   state.interestStep=0; state.interestSelected=[]; state.interestDone=false;
-  state.completed = {values:false, strengths:false, personality:false, interests:false};
-  state.results = {values:null, strengths:null, personality:null, interests:null};
+  state.completed = {values:false, strengths:false, personality:false, interests:false, practical:false};
+  state.results = {values:null, strengths:null, personality:null, interests:null, practical:null, savedPossibilities:[]};
   state.visionAsked=false; state.visionReflection='';
+  // Explore Phase 1 (2026) session-only fields
+  state.exploreRoute=null; state.assessmentReturnTo='explore';
+  state.enjoyReflection=''; state.curiousField=''; state.dontWantReflection='';
+  state.exploreInvestigateKey=null; state.compareIdeas=['','','','']; state.compareOpenQuestion='';
+  state.familyStep=0; state.parentPriorities=[]; state.parentHelpStyle=null; state.parentInvolvement=null; state.parentComfort={};
   saveExploreProgress();
 }
 
@@ -766,8 +893,8 @@ function loadExploreProgress(){
     if(!raw) return;
     const saved = JSON.parse(raw);
     if(saved && saved.completed && saved.results){
-      state.completed = Object.assign({values:false,strengths:false,personality:false,interests:false}, saved.completed);
-      state.results = Object.assign({values:null,strengths:null,personality:null,interests:null}, saved.results);
+      state.completed = Object.assign({values:false,strengths:false,personality:false,interests:false,practical:false}, saved.completed);
+      state.results = Object.assign({values:null,strengths:null,personality:null,interests:null,practical:null,savedPossibilities:[]}, saved.results);
     }
   } catch(e){ /* corrupt or unavailable — start fresh rather than throw */ }
 }
@@ -1358,7 +1485,7 @@ function resetConfirmScreen(){
   wrap.appendChild(screenHeader(isEn()?'Start over':'Empezar de nuevo', state.resetReturnTo||'explore'));
   const card=el('div','card');
   card.appendChild(el('h2','', isEn()?'Start Explore over?':'¿Empezar Explorar de nuevo?'));
-  card.appendChild(el('p','', isEn()?'This will clear your values, strengths, interests, personality, vision reflection, and Path Profile results. This cannot be undone.':'Esto borrará tus respuestas sobre valores, fortalezas, intereses, personalidad, tu reflexión sobre el futuro y los resultados de tu Perfil de Camino. No se puede deshacer.'));
+  card.appendChild(el('p','', isEn()?'This will clear your values, strengths, interests, personality, vision reflection, practical preferences, saved possibilities, and My Explore Profile results. This cannot be undone.':'Esto borrará tus respuestas sobre valores, fortalezas, intereses, personalidad, tu reflexión sobre el futuro, tus preferencias prácticas, tus posibilidades guardadas y los resultados de Mi Perfil de Exploración. No se puede deshacer.'));
   const destructive=el('button','primary-btn', isEn()?'Clear my Explore results':'Borrar mis resultados de Explorar');
   destructive.style.background = '#B85A26';
   // Override the .primary-btn navy text color: on Burnt Orange, white tests better than a dark ink color.
@@ -1376,77 +1503,66 @@ function exploreScreen(){
   const wrap=el('div');
   wrap.appendChild(screenHeader(isEn()?'Explore':'Explorar'));
   const n = Object.values(state.completed).filter(Boolean).length;
-  const showVisionInline = (n===0 && !state.visionAsked);
+  const hasAnyProgress = n>0 || state.visionAsked || (state.results.savedPossibilities && state.results.savedPossibilities.length>0);
 
   const intro=el('div','card');
-  if(n===4){
-    intro.appendChild(el('h2','', isEn()?'A Few Things Are Starting to Stand Out':'Algunas cosas empiezan a destacar'));
-    intro.appendChild(el('p','', isEn()?'You\'ve shared some important pieces, what matters to you, the strengths you bring, what you enjoy, and how you go about things. A few patterns are starting to come into focus. Let\'s look at them together.':'Has compartido algunas piezas importantes, lo que te importa, las fortalezas que aportas, lo que disfrutas, y cómo sueles hacer las cosas. Algunos patrones empiezan a tomar forma. Vamos a verlos juntos.'));
-  } else if(n>0){
-    intro.appendChild(el('h2','', isEn()?'Good to See You Again':'Qué bueno verte de nuevo'));
-    intro.appendChild(el('p','', isEn()?"You've already explored part of this. Whenever you're ready, let's keep going.":'Ya exploraste parte de esto. Cuando estés listo o lista, sigamos.'));
-  } else {
-    intro.appendChild(el('h2','', isEn()?'Let\'s Spend a Little Time Getting to Know You':'Vamos a dedicar un poco de tiempo a conocerte'));
-    intro.appendChild(el('p','', isEn()?"This isn't a test, and there's nothing to study for. It's a few short sections about what matters to you, the strengths you bring, what you enjoy, and how you go about things. Take it at whatever pace works for you.":'Esto no es un examen, y no hay nada que estudiar. Son unas secciones cortas sobre lo que te importa, las fortalezas que aportas, lo que disfrutas, y cómo sueles hacer las cosas. Tómalo al ritmo que te funcione.'));
-  }
+  intro.appendChild(el('h2','', isEn()?"You don't have to know what you want to do yet":'No tienes que saber todav\u00eda qu\u00e9 quieres hacer'));
+  intro.appendChild(el('p','', isEn()
+    ? "Explore won't tell you what career to choose. It helps you notice what you enjoy and what matters to you, introduces you to real possibilities, and lets you change your mind as many times as you need. There's no one path here, so pick whichever door fits where you are right now."
+    : 'Explorar no te va a decir qu\u00e9 carrera elegir. Te ayuda a notar lo que disfrutas y lo que te importa, te presenta posibilidades reales, y te deja cambiar de opini\u00f3n las veces que necesites. Aqu\u00ed no hay un solo camino, as\u00ed que elige la puerta que mejor te quede ahora mismo.'));
   wrap.appendChild(intro);
 
-  if(showVisionInline){
-    wrap.appendChild(buildVisionCard(false));
-    return wrap; // primary action, progress, and jump-list appear only after the opening question is handled
-  }
-
-  // primary action + progress
-  const actionCard=el('div','card');
-  if(n===4){
-    actionCard.appendChild(el('p','', exploreProgressText(n)));
-    const btn=el('button','primary-btn', isEn()?'See what stands out':'Ver lo que destaca');
+  if(hasAnyProgress){
+    const continueCard=el('div','card');
+    continueCard.appendChild(el('div','section-label', isEn()?'Continue where you left off':'Contin\u00faa donde lo dejaste'));
+    continueCard.appendChild(el('p','', exploreProgressText(n)));
+    const btn=el('button','primary-btn', isEn()?'Go to My Explore Profile':'Ir a Mi Perfil de Exploraci\u00f3n');
     btn.onclick=()=>{ state.screen='pathprofile'; render(); };
-    actionCard.appendChild(btn);
-  } else {
-    const dots = el('div','progress-dots');
-    for(let i=0;i<4;i++) dots.appendChild(el('span', i<n?'done':''));
-    actionCard.appendChild(dots);
-    actionCard.appendChild(el('p','', exploreProgressText(n)));
-    const sequence = ['values','strengths','interests','personality'];
-    const screenFor = {values:'assess-values', strengths:'assess-strengths', interests:'assess-interests', personality:'assess-personality'};
-    const nextKey = sequence.find(k=>!state.completed[k]) || sequence[0];
-    const btn=el('button','primary-btn', isEn()?(n===0?"Let's begin":'Keep going'):(n===0?'Comencemos':'Sigamos'));
-    btn.onclick=()=>{ state.screen=screenFor[nextKey]; render(); };
-    actionCard.appendChild(btn);
-    if(n>0){
-      const preview=el('button','secondary-btn', isEn()?'Preview what we\'ve learned so far':'Ver un adelanto de lo aprendido');
-      preview.onclick=()=>{ state.screen='pathprofile'; render(); };
-      actionCard.appendChild(preview);
-    }
+    continueCard.appendChild(btn);
+    wrap.appendChild(continueCard);
   }
-  wrap.appendChild(actionCard);
 
-  // quiet jump-list, always available, never locked
-  const jumpCard=el('div','card');
-  jumpCard.appendChild(el('div','section-label', isEn()?'Want to jump to a specific part instead?':'¿Prefieres ir directo a una parte en particular?'));
-  const jumpItems=[
-    {key:'values', screen:'assess-values', titleEn:'What matters to you', titleEs:'Lo que te importa'},
-    {key:'strengths', screen:'assess-strengths', titleEn:'The strengths you bring', titleEs:'Las fortalezas que aportas'},
-    {key:'interests', screen:'assess-interests', titleEn:'What you enjoy', titleEs:'Lo que te interesa'},
-    {key:'personality', screen:'assess-personality', titleEn:'How you go about things', titleEs:'Cómo sueles hacer las cosas'},
+  // ---- Three entry routes. Do not force every user through the same process. ----
+  const routesCard=el('div','card');
+  routesCard.appendChild(el('div','section-label', isEn()?'Where would you like to start?':'\u00bfPor d\u00f3nde te gustar\u00eda empezar?'));
+  const routes=[
+    {key:'forme', titleEn:"I don't know what I want to do yet", titleEs:'No s\u00e9 todav\u00eda qu\u00e9 quiero hacer',
+     subEn:'Explore for Me \u2014 a few short reflections, then some careers worth a look.', subEs:'Explora por M\u00ed \u2014 unas reflexiones cortas, y despu\u00e9s algunas carreras que vale la pena ver.',
+     onClick:()=>{ state.exploreRoute='forme'; state.screen='explore-orientation'; }},
+    {key:'compare', titleEn:"I have some ideas, but I don't know what fits", titleEs:'Tengo algunas ideas, pero no s\u00e9 cu\u00e1l me queda',
+     subEn:'Compare My Ideas \u2014 put up to four ideas side by side.', subEs:'Compara Mis Ideas \u2014 pon hasta cuatro ideas lado a lado.',
+     onClick:()=>{ state.exploreRoute='compare'; state.screen='explore-compare'; }},
+    {key:'family', titleEn:'We want to talk about this as a family', titleEs:'Queremos hablar de esto en familia',
+     subEn:'Explore Together \u2014 optional reflections for a parent or family member, alongside yours.', subEs:'Explora en Familia \u2014 reflexiones opcionales para un padre, madre o familiar, junto con las tuyas.',
+     onClick:()=>{ state.exploreRoute='family'; state.screen='explore-family'; }},
   ];
-  jumpItems.forEach(item=>{
-    const row=el('button','choice-opt');
-    const done=state.completed[item.key];
-    row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center';
-    row.innerHTML=`<span>${isEn()?item.titleEn:item.titleEs}</span><span>${done?'✓':'›'}</span>`;
-    row.onclick=()=>{ state.screen=item.screen; render(); };
-    jumpCard.appendChild(row);
+  routes.forEach(r=>{
+    const row=el('button','triage-card');
+    row.style.width='100%'; row.style.textAlign='left';
+    row.innerHTML=`<div style="flex:1;"><div style="font-weight:600;font-size:14px;color:var(--ink);">${isEn()?r.titleEn:r.titleEs}</div><div style="font-size:12px;color:var(--ink-soft);margin-top:2px;">${isEn()?r.subEn:r.subEs}</div></div><div class="chev">\u203a</div>`;
+    row.onclick=()=>{ r.onClick(); render(); };
+    routesCard.appendChild(row);
   });
+  wrap.appendChild(routesCard);
+
+  // ---- Optional, always-available extras. Not required for any route. ----
+  const jumpCard=el('div','card');
+  jumpCard.appendChild(el('div','section-label', isEn()?'A couple of other things you can do any time':'Algunas otras cosas que puedes hacer en cualquier momento'));
   const visionRow=el('button','choice-opt');
   visionRow.style.display='flex'; visionRow.style.justifyContent='space-between'; visionRow.style.alignItems='center';
-  visionRow.innerHTML=`<span>${isEn()?"Add a note about the life you're imagining":'Agregar una nota sobre la vida que imaginas'}</span><span>${state.visionReflection?'✓':'›'}</span>`;
+  visionRow.innerHTML=`<span>${isEn()?"Add a note about the life you're imagining":'Agregar una nota sobre la vida que imaginas'}</span><span>${state.visionReflection?'\u2713':'\u203a'}</span>`;
   visionRow.onclick=()=>{ state.screen='assess-vision'; render(); };
   jumpCard.appendChild(visionRow);
+  if(state.results.savedPossibilities && state.results.savedPossibilities.length>0){
+    const shareRow=el('button','choice-opt');
+    shareRow.style.display='flex'; shareRow.style.justifyContent='space-between'; shareRow.style.alignItems='center';
+    shareRow.innerHTML=`<span>${isEn()?'Share With My Navigator':'Compartir Con Mi Navegador'}</span><span>\u203a</span>`;
+    shareRow.onclick=()=>{ state.screen='explore-share'; render(); };
+    jumpCard.appendChild(shareRow);
+  }
   wrap.appendChild(jumpCard);
 
-  if(n>0 || state.visionAsked){
+  if(hasAnyProgress){
     const resetLink=document.createElement('div');
     resetLink.style.textAlign='center'; resetLink.style.margin='6px 18px 18px';
     const resetBtn=document.createElement('button');
@@ -1465,7 +1581,7 @@ function exploreScreen(){
 /* ============ VALUES ASSESSMENT ============ */
 function valuesScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Discover Your Core Values':'Descubre Tus Valores Centrales','explore'));
+  wrap.appendChild(screenHeader(isEn()?'Discover Your Core Values':'Descubre Tus Valores Centrales',state.assessmentReturnTo||'explore'));
   if(state.valuesStep===0){
     const card=el('div','card');
     card.appendChild(el('div','pill', isEn()?'STEP 1 OF 2 · SELECT':'PASO 1 DE 2 · SELECCIONA'));
@@ -1544,7 +1660,7 @@ function valuesScreen(){
     card.appendChild(list);
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
     const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
-    btn.onclick=()=>{ state.screen='explore'; render(); };
+    btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
   }
@@ -1554,7 +1670,7 @@ function valuesScreen(){
 /* ============ STRENGTHS ASSESSMENT ============ */
 function strengthsScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'Discover Your Superpowers':'Descubre Tus Superpoderes','explore'));
+  wrap.appendChild(screenHeader(isEn()?'Discover Your Superpowers':'Descubre Tus Superpoderes',state.assessmentReturnTo||'explore'));
   if(state.strengthsStep===0){
     const card=el('div','card');
     card.appendChild(el('div','pill', isEn()?'STEP 1 OF 2 · SELECT 8':'PASO 1 DE 2 · ELIGE 8'));
@@ -1619,7 +1735,7 @@ function strengthsScreen(){
     card.appendChild(list);
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
     const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
-    btn.onclick=()=>{ state.screen='explore'; render(); };
+    btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
   }
@@ -1629,7 +1745,7 @@ function strengthsScreen(){
 /* ============ PERSONALITY ASSESSMENT ============ */
 function personalityScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?"What's Your Type?":'¿Cuál Es Tu Tipo?','explore'));
+  wrap.appendChild(screenHeader(isEn()?"What's Your Type?":'¿Cuál Es Tu Tipo?',state.assessmentReturnTo||'explore'));
   if(state.persoStep < PERSONALITY_Q.length){
     const dots=el('div','progress-dots');
     PERSONALITY_Q.forEach((_,i)=>dots.appendChild(el('span', i<state.persoStep?'done':'')));
@@ -1660,7 +1776,7 @@ function personalityScreen(){
     card.appendChild(el('p','', isEn()?'This is a short version. A fuller 20-question version is coming as the platform grows.':'Esta es una versión corta. Una versión completa de 20 preguntas llegará conforme crezca la plataforma.'));
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
     const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
-    btn.onclick=()=>{ state.screen='explore'; render(); };
+    btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
   }
@@ -1670,7 +1786,7 @@ function personalityScreen(){
 /* ============ INTERESTS (RIASEC) ASSESSMENT ============ */
 function interestsScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'What Do You Enjoy?':'¿Qué Disfrutas?','explore'));
+  wrap.appendChild(screenHeader(isEn()?'What Do You Enjoy?':'¿Qué Disfrutas?',state.assessmentReturnTo||'explore'));
   const allActs = [];
   RIASEC.forEach(cat=>cat.acts.forEach(a=>allActs.push({...a, code:cat.code})));
   if(!state.interestDone){
@@ -1716,7 +1832,7 @@ function interestsScreen(){
     card.appendChild(list);
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
     const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
-    btn.onclick=()=>{ state.screen='explore'; render(); };
+    btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
   }

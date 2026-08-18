@@ -329,6 +329,23 @@ const RIASEC = [
   {code:'E', en:'Enterprising', es:'Emprendedor', descEn:'Leading, selling, persuading', descEs:'Liderar, vender, persuadir', tags:['leadership','initiative'], acts:[{en:'Start your own project or business idea',es:'Iniciar tu propio proyecto o idea de negocio'},{en:'Convince a group to try your idea',es:'Convencer a un grupo de intentar tu idea'}]},
   {code:'C', en:'Conventional', es:'Convencional', descEn:'Organizing, data, systems', descEs:'Organizar, datos, sistemas', tags:['order','reliability'], acts:[{en:'Organize a schedule or budget',es:'Organizar un horario o presupuesto'},{en:'Keep detailed, accurate records',es:'Llevar registros detallados y precisos'}]},
 ];
+// Official O*NET Interest Profiler category labels — used ONLY for the optional manual
+// result-entry step on the O*NET screen. Verified directly against the live results
+// experience at onetinterestprofiler.org (English and Spanish, screenshot-confirmed),
+// not translated in-house. Deliberately kept separate from the RIASEC array above (Next
+// Step's own in-app "What Do You Enjoy?" quiz), whose Spanish wording differs (e.g.
+// "Investigador"/"Artístico"/"Emprendedor"/"Convencional", singular) from what O*NET's
+// own site actually displays ("de Investigación"/"Artísticos"/"Empresariales"/
+// "Convencionales", plural/prepositional) — conflating the two would mislabel what the
+// student saw on O*NET's site.
+const ONET_MANUAL_INTEREST_OPTIONS = [
+  {code:'realistic', en:'Realistic', es:'Realistas'},
+  {code:'investigative', en:'Investigative', es:'de Investigación'},
+  {code:'artistic', en:'Artistic', es:'Artísticos'},
+  {code:'social', en:'Social', es:'Social'},
+  {code:'enterprising', en:'Enterprising', es:'Empresariales'},
+  {code:'conventional', en:'Conventional', es:'Convencionales'},
+];
 // Career + credential recommendations keyed by RIASEC top code (simplified mapping for demo)
 const CAREER_MAP = {
   R:[{en:'HVAC Technician',es:'Técnico de HVAC',credEn:'Certificate, 6–12 months',credEs:'Certificado, 6–12 meses',
@@ -823,7 +840,12 @@ let state = {
   persoStep:0, persoAnswers:[],
   interestStep:0, interestSelected:[], interestDone:false,
   completed: {values:false, strengths:false, personality:false, interests:false, practical:false},
-  results: {values:null, strengths:null, personality:null, interests:null, practical:null, savedPossibilities:[]},
+  // onetInterests: up to 3 RIASEC codes (from ONET_MANUAL_INTEREST_OPTIONS), in the
+  // order the student entered them (index 0 = first/highest). Entered manually by the
+  // student after completing the actual O*NET Interest Profiler on O*NET's own site —
+  // Next Step never calculates, ranks, or infers these. Persisted like other results
+  // (not session-only) because the student is asserting this as a real result to keep.
+  results: {values:null, strengths:null, personality:null, interests:null, practical:null, savedPossibilities:[], onetInterests:[]},
   // Phase 2: the vision reflection is the opening frame, not a 5th scored assessment
   visionAsked:false, visionReflection:'',
   // Explore Phase 1 (2026): route/reflection state. Per the Explore Phase 1 brief, open-text
@@ -860,7 +882,7 @@ function resetExploreState(){
   state.persoStep=0; state.persoAnswers=[];
   state.interestStep=0; state.interestSelected=[]; state.interestDone=false;
   state.completed = {values:false, strengths:false, personality:false, interests:false, practical:false};
-  state.results = {values:null, strengths:null, personality:null, interests:null, practical:null, savedPossibilities:[]};
+  state.results = {values:null, strengths:null, personality:null, interests:null, practical:null, savedPossibilities:[], onetInterests:[]};
   state.visionAsked=false; state.visionReflection='';
   // Explore Phase 1 (2026) session-only fields
   state.exploreRoute=null; state.assessmentReturnTo='explore';
@@ -894,7 +916,7 @@ function loadExploreProgress(){
     const saved = JSON.parse(raw);
     if(saved && saved.completed && saved.results){
       state.completed = Object.assign({values:false,strengths:false,personality:false,interests:false,practical:false}, saved.completed);
-      state.results = Object.assign({values:null,strengths:null,personality:null,interests:null,practical:null,savedPossibilities:[]}, saved.results);
+      state.results = Object.assign({values:null,strengths:null,personality:null,interests:null,practical:null,savedPossibilities:[],onetInterests:[]}, saved.results);
     }
   } catch(e){ /* corrupt or unavailable — start fresh rather than throw */ }
 }
@@ -2038,16 +2060,134 @@ function exploreOnetScreen(){
   }
   wrap.appendChild(attrCard);
 
+  // ---- Privacy explanation (corrected) ----
+  // Distinguishes three separate things rather than one blanket "leaves this app's
+  // privacy boundary" statement: (1) what Next Step's own code does and doesn't send,
+  // (2) ordinary web-request metadata that loading any external script/site involves,
+  // and (3) that O*NET's own site handles the actual activity under its own policy.
+  // No claim here is made that hasn't been directly confirmed against O*NET's own
+  // published privacy statement (linked below) or basic, well-established web behavior.
+  const privacyCard=el('div','card');
+  privacyCard.appendChild(el('div','section-label', isEn()?'How your privacy works here':'C\u00f3mo funciona tu privacidad aqu\u00ed'));
+  const priv1=document.createElement('p'); priv1.style.margin='0 0 8px';
+  priv1.textContent = isEn()
+    ? "Next Step's own code does not intentionally send your reflection answers, identifying profile information, or any other Next Step app state to O*NET."
+    : 'El c\u00f3digo propio de Next Step no env\u00eda intencionalmente tus respuestas de reflexi\u00f3n, informaci\u00f3n de perfil que te identifique, ni ning\u00fan otro estado de la aplicaci\u00f3n Next Step a O*NET.';
+  privacyCard.appendChild(priv1);
+  const priv2=document.createElement('p'); priv2.style.margin='0 0 8px';
+  priv2.textContent = isEn()
+    ? "Loading the O*NET script and opening the O*NET site may transmit routine request information \u2014 such as your IP address, browser/device information, and the page you came from \u2014 the same way any website request does. This isn't something Next Step controls."
+    : 'Cargar el script de O*NET y abrir el sitio de O*NET puede transmitir informaci\u00f3n habitual de solicitud \u2014 como tu direcci\u00f3n IP, informaci\u00f3n de tu navegador/dispositivo, y la p\u00e1gina desde la que llegaste \u2014 de la misma manera en que lo hace cualquier solicitud a un sitio web. Esto no es algo que Next Step controle.';
+  privacyCard.appendChild(priv2);
+  const priv3=document.createElement('p'); priv3.style.margin='0';
+  priv3.innerHTML = isEn()
+    ? 'Your activity responses and results are handled entirely on O*NET\u2019s own site, under O*NET\u2019s own privacy practices, once you leave this screen. See <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">O*NET\u2019s official privacy statement</a>.'
+    : 'Tus respuestas de la actividad y tus resultados se manejan por completo en el sitio propio de O*NET, bajo las pr\u00e1cticas de privacidad de O*NET, una vez que sales de esta pantalla. Consulta la <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">declaraci\u00f3n oficial de privacidad de O*NET</a>.';
+  privacyCard.appendChild(priv3);
+  wrap.appendChild(privacyCard);
+
   const preserveCard=el('div','card');
   preserveCard.appendChild(el('p','', isEn()
-    ? "Heads up: this activity opens on the official O*NET site in a new tab, and your results stay there \u2014 Next Step doesn't see or save them automatically. If you'd like to bring your results to My Explore Profile or share them with your Navigator, take a screenshot of your results page, or write down your top interest areas somewhere you'll remember before you close that tab."
-    : 'Aviso: esta actividad se abre en el sitio oficial de O*NET en una pesta\u00f1a nueva, y tus resultados se quedan ah\u00ed \u2014 Next Step no los ve ni los guarda autom\u00e1ticamente. Si quieres llevar tus resultados a Mi Perfil de Exploraci\u00f3n o compartirlos con tu Navegador, toma una captura de pantalla de tu p\u00e1gina de resultados, o escribe tus \u00e1reas de inter\u00e9s principales en alg\u00fan lugar donde las recuerdes antes de cerrar esa pesta\u00f1a.'));
-  const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
-  btn.onclick=()=>{ state.screen='explore-practical'; render(); };
-  preserveCard.appendChild(btn);
+    ? "Heads up: this activity opens on the official O*NET site in a new tab, and your results stay there \u2014 Next Step doesn't see or save them automatically. If you'd like your top interest areas to appear in My Explore Profile or Share With My Navigator, come back to this screen after finishing the activity and enter them below."
+    : 'Aviso: esta actividad se abre en el sitio oficial de O*NET en una pesta\u00f1a nueva, y tus resultados se quedan ah\u00ed \u2014 Next Step no los ve ni los guarda autom\u00e1ticamente. Si quieres que tus \u00e1reas de inter\u00e9s principales aparezcan en Mi Perfil de Exploraci\u00f3n o en Compartir Con Mi Navegador, regresa a esta pantalla despu\u00e9s de terminar la actividad e ingr\u00e9salas abajo.'));
   wrap.appendChild(preserveCard);
 
+  // ---- Optional manual result entry ----
+  wrap.appendChild(onetManualEntryCard());
+
+  const contCard=el('div','card');
+  const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
+  btn.onclick=()=>{ state.screen='explore-practical'; render(); };
+  contCard.appendChild(btn);
+  wrap.appendChild(contCard);
+
   return wrap;
+}
+
+// Builds the optional "record your O*NET results" card: three ordered dropdowns
+// (First/Second/Third interest area), duplicate-proof, allow-fewer-than-three, with
+// edit/clear. Never calculates, ranks, interprets, or modifies the entries \u2014 stores
+// exactly the codes the student picks, in the order they picked them, in
+// state.results.onetInterests (part of the persisted results object).
+function onetManualEntryCard(){
+  if(!Array.isArray(state.results.onetInterests)) state.results.onetInterests = [];
+  const slots = [state.results.onetInterests[0]||'', state.results.onetInterests[1]||'', state.results.onetInterests[2]||''];
+
+  const card=el('div','card');
+  card.appendChild(el('div','section-label', isEn()?'Record Your Results (Optional)':'Registra Tus Resultados (Opcional)'));
+  const intro=document.createElement('p'); intro.style.margin='0 0 10px';
+  intro.textContent = isEn()
+    ? "After you finish the activity on O*NET's site, you can optionally type in your top interest areas here so they show up in My Explore Profile and Share With My Navigator. This is completely optional \u2014 you can enter one, two, three, or skip it."
+    : 'Despu\u00e9s de terminar la actividad en el sitio de O*NET, puedes escribir aqu\u00ed, de forma opcional, tus \u00e1reas de inter\u00e9s principales para que aparezcan en Mi Perfil de Exploraci\u00f3n y en Compartir Con Mi Navegador. Esto es completamente opcional \u2014 puedes ingresar una, dos, tres, o no ingresar ninguna.';
+  card.appendChild(intro);
+
+  const labelNote=document.createElement('p');
+  labelNote.style.margin='0 0 14px'; labelNote.style.fontSize='12px'; labelNote.style.opacity='0.8'; labelNote.style.fontStyle='italic';
+  labelNote.textContent = isEn()
+    ? 'Entered by you from your O*NET results. Next Step did not calculate these results.'
+    : 'Ingresado por ti a partir de tus resultados de O*NET. Next Step no calcul\u00f3 estos resultados.';
+  card.appendChild(labelNote);
+
+  const slotLabels = [
+    {en:'First interest area', es:'Primera \u00e1rea de inter\u00e9s'},
+    {en:'Second interest area', es:'Segunda \u00e1rea de inter\u00e9s'},
+    {en:'Third interest area', es:'Tercera \u00e1rea de inter\u00e9s'},
+  ];
+
+  const setSlot=(idx, code)=>{
+    const next = slots.slice(); next[idx] = code;
+    // Preserve order, drop empties, never re-rank or interpret \u2014 store exactly what was picked.
+    state.results.onetInterests = next.filter(c=>c);
+    saveExploreProgress();
+    render();
+  };
+
+  slots.forEach((currentVal, idx)=>{
+    const row=el('div',''); row.style.marginBottom='10px';
+    row.appendChild(el('div','section-label', isEn()?slotLabels[idx].en:slotLabels[idx].es));
+    const sel=document.createElement('select');
+    const noneOpt=document.createElement('option');
+    noneOpt.value=''; noneOpt.textContent = isEn()?'Not selected':'No seleccionado';
+    if(!currentVal) noneOpt.selected=true;
+    sel.appendChild(noneOpt);
+    ONET_MANUAL_INTEREST_OPTIONS.forEach(o=>{
+      const usedElsewhere = slots.some((v,j)=> j!==idx && v===o.code);
+      if(usedElsewhere && currentVal!==o.code) return; // prevent duplicate selections across slots
+      const opt=document.createElement('option');
+      opt.value=o.code; opt.textContent = isEn()?o.en:o.es;
+      if(currentVal===o.code) opt.selected=true;
+      sel.appendChild(opt);
+    });
+    sel.onchange=(e)=> setSlot(idx, e.target.value);
+    row.appendChild(sel);
+    card.appendChild(row);
+  });
+
+  const hasAny = state.results.onetInterests.length>0;
+  if(hasAny){
+    const clearBtn=el('button','secondary-btn', isEn()?'Clear all':'Borrar todo');
+    clearBtn.style.marginTop='4px';
+    clearBtn.onclick=()=>{ state.results.onetInterests=[]; saveExploreProgress(); render(); };
+    card.appendChild(clearBtn);
+
+    const preview=el('div',''); preview.style.marginTop='14px';
+    preview.appendChild(el('div','section-label', isEn()?'What you entered':'Lo que ingresaste'));
+    const list=el('ul','step-list');
+    state.results.onetInterests.forEach((code,i)=>{
+      const o = ONET_MANUAL_INTEREST_OPTIONS.find(x=>x.code===code);
+      const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${o?(isEn()?o.en:o.es):code}</span>`;
+      list.appendChild(li);
+    });
+    preview.appendChild(list);
+    const src=document.createElement('p'); src.style.margin='6px 0 0'; src.style.fontSize='12px'; src.style.opacity='0.75';
+    src.textContent = isEn()
+      ? 'Source: O*NET Interest Profiler, manually entered by the student.'
+      : 'Fuente: O*NET Interest Profiler, ingresado manualmente por el estudiante.';
+    preview.appendChild(src);
+    card.appendChild(preview);
+  }
+
+  return card;
 }
 
 function explorePracticalScreen(){
@@ -2600,6 +2740,12 @@ function buildExploreSummaryText(){
   lines.push(isEn()?'AP Next Step \u2014 Explore Summary':'AP Next Step \u2014 Resumen de Exploraci\u00f3n');
   if(state.results.values) lines.push((isEn()?'Top values: ':'Valores principales: ') + state.results.values.map(v=>isEn()?v.en:v.es).join(', '));
   if(state.results.strengths) lines.push((isEn()?'Top strengths: ':'Fortalezas principales: ') + state.results.strengths.map(s=>isEn()?s.en:s.es).join(', '));
+  // O*NET Interest Profiler results, manually entered by the student \u2014 never calculated,
+  // ranked, or interpreted by Next Step. Order preserved exactly as entered.
+  if(state.results.onetInterests && state.results.onetInterests.length>0){
+    const labels = state.results.onetInterests.map(code=>{ const o=ONET_MANUAL_INTEREST_OPTIONS.find(x=>x.code===code); return o?(isEn()?o.en:o.es):code; });
+    lines.push((isEn()?'O*NET interest areas (source: O*NET Interest Profiler, manually entered by the student): ':'\u00c1reas de inter\u00e9s de O*NET (fuente: O*NET Interest Profiler, ingresado manualmente por el estudiante): ') + labels.join(', '));
+  }
   if(state.results.practical && state.results.practical.mattersMost && state.results.practical.mattersMost.length>0){
     lines.push((isEn()?'What matters most: ':'Lo m\u00e1s importante: ') + state.results.practical.mattersMost.map(id=>{ const o=PRACTICAL_MATTERS_OPTIONS.find(x=>x.id===id); return o?(isEn()?o.en:o.es):id; }).join(', '));
   }
@@ -2672,6 +2818,21 @@ function pathProfileScreen(){
     {label:isEn()?'Interest areas':'Áreas de interés', val: state.results.interests? state.results.interests.map(r=>isEn()?r.en:r.es).join(', ') : (isEn()?'Not yet':'Aún no')},
   ];
   rows.forEach(r=>{ const row=el('div','summary-row'); row.innerHTML=`<span>${r.label}</span><b>${r.val}</b>`; summary.appendChild(row); });
+  // O*NET Interest Profiler results, manually entered by the student on the O*NET screen.
+  // Shown only when present (this step is optional, so "Not yet" here would wrongly imply
+  // it's a required assessment like the ones above). Never calculated or interpreted here.
+  if(state.results.onetInterests && state.results.onetInterests.length>0){
+    const onetRow=el('div','summary-row');
+    const labels = state.results.onetInterests.map(code=>{ const o=ONET_MANUAL_INTEREST_OPTIONS.find(x=>x.code===code); return o?(isEn()?o.en:o.es):code; });
+    onetRow.innerHTML = `<span>${isEn()?'O*NET interest areas':'Áreas de interés de O*NET'}</span><b>${labels.join(', ')}</b>`;
+    summary.appendChild(onetRow);
+    const onetSrc=document.createElement('p');
+    onetSrc.style.margin='2px 0 0'; onetSrc.style.fontSize='12px'; onetSrc.style.opacity='0.75';
+    onetSrc.textContent = isEn()
+      ? 'Source: O*NET Interest Profiler, manually entered by the student. Next Step did not calculate these results.'
+      : 'Fuente: O*NET Interest Profiler, ingresado manualmente por el estudiante. Next Step no calculó estos resultados.';
+    summary.appendChild(onetSrc);
+  }
   wrap.appendChild(summary);
 
   // ---- Things I Enjoy (Explore Phase 1, Screen B — session-only, shown only if answered) ----
@@ -5122,6 +5283,10 @@ function familyScreen(){
     if(state.results.strengths) glanceRows.push({label:isEn()?'Top strengths':'Fortalezas principales', val: state.results.strengths.map(s=>isEn()?s.en:s.es).join(', ')});
     if(state.results.personality) glanceRows.push({label:isEn()?'Personality':'Personalidad', val: `${state.results.personality.code} · ${state.results.personality.name}`});
     if(state.results.interests) glanceRows.push({label:isEn()?'Interest areas':'Áreas de interés', val: state.results.interests.map(r=>isEn()?r.en:r.es).join(', ')});
+    if(state.results.onetInterests && state.results.onetInterests.length>0){
+      const onetLabels = state.results.onetInterests.map(code=>{ const o=ONET_MANUAL_INTEREST_OPTIONS.find(x=>x.code===code); return o?(isEn()?o.en:o.es):code; });
+      glanceRows.push({label:isEn()?'O*NET interest areas':'Áreas de interés de O*NET', val: onetLabels.join(', ')});
+    }
     if(glanceRows.length){
       const glance=el('div','profile-summary-card');
       glance.style.margin='10px 0 4px';

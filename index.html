@@ -156,6 +156,11 @@
   .primary-btn { width:100%; background:var(--amber); color:var(--ap-ink-deep); border:none; border-radius:14px; padding:14px; font-weight:700; font-size:14px; font-family:var(--font-body); cursor:pointer; margin-top:4px; }
   .primary-btn:disabled { opacity:0.4; }
   .secondary-btn { width:100%; background:transparent; color:var(--teal-deep); border:1.5px solid var(--teal-deep); border-radius:14px; padding:12px; font-weight:700; font-size:13.5px; font-family:var(--font-body); cursor:pointer; margin-top:8px; }
+  /* Phase 1 nav/copy patch: plain-link style for Resources handoffs, distinct from
+     secondary-btn (bordered button) so it reads as "leaving to another page" rather
+     than an in-app action. Left-aligned to match surrounding paragraph text. */
+  .resources-link { display:block; color:var(--teal-deep); font-weight:600; font-size:13px; text-decoration:underline; margin-top:10px; cursor:pointer; }
+  .resources-link:visited { color:var(--teal-deep); }
 
   .field { margin-bottom:14px; }
   .field label { display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
@@ -1386,6 +1391,14 @@ function homeScreen(){
     wrap.appendChild(b);
   });
 
+  // Resources handoff: sits directly below the main route options (the stage banners
+  // above), before Persist/Redefine and the Checklist/Core Tracker cards. Opens the Wix
+  // Resources page in the SAME tab (approved Phase 1 nav/copy patch).
+  wrap.appendChild(resourcesHandoff(
+    'Looking for guides, printable checklists, or grade-by-grade planning? Visit our Resources page.',
+    '¿Buscas guías, listas imprimibles o planificación por grado escolar? Visita nuestra página de Recursos.'
+  ));
+
   // Both lines always show both languages. A family in the middle of a bad week
   // should not have to find the language toggle first.
   const homeLines = [
@@ -1539,6 +1552,12 @@ function exploreScreen(){
   intro.appendChild(el('p','', isEn()
     ? "Explore won't tell you what career to choose. It helps you notice what you enjoy and what matters to you, introduces you to real possibilities, and lets you change your mind as many times as you need. There's no one path here, so pick whichever door fits where you are right now."
     : 'Explorar no te va a decir qu\u00e9 carrera elegir. Te ayuda a notar lo que disfrutas y lo que te importa, te presenta posibilidades reales, y te deja cambiar de opini\u00f3n las veces que necesites. Aqu\u00ed no hay un solo camino, as\u00ed que elige la puerta que mejor te quede ahora mismo.'));
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  intro.appendChild(resourcesLink(
+    'Prefer to read at your own pace first? Find longer guides and resources on our website.',
+    '¿Prefieres leer a tu propio ritmo primero? Encuentra guías y recursos más completos en nuestro sitio web.'
+  ));
   wrap.appendChild(intro);
 
   if(hasAnyProgress){
@@ -3032,6 +3051,12 @@ function decideScreen(){
     const topCareer = CAREER_MAP[state.results.interests[0].code][0];
     intro.appendChild(el('p','', isEn()?`From your Path Profile: you're exploring paths like ${topCareer.en}.`:`De tu Perfil de Camino: estás explorando caminos como ${topCareer.es}.`));
   }
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  intro.appendChild(resourcesLink(
+    'Want a fuller guide for comparing options? Find more resources on our website.',
+    '¿Quieres una guía más completa para comparar opciones? Encuentra más recursos en nuestro sitio web.'
+  ));
   wrap.appendChild(intro);
 
   const tools = [
@@ -3242,6 +3267,13 @@ function decideAffordScreen(){
   const note=el('div','locked-card');
   note.innerHTML=`<div class="lock-ic">ℹ️</div><p>${isEn()?'This only subtracts the aid you enter from the cost you enter, it does not estimate financial aid or predict your FAFSA/TASFA result. Bring your actual FAFSA/TASFA Student Aid Report to Clínica for real numbers.':'Esto solamente resta la ayuda que ingresas del costo que ingresas, no estima ayuda financiera ni predice tu resultado de FAFSA/TASFA. Trae tu Reporte de Ayuda Estudiantil real a la Clínica para números precisos.'}</p>`;
   wrap.appendChild(note);
+
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  wrap.appendChild(resourcesHandoff(
+    'Want more guidance on this topic? Visit our Resources page.',
+    '¿Quieres más orientación sobre este tema? Visita nuestra página de Recursos.'
+  ));
 
   return wrap;
 }
@@ -3845,6 +3877,12 @@ function occExplorerScreen(){
   } else {
     results.forEach(o=>wrap.appendChild(occCard(o)));
   }
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  wrap.appendChild(resourcesHandoff(
+    'Want more guidance on this topic? Visit our Resources page.',
+    '¿Quieres más orientación sobre este tema? Visita nuestra página de Recursos.'
+  ));
   return wrap;
 }
 
@@ -4126,6 +4164,12 @@ function applyScreen(){
   introCard.appendChild(el('p','', isEn()
     ? "Applying to college involves a few different things, paying for it, actually applying, and sometimes other paths like the military or a trade program. Let's go through this together, one part at a time."
     : 'Aplicar a la universidad incluye varias cosas, pagarla, aplicar en sí, y a veces otros caminos como el ejército o un programa técnico. Vamos a verlo juntos, una parte a la vez.'));
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  introCard.appendChild(resourcesLink(
+    'Need the full checklist or a grade-by-grade guide? Visit our Resources page or open the Family Checklist from the Family tab.',
+    '¿Necesitas la lista completa o una guía por grado escolar? Visita nuestra página de Recursos o abre la Lista Familiar desde la pestaña Familia.'
+  ));
   wrap.appendChild(introCard);
 
   APPLY_TOPIC_ORDER.forEach(key=>{
@@ -4202,6 +4246,13 @@ function applyTopicScreen(){
     });
     wrap.appendChild(guideCard);
   }
+
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  wrap.appendChild(resourcesHandoff(
+    'Want more guidance on this topic? Visit our Resources page.',
+    '¿Quieres más orientación sobre este tema? Visita nuestra página de Recursos.'
+  ));
 
   return wrap;
 }
@@ -4469,6 +4520,13 @@ function scholarshipsHubScreen(){
   const resultsContainer=el('div'); resultsContainer.id='scholarship-results';
   wrap.appendChild(resultsContainer);
   renderScholarshipResultsInto(resultsContainer);
+
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  wrap.appendChild(resourcesHandoff(
+    'Want more guidance on this topic? Visit our Resources page.',
+    '¿Quieres más orientación sobre este tema? Visita nuestra página de Recursos.'
+  ));
 
   return wrap;
 }
@@ -5080,6 +5138,33 @@ const CORE_TRACKER_URL = './core-tracker/';
 // working with Anchored Pathways. This is the real published Wix My AP member page —
 // confirmed with the site owner. If it ever moves, update only this constant.
 const MY_AP_URL = 'https://www.anchoredpathways.org/my-pathway';
+// Public Wix Resources page: long-form guides, printable checklists, and grade-by-grade
+// planning material. Unlike FAMILY_CHECKLIST_URL/CORE_TRACKER_URL/MY_AP_URL (which
+// intentionally open a separate tool or account in a NEW tab), Resources handoff links
+// use this URL as a plain href with no target attribute, so they open in the SAME
+// browser tab -- this is meant to read as moving to another page of the same overall
+// site, not popping open a separate tool. Approved as part of the Phase 1 nav/copy patch.
+const RESOURCES_URL = 'https://www.anchoredpathways.org/resources';
+// Shared Resources-handoff link builder. A single function keeps every instance of this
+// link (Home, each hub intro, the four tool screens) visually and behaviorally identical,
+// and means the URL or link styling only ever needs to change in one place.
+function resourcesLink(enText, esText){
+  const a = document.createElement('a');
+  a.className = 'resources-link';
+  a.href = RESOURCES_URL;
+  a.textContent = isEn() ? enText : esText;
+  return a;
+}
+// Standalone wrapper for placements that sit directly in a screen's top-level wrap
+// (Home, and the four tool screens below) rather than nested inside an existing .card,
+// so horizontal spacing still lines up with the surrounding cards (.card uses
+// margin:12px 18px).
+function resourcesHandoff(enText, esText){
+  const outer = el('div');
+  outer.style.margin = '4px 18px 16px';
+  outer.appendChild(resourcesLink(enText, esText));
+  return outer;
+}
 // Prefill entry IDs for the "Family ID (optional)" question added to each form.
 // If getOrCreateFamilyId() returns null (localStorage unavailable), the forms
 // open with no prefill — they still work fine without it since the question is optional.
@@ -5182,6 +5267,12 @@ function familyScreen(){
   card.appendChild(el('p','', isEn()
     ? "Explore progress is saved on this phone or computer, so it's here when you come back. This isn't an account, and it isn't shared with other devices."
     : 'El progreso de Explorar se guarda en este teléfono o computadora, para que esté aquí cuando regreses. Esto no es una cuenta, y no se comparte con otros dispositivos.'));
+  // Resources handoff: approved Phase 1 nav/copy patch. Opens the Wix Resources page in
+  // the SAME tab.
+  card.appendChild(resourcesLink(
+    'This tab keeps your saved progress and tools for you and your family. For guides, printable PDFs, and general information, visit our website.',
+    'Esta pestaña guarda tu progreso y herramientas para ti y tu familia. Para guías, PDF imprimibles e información general, visita nuestro sitio web.'
+  ));
   wrap.appendChild(card);
 
   // Family ID: a local reference code for manual matching by a Navigator, not an account.
@@ -5273,9 +5364,15 @@ function familyScreen(){
   const card6=el('div','card');
   card6.appendChild(el('div','section-label', isEn()?'My AP':'Mi AP'));
   card6.appendChild(el('h2','', isEn()?'Already working with Anchored Pathways?':'¿Ya estás trabajando con Anchored Pathways?'));
+  // Copy revised in the Phase 1 nav/copy patch: the original itemized feature list
+  // ("personal plan, next steps, applications, financial aid status, scholarships,
+  // documents, and AP support") was asserted only in a code comment as "confirmed with
+  // the site owner" and could not be independently verified from this repository against
+  // the live Wix Members Area. This wording states only what's structurally true: My AP
+  // is a real, separate, authenticated account and support destination.
   card6.appendChild(el('p','', isEn()
-    ? 'Sign in to My AP to see your personal plan, next steps, applications, financial aid status, scholarships, documents, and AP support.'
-    : 'Inicia sesión en Mi AP para ver tu plan personal, próximos pasos, solicitudes, estado de ayuda financiera, becas, documentos y apoyo de AP.'));
+    ? 'Sign in to My AP for your personalized Anchored Pathways account, resources, and support.'
+    : 'Inicia sesión en Mi AP para acceder a tu cuenta personalizada, recursos y apoyo de Anchored Pathways.'));
   const myApUrlPending = MY_AP_URL === 'PASTE_CURRENT_MY_AP_URL_HERE';
   const btn5=el('button','secondary-btn', isEn()
     ? (myApUrlPending ? 'Open My AP (link coming soon)' : 'Open My AP')

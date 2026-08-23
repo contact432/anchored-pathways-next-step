@@ -5262,6 +5262,11 @@ function familyScreen(){
   wrap.appendChild(screenHeader(isEn()?'Family':'Familia'));
 
   const card=el('div','card');
+  // Phase 2 my-plan handoff patch: names this device-local progress area "My Plan" /
+  // "Mi Plan" so it reads as a distinct, known destination rather than an unnamed tab
+  // section. Does not rename the "Family" bottom-nav tab itself, and does not touch
+  // Clínica/Family Checklist/Core Tracker below, which remain separate tools.
+  card.appendChild(el('div','section-label', isEn()?'My Plan':'Mi Plan'));
   card.appendChild(el('div','pill', isEn()?'SAVED ON THIS DEVICE':'GUARDADO EN ESTE DISPOSITIVO'));
   card.appendChild(el('h2','', isEn()?'Your progress stays with you':'Tu progreso se queda contigo'));
   card.appendChild(el('p','', isEn()
@@ -5361,33 +5366,22 @@ function familyScreen(){
 
   // My AP: hand-off to the authenticated, personalized Wix dashboard for anyone already
   // working with Anchored Pathways. Next Step itself stays public/no-login.
+  // Phase 2 my-plan handoff patch: heading/body/secondary copy replaced with the
+  // approved bilingual handoff text. MY_AP_URL is the verified, live Wix My AP URL
+  // (confirmed, not a placeholder), so the old "link coming soon" pending-state branch
+  // is removed as dead code rather than left unreachable.
   const card6=el('div','card');
   card6.appendChild(el('div','section-label', isEn()?'My AP':'Mi AP'));
-  card6.appendChild(el('h2','', isEn()?'Already working with Anchored Pathways?':'¿Ya estás trabajando con Anchored Pathways?'));
-  // Copy revised in the Phase 1 nav/copy patch: the original itemized feature list
-  // ("personal plan, next steps, applications, financial aid status, scholarships,
-  // documents, and AP support") was asserted only in a code comment as "confirmed with
-  // the site owner" and could not be independently verified from this repository against
-  // the live Wix Members Area. This wording states only what's structurally true: My AP
-  // is a real, separate, authenticated account and support destination.
+  card6.appendChild(el('h2','', isEn()?'Continue with My AP':'Continúe con Mi AP'));
   card6.appendChild(el('p','', isEn()
-    ? 'Sign in to My AP for your personalized Anchored Pathways account, resources, and support.'
-    : 'Inicia sesión en Mi AP para acceder a tu cuenta personalizada, recursos y apoyo de Anchored Pathways.'));
-  const myApUrlPending = MY_AP_URL === 'PASTE_CURRENT_MY_AP_URL_HERE';
-  const btn5=el('button','secondary-btn', isEn()
-    ? (myApUrlPending ? 'Open My AP (link coming soon)' : 'Open My AP')
-    : (myApUrlPending ? 'Abrir Mi AP (enlace próximamente)' : 'Abrir Mi AP'));
-  if(myApUrlPending){
-    btn5.disabled = true;
-    btn5.style.opacity = '0.55';
-    btn5.style.cursor = 'not-allowed';
-  } else {
-    btn5.onclick=()=>{ window.open(MY_AP_URL, '_blank', 'noopener,noreferrer'); };
-  }
+    ? 'My Plan is saved only on this device. If you are working with Anchored Pathways, sign in to My AP to view the next steps, documents, applications, financial aid information, and follow-up details shared with you by your AP Navigator.'
+    : 'Mi Plan se guarda solamente en este dispositivo. Si está trabajando con Anchored Pathways, inicie sesión en Mi AP para ver los próximos pasos, documentos, solicitudes, información de ayuda financiera y detalles de seguimiento compartidos por su Navegador de AP.'));
+  const btn5=el('button','secondary-btn', isEn()?'Open My AP':'Abrir Mi AP');
+  btn5.onclick=()=>{ window.open(MY_AP_URL, '_blank', 'noopener,noreferrer'); };
   card6.appendChild(btn5);
   card6.appendChild(el('p','es', isEn()
-    ? 'Next Step stays available without an account for exploring options, comparing pathways, and learning how the process works.'
-    : 'Next Step sigue disponible sin una cuenta para explorar opciones, comparar caminos y aprender cómo funciona el proceso.'));
+    ? 'AP: Next Step remains available without an account for exploring options and comparing pathways.'
+    : 'AP: Next Step sigue disponible sin una cuenta para explorar opciones y comparar caminos.'));
   wrap.appendChild(card6);
 
   return wrap;

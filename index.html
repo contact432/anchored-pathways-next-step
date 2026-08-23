@@ -2001,6 +2001,9 @@ const ONET_ACTIVITY_URL = { en: 'https://onetinterestprofiler.org/p/activities',
 // Existing, already-implemented O*NET privacy statement URL -- reused verbatim inside the
 // collapsed "About O*NET & Privacy" disclosure below. Not a new or invented URL.
 const ONET_PRIVACY_URL = 'https://www.onetcenter.org/privacy.html';
+// O*NET Web Services home -- the required attribution below links its "O*NET Web
+// Services" mention here.
+const ONET_WEB_SERVICES_URL = 'https://services.onetcenter.org/';
 
 function exploreOnetScreen(){
   const wrap=el('div');
@@ -2027,7 +2030,7 @@ function exploreOnetScreen(){
   ctaBtn.className='primary-btn';
   ctaBtn.style.display='block'; ctaBtn.style.textAlign='center'; ctaBtn.style.textDecoration='none'; ctaBtn.style.boxSizing='border-box';
   ctaBtn.href = isEn() ? ONET_ACTIVITY_URL.en : ONET_ACTIVITY_URL.es;
-  ctaBtn.target='_blank'; ctaBtn.rel='noopener';
+  ctaBtn.target='_blank'; ctaBtn.rel='noopener noreferrer';
   ctaBtn.textContent = isEn() ? 'Start the O*NET Interest Profiler' : 'Comenzar el Perfil de Intereses O*NET';
   ctaCard.appendChild(ctaBtn);
 
@@ -2047,6 +2050,10 @@ function exploreOnetScreen(){
   // ---- Optional manual result entry ("Save Your Results") ----
   wrap.appendChild(onetManualEntryCard());
 
+  // ---- Required O*NET Web Services attribution: always visible (not collapsed), directly
+  // beneath the activity/save-results area, per USDOL/ETA attribution requirements. ----
+  wrap.appendChild(onetAttributionNotice());
+
   // ---- About O*NET & Privacy: collapsed by default, out of the main activity flow ----
   wrap.appendChild(onetPrivacyDisclosure());
 
@@ -2059,11 +2066,29 @@ function exploreOnetScreen(){
   return wrap;
 }
 
-// Collapsed-by-default "About O*NET & Privacy" disclosure. Holds the required O*NET
-// attribution (exact license wording, preserved verbatim from the prior always-visible
-// card) plus the privacy explanation and the existing official O*NET privacy statement
-// link -- moved out of the main activity flow (per the Explore Your Interests redesign),
-// not deleted.
+// Required O*NET Web Services attribution -- always visible directly beneath the
+// activity/save-results area (not inside the collapsed disclosure, since USDOL/ETA
+// attribution must remain visible regardless of whether a student expands the privacy
+// section). "O*NET Web Services" links to the O*NET Web Services home. In Spanish, the
+// required English attribution is shown unchanged, followed by a Spanish explanation.
+function onetAttributionNotice(){
+  const card=el('div','card');
+  const attrEn=document.createElement('p');
+  attrEn.style.fontSize='12px'; attrEn.style.opacity='0.75'; attrEn.style.margin='0';
+  attrEn.innerHTML = 'This application incorporates information from <a href="'+ONET_WEB_SERVICES_URL+'" target="_blank" rel="noopener noreferrer">O*NET Web Services</a> by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET\u00ae is a trademark of USDOL/ETA.';
+  card.appendChild(attrEn);
+  if(!isEn()){
+    const attrEs=document.createElement('p');
+    attrEs.style.fontSize='12px'; attrEs.style.opacity='0.75'; attrEs.style.margin='6px 0 0';
+    attrEs.textContent = 'Esta aplicaci\u00f3n incluye informaci\u00f3n de O*NET Web Services del Departamento de Trabajo de EE. UU. (USDOL/ETA). O*NET\u00ae es una marca registrada de USDOL/ETA.';
+    card.appendChild(attrEs);
+  }
+  return card;
+}
+
+// Collapsed-by-default "About O*NET & Privacy" disclosure. Holds the privacy explanation
+// plus the existing official O*NET privacy statement link -- the required attribution
+// lives outside this disclosure in onetAttributionNotice() so it stays always visible.
 function onetPrivacyDisclosure(){
   const card=el('div','card');
   const details=document.createElement('details');
@@ -2081,23 +2106,11 @@ function onetPrivacyDisclosure(){
     : 'Next Step no recibe ni guarda autom\u00e1ticamente tus respuestas o resultados de O*NET. Cuando abres el Perfil de Intereses, tu actividad ocurre en el sitio web de O*NET y est\u00e1 sujeta a las pr\u00e1cticas de privacidad de O*NET.';
   body.appendChild(p1);
 
-  // Required O*NET attribution -- exact license wording preserved verbatim.
-  const attrEn=document.createElement('p');
-  attrEn.style.fontSize='12px'; attrEn.style.opacity='0.75'; attrEn.style.margin='0 0 10px';
-  attrEn.textContent = 'This site incorporates information from O*NET Web Services by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET\u00ae is a trademark of USDOL/ETA.';
-  body.appendChild(attrEn);
-  if(!isEn()){
-    const attrEs=document.createElement('p');
-    attrEs.style.fontSize='12px'; attrEs.style.opacity='0.75'; attrEs.style.margin='0 0 10px';
-    attrEs.textContent = 'Este sitio incluye informaci\u00f3n de O*NET Web Services del Departamento de Trabajo de EE. UU. (USDOL/ETA). O*NET\u00ae es una marca registrada de USDOL/ETA.';
-    body.appendChild(attrEs);
-  }
-
   const link=document.createElement('a');
   link.className='resources-link';
   link.style.marginTop='0';
   link.href = ONET_PRIVACY_URL;
-  link.target='_blank'; link.rel='noopener';
+  link.target='_blank'; link.rel='noopener noreferrer';
   link.textContent = isEn() ? "View O*NET\u2019s Privacy Statement" : "Ver la Declaraci\u00f3n de Privacidad de O*NET";
   body.appendChild(link);
 

@@ -162,6 +162,14 @@
   .resources-link { display:block; color:var(--teal-deep); font-weight:600; font-size:13px; text-decoration:underline; margin-top:10px; cursor:pointer; }
   .resources-link:visited { color:var(--teal-deep); }
 
+  /* Collapsed-by-default disclosure used for "About O*NET & Privacy". Native <details>/
+     <summary> so it needs no extra JS state -- collapsed unless the student taps it. */
+  details.onet-privacy-details summary { list-style:none; cursor:pointer; font-size:12px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:var(--ink-soft); }
+  details.onet-privacy-details summary::-webkit-details-marker { display:none; }
+  details.onet-privacy-details summary::after { content:'\203a'; float:right; font-size:16px; line-height:1; }
+  details.onet-privacy-details[open] summary::after { content:'\2304'; }
+  details.onet-privacy-details .onet-privacy-body { margin-top:12px; }
+
   .field { margin-bottom:14px; }
   .field label { display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
   .field input, .field select, .field textarea { width:100%; padding:12px 13px; border-radius:12px; border:1.5px solid #E7E2D6; font-family:var(--font-body); font-size:14px; background:var(--white); color:var(--ink); }
@@ -1583,6 +1591,14 @@ function exploreScreen(){
     {key:'family', titleEn:'We want to talk about this as a family', titleEs:'Queremos hablar de esto en familia',
      subEn:'Explore Together \u2014 optional reflections for a parent or family member, alongside yours.', subEs:'Explora en Familia \u2014 reflexiones opcionales para un padre, madre o familiar, junto con las tuyas.',
      onClick:()=>{ state.exploreRoute='family'; state.screen='explore-family'; }},
+    // Added so the O*NET Interest Profiler is directly discoverable as a primary Explore
+    // activity -- same triage-card treatment as the three routes above -- rather than only
+    // reachable a few steps into the "Explore for Me" sequence. onetReturnTo controls where
+    // the back chevron on the O*NET screen goes; explore-reflect's own Continue button sets
+    // it back to 'explore-reflect' when entered via that sequence instead.
+    {key:'interests', titleEn:'Explore Your Interests', titleEs:'Explora Tus Intereses',
+     subEn:'Take the O*NET Interest Profiler to see what kinds of work interest you.', subEs:'Toma el Perfil de Intereses O*NET para ver qu\u00e9 tipos de trabajo te interesan.',
+     onClick:()=>{ state.onetReturnTo='explore'; state.screen='explore-onet'; }},
   ];
   routes.forEach(r=>{
     const row=el('button','triage-card');
@@ -1959,6 +1975,9 @@ function exploreReflectScreen(){
   btn.onclick=()=>{
     state.enjoyReflection = enjoyTa.value.trim();
     state.curiousField = curiousTa.value.trim();
+    // Entered via the existing sequential flow, so the O*NET screen's back chevron
+    // should return here rather than to the main Explore hub.
+    state.onetReturnTo='explore-reflect';
     state.screen='explore-onet'; render();
   };
   curiousCard.appendChild(btn);
@@ -1979,16 +1998,30 @@ function exploreReflectScreen(){
    O*NET, and no O*NET code runs inside this app at any point \u2014 the O*NET
    site is only ever contacted after the student explicitly taps the CTA below. */
 const ONET_ACTIVITY_URL = { en: 'https://onetinterestprofiler.org/p/activities', es: 'https://onetinterestprofiler.org/es/p/activities' };
+// Existing, already-implemented O*NET privacy statement URL -- reused verbatim inside the
+// collapsed "About O*NET & Privacy" disclosure below. Not a new or invented URL.
+const ONET_PRIVACY_URL = 'https://www.onetcenter.org/privacy.html';
+// O*NET Web Services home -- the required attribution below links its "O*NET Web
+// Services" mention here.
+const ONET_WEB_SERVICES_URL = 'https://services.onetcenter.org/';
 
 function exploreOnetScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'A Deeper Interest Tool':'Una Herramienta de Intereses M\u00e1s Profunda','explore-reflect'));
+  // Promoted to a primary, equally-discoverable Explore activity (see the 'interests' entry
+  // in exploreScreen()'s routes list) instead of a secondary/hidden "deeper tool" reached only
+  // partway through the Explore-for-Me sequence. state.onetReturnTo lets each entry point send
+  // the back chevron to the right place: the main Explore hub when opened directly, or back to
+  // the reflection step when reached via that existing sequence.
+  wrap.appendChild(screenHeader(isEn()?'Explore Your Interests':'Explora Tus Intereses', state.onetReturnTo||'explore-reflect'));
 
   const introCard=el('div','card');
   introCard.appendChild(el('h2','', isEn()?'What kinds of work sound interesting to you?':'\u00bfQu\u00e9 tipos de trabajo te parecen interesantes?'));
   introCard.appendChild(el('p','', isEn()
-    ? "This activity includes about 30 short questions about work activities. Your results can help you notice patterns in what interests you and identify careers worth exploring. They do not determine what career you should choose."
-    : 'Esta actividad incluye aproximadamente 30 preguntas breves sobre diferentes actividades laborales. Tus resultados pueden ayudarte a reconocer patrones en tus intereses e identificar carreras que vale la pena explorar. No determinan qu\u00e9 carrera debes elegir.'));
+    ? "Take the O*NET Interest Profiler to explore the types of work activities that interest you. You\u2019ll answer about 30 short questions and get three interest areas that can help you discover careers worth exploring."
+    : 'Toma el Perfil de Intereses O*NET para explorar los tipos de actividades laborales que te interesan. Responder\u00e1s aproximadamente 30 preguntas breves y obtendr\u00e1s tres \u00e1reas de inter\u00e9s que pueden ayudarte a descubrir carreras que vale la pena explorar.'));
+  introCard.appendChild(el('p','', isEn()
+    ? "Your results are a starting point\u2014not a decision about what career you should choose."
+    : 'Tus resultados son un punto de partida, no una decisi\u00f3n sobre qu\u00e9 carrera debes elegir.'));
   wrap.appendChild(introCard);
 
   // ---- Direct-link CTA to the official O*NET Interest Profiler ----
@@ -1997,68 +2030,32 @@ function exploreOnetScreen(){
   ctaBtn.className='primary-btn';
   ctaBtn.style.display='block'; ctaBtn.style.textAlign='center'; ctaBtn.style.textDecoration='none'; ctaBtn.style.boxSizing='border-box';
   ctaBtn.href = isEn() ? ONET_ACTIVITY_URL.en : ONET_ACTIVITY_URL.es;
-  ctaBtn.target='_blank'; ctaBtn.rel='noopener';
+  ctaBtn.target='_blank'; ctaBtn.rel='noopener noreferrer';
   ctaBtn.textContent = isEn() ? 'Start the O*NET Interest Profiler' : 'Comenzar el Perfil de Intereses O*NET';
   ctaCard.appendChild(ctaBtn);
 
-  const ctaNote=document.createElement('p');
-  ctaNote.style.margin='12px 0 0'; ctaNote.style.fontSize='14px';
-  ctaNote.textContent = isEn()
-    ? "This opens the official O*NET site in a new tab. It includes about 30 questions. When you're done, come back here \u2014 you can optionally record the three interest areas shown in your results below. Next Step does not automatically see or save your O*NET responses or results."
-    : 'Esto abre el sitio oficial de O*NET en una pesta\u00f1a nueva. Incluye aproximadamente 30 preguntas. Cuando termines, regresa aqu\u00ed \u2014 puedes registrar de forma opcional las tres \u00e1reas de inter\u00e9s que aparezcan en tus resultados, abajo. Next Step no ve ni guarda autom\u00e1ticamente tus respuestas o resultados de O*NET.';
-  ctaCard.appendChild(ctaNote);
+  const opensNote=document.createElement('p');
+  opensNote.style.margin='10px 0 0'; opensNote.style.fontSize='12px'; opensNote.style.opacity='0.8'; opensNote.style.fontStyle='italic';
+  opensNote.textContent = isEn() ? 'Opens the official O*NET site in a new tab.' : 'Esto abre el sitio oficial de O*NET en una pesta\u00f1a nueva.';
+  ctaCard.appendChild(opensNote);
+
+  const comeBackNote=document.createElement('p');
+  comeBackNote.style.margin='10px 0 0'; comeBackNote.style.fontSize='14px';
+  comeBackNote.textContent = isEn()
+    ? "When you\u2019re finished, come back here if you\u2019d like to save your top interest areas to your Explore Profile."
+    : 'Cuando termines, regresa aqu\u00ed si quieres guardar tus \u00e1reas de inter\u00e9s principales en tu Perfil de Exploraci\u00f3n.';
+  ctaCard.appendChild(comeBackNote);
   wrap.appendChild(ctaCard);
 
-  // Required O*NET attribution (exact license wording preserved verbatim; a
-  // Spanish gloss is added alongside for readability, never replacing it).
-  const attrCard=el('div','card');
-  const attrEn=document.createElement('p');
-  attrEn.style.fontSize='12px'; attrEn.style.opacity='0.75'; attrEn.style.margin='0';
-  attrEn.textContent = 'This site incorporates information from O*NET Web Services by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET\u00ae is a trademark of USDOL/ETA.';
-  attrCard.appendChild(attrEn);
-  if(!isEn()){
-    const attrEs=document.createElement('p');
-    attrEs.style.fontSize='12px'; attrEs.style.opacity='0.75'; attrEs.style.margin='6px 0 0';
-    attrEs.textContent = 'Este sitio incluye informaci\u00f3n de O*NET Web Services del Departamento de Trabajo de EE. UU. (USDOL/ETA). O*NET\u00ae es una marca registrada de USDOL/ETA.';
-    attrCard.appendChild(attrEs);
-  }
-  wrap.appendChild(attrCard);
-
-  // ---- Privacy explanation (revised for the direct-link architecture) ----
-  // Distinguishes three separate things: (1) what Next Step's own code does and
-  // doesn't send, (2) that O*NET only receives routine request metadata AFTER the
-  // student chooses to open the link (not when this screen loads, since no O*NET
-  // script or resource is fetched by this screen at all), and (3) that O*NET's own
-  // site handles the actual activity under its own policy. No claim here is made
-  // that hasn't been directly confirmed against O*NET's own published privacy
-  // statement (linked below) or basic, well-established web behavior.
-  const privacyCard=el('div','card');
-  privacyCard.appendChild(el('div','section-label', isEn()?'How your privacy works here':'C\u00f3mo funciona tu privacidad aqu\u00ed'));
-  const priv1=document.createElement('p'); priv1.style.margin='0 0 8px';
-  priv1.textContent = isEn()
-    ? "Next Step's own code does not intentionally send your reflection answers, identifying profile information, or any other Next Step app state to O*NET."
-    : 'El c\u00f3digo propio de Next Step no env\u00eda intencionalmente tus respuestas de reflexi\u00f3n, informaci\u00f3n de perfil que te identifique, ni ning\u00fan otro estado de la aplicaci\u00f3n Next Step a O*NET.';
-  privacyCard.appendChild(priv1);
-  const priv2=document.createElement('p'); priv2.style.margin='0 0 8px';
-  priv2.textContent = isEn()
-    ? "This screen does not load any O*NET script or contact O*NET's site on its own. O*NET only receives routine request information \u2014 such as your IP address, browser/device information, and the page you came from \u2014 after you choose to tap the button above and open its site, the same way any website request does. This isn't something Next Step controls."
-    : 'Esta pantalla no carga ning\u00fan script de O*NET ni contacta el sitio de O*NET por su cuenta. O*NET solo recibe informaci\u00f3n habitual de solicitud \u2014 como tu direcci\u00f3n IP, informaci\u00f3n de tu navegador/dispositivo, y la p\u00e1gina desde la que llegaste \u2014 despu\u00e9s de que elijas tocar el bot\u00f3n de arriba y abras su sitio, de la misma manera en que lo hace cualquier solicitud a un sitio web. Esto no es algo que Next Step controle.';
-  privacyCard.appendChild(priv2);
-  const priv3=document.createElement('p'); priv3.style.margin='0';
-  priv3.innerHTML = isEn()
-    ? 'Your activity responses and results are handled entirely on O*NET\u2019s own site, under O*NET\u2019s own privacy practices, once you open that link. See <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">O*NET\u2019s official privacy statement</a>.'
-    : 'Tus respuestas de la actividad y tus resultados se manejan por completo en el sitio propio de O*NET, bajo las pr\u00e1cticas de privacidad de O*NET, una vez que abras ese enlace. Consulta la <a href="https://www.onetcenter.org/privacy.html" target="_blank" rel="noopener">declaraci\u00f3n oficial de privacidad de O*NET</a>.';
-  privacyCard.appendChild(priv3);
-  wrap.appendChild(privacyCard);
-
-  const preserveCard=el('div','card');
-  preserveCard.appendChild(el('p','', isEn()
-    ? "Heads up: this activity opens on the official O*NET site in a new tab, and your results stay there \u2014 Next Step doesn't see or save them automatically. If you'd like your top interest areas to appear in My Explore Profile or Share With My Navigator, come back to this screen after finishing the activity and enter them below."
-    : 'Aviso: esta actividad se abre en el sitio oficial de O*NET en una pesta\u00f1a nueva, y tus resultados se quedan ah\u00ed \u2014 Next Step no los ve ni los guarda autom\u00e1ticamente. Si quieres que tus \u00e1reas de inter\u00e9s principales aparezcan en Mi Perfil de Exploraci\u00f3n o en Compartir Con Mi Navegador, regresa a esta pantalla despu\u00e9s de terminar la actividad e ingr\u00e9salas abajo.'));
-  wrap.appendChild(preserveCard);
-
-  // ---- Optional manual result entry ----
+  // ---- Optional manual result entry ("Save Your Results") ----
   wrap.appendChild(onetManualEntryCard());
+
+  // ---- Required O*NET Web Services attribution: always visible (not collapsed), directly
+  // beneath the activity/save-results area, per USDOL/ETA attribution requirements. ----
+  wrap.appendChild(onetAttributionNotice());
+
+  // ---- About O*NET & Privacy: collapsed by default, out of the main activity flow ----
+  wrap.appendChild(onetPrivacyDisclosure());
 
   const contCard=el('div','card');
   const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
@@ -2067,6 +2064,59 @@ function exploreOnetScreen(){
   wrap.appendChild(contCard);
 
   return wrap;
+}
+
+// Required O*NET Web Services attribution -- always visible directly beneath the
+// activity/save-results area (not inside the collapsed disclosure, since USDOL/ETA
+// attribution must remain visible regardless of whether a student expands the privacy
+// section). "O*NET Web Services" links to the O*NET Web Services home. In Spanish, the
+// required English attribution is shown unchanged, followed by a Spanish explanation.
+function onetAttributionNotice(){
+  const card=el('div','card');
+  const attrEn=document.createElement('p');
+  attrEn.style.fontSize='12px'; attrEn.style.opacity='0.75'; attrEn.style.margin='0';
+  attrEn.innerHTML = 'This application incorporates information from <a href="'+ONET_WEB_SERVICES_URL+'" target="_blank" rel="noopener noreferrer">O*NET Web Services</a> by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET\u00ae is a trademark of USDOL/ETA.';
+  card.appendChild(attrEn);
+  if(!isEn()){
+    const attrEs=document.createElement('p');
+    attrEs.style.fontSize='12px'; attrEs.style.opacity='0.75'; attrEs.style.margin='6px 0 0';
+    attrEs.textContent = 'Esta aplicaci\u00f3n incluye informaci\u00f3n de O*NET Web Services del Departamento de Trabajo de EE. UU. (USDOL/ETA). O*NET\u00ae es una marca registrada de USDOL/ETA.';
+    card.appendChild(attrEs);
+  }
+  return card;
+}
+
+// Collapsed-by-default "About O*NET & Privacy" disclosure. Holds the privacy explanation
+// plus the existing official O*NET privacy statement link -- the required attribution
+// lives outside this disclosure in onetAttributionNotice() so it stays always visible.
+function onetPrivacyDisclosure(){
+  const card=el('div','card');
+  const details=document.createElement('details');
+  details.className='onet-privacy-details';
+  const summary=document.createElement('summary');
+  summary.textContent = isEn()?'About O*NET & Privacy':'Sobre O*NET y Privacidad';
+  details.appendChild(summary);
+
+  const body=document.createElement('div');
+  body.className='onet-privacy-body';
+
+  const p1=document.createElement('p'); p1.style.margin='0 0 10px'; p1.style.fontSize='13.5px';
+  p1.textContent = isEn()
+    ? "Next Step does not automatically receive or save your O*NET responses or results. When you open the Interest Profiler, your activity takes place on O*NET\u2019s website and is subject to O*NET\u2019s privacy practices."
+    : 'Next Step no recibe ni guarda autom\u00e1ticamente tus respuestas o resultados de O*NET. Cuando abres el Perfil de Intereses, tu actividad ocurre en el sitio web de O*NET y est\u00e1 sujeta a las pr\u00e1cticas de privacidad de O*NET.';
+  body.appendChild(p1);
+
+  const link=document.createElement('a');
+  link.className='resources-link';
+  link.style.marginTop='0';
+  link.href = ONET_PRIVACY_URL;
+  link.target='_blank'; link.rel='noopener noreferrer';
+  link.textContent = isEn() ? "View O*NET\u2019s Privacy Statement" : "Ver la Declaraci\u00f3n de Privacidad de O*NET";
+  body.appendChild(link);
+
+  details.appendChild(body);
+  card.appendChild(details);
+  return card;
 }
 
 // Builds the optional "record your O*NET results" card: three ordered dropdowns
@@ -2079,19 +2129,12 @@ function onetManualEntryCard(){
   const slots = [state.results.onetInterests[0]||'', state.results.onetInterests[1]||'', state.results.onetInterests[2]||''];
 
   const card=el('div','card');
-  card.appendChild(el('div','section-label', isEn()?'Record Your Results (Optional)':'Registra Tus Resultados (Opcional)'));
-  const intro=document.createElement('p'); intro.style.margin='0 0 10px';
+  card.appendChild(el('div','section-label', isEn()?'Save Your Results (Optional)':'Guarda Tus Resultados (Opcional)'));
+  const intro=document.createElement('p'); intro.style.margin='0 0 14px';
   intro.textContent = isEn()
-    ? "After you finish the activity on O*NET's site, you can optionally type in your top interest areas here so they show up in My Explore Profile and Share With My Navigator. This is completely optional \u2014 you can enter one, two, three, or skip it."
-    : 'Despu\u00e9s de terminar la actividad en el sitio de O*NET, puedes escribir aqu\u00ed, de forma opcional, tus \u00e1reas de inter\u00e9s principales para que aparezcan en Mi Perfil de Exploraci\u00f3n y en Compartir Con Mi Navegador. Esto es completamente opcional \u2014 puedes ingresar una, dos, tres, o no ingresar ninguna.';
+    ? "Want your O*NET results to appear in My Explore Profile and Share With My Navigator? Enter up to three interest areas from your results below. You can also skip this step."
+    : '\u00bfQuieres que tus resultados de O*NET aparezcan en Mi Perfil de Exploraci\u00f3n y en Compartir Con Mi Navegador? Ingresa hasta tres \u00e1reas de inter\u00e9s de tus resultados a continuaci\u00f3n. Tambi\u00e9n puedes omitir este paso.';
   card.appendChild(intro);
-
-  const labelNote=document.createElement('p');
-  labelNote.style.margin='0 0 14px'; labelNote.style.fontSize='12px'; labelNote.style.opacity='0.8'; labelNote.style.fontStyle='italic';
-  labelNote.textContent = isEn()
-    ? 'Entered by you from your O*NET results. Next Step did not calculate these results.'
-    : 'Ingresado por ti a partir de tus resultados de O*NET. Next Step no calcul\u00f3 estos resultados.';
-  card.appendChild(labelNote);
 
   const slotLabels = [
     {en:'First interest area', es:'Primera \u00e1rea de inter\u00e9s'},
@@ -2128,10 +2171,17 @@ function onetManualEntryCard(){
     card.appendChild(row);
   });
 
+  const note=document.createElement('p');
+  note.style.margin='10px 0 0'; note.style.fontSize='12px'; note.style.opacity='0.8'; note.style.fontStyle='italic';
+  note.textContent = isEn()
+    ? 'These are results you entered from O*NET. Next Step did not calculate them.'
+    : 'Estos son resultados que ingresaste de O*NET. Next Step no los calcul\u00f3.';
+  card.appendChild(note);
+
   const hasAny = state.results.onetInterests.length>0;
   if(hasAny){
     const clearBtn=el('button','secondary-btn', isEn()?'Clear all':'Borrar todo');
-    clearBtn.style.marginTop='4px';
+    clearBtn.style.marginTop='10px';
     clearBtn.onclick=()=>{ state.results.onetInterests=[]; saveExploreProgress(); render(); };
     card.appendChild(clearBtn);
 
@@ -2144,11 +2194,6 @@ function onetManualEntryCard(){
       list.appendChild(li);
     });
     preview.appendChild(list);
-    const src=document.createElement('p'); src.style.margin='6px 0 0'; src.style.fontSize='12px'; src.style.opacity='0.75';
-    src.textContent = isEn()
-      ? 'Source: O*NET Interest Profiler, manually entered by the student.'
-      : 'Fuente: O*NET Interest Profiler, ingresado manualmente por el estudiante.';
-    preview.appendChild(src);
     card.appendChild(preview);
   }
 

@@ -1134,7 +1134,8 @@ let previousScreen = 'home';
    the only step needed to make it linkable. Function declarations are hoisted, so
    referencing screen functions defined further down this file is safe. */
 const SCREEN_MAP = {
-  home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, 'navigator-meet':navigatorMeetScreen, topic:topicScreen, family:familyScreen,
+  home:homeScreen, explore:exploreScreen, clinica:clinicaScreen, 'navigator-meet':navigatorMeetScreen,
+  'navigator-returning':navigatorReturningScreen, topic:topicScreen, family:familyScreen,
   'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
   'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
   pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, persist:stayScreen, redefine:shiftScreen,
@@ -1294,19 +1295,21 @@ function siteFooter(){
   foot.appendChild(el('div','footer-rule'));
   const a=document.createElement('a');
   a.className='footer-private';
-  // href is the plain form URL so the link still works with no JavaScript and can be
-  // copied or long-pressed. The Family ID prefill is added on click instead of here,
-  // because building it at render time would create and store a Family ID for every
-  // visitor on first paint, including someone who only ever looks at one screen.
-  a.href=PRIVATE_MEETING_FORM_URL;
-  a.target='_blank';
-  a.rel='noopener noreferrer';
+  // 2026 human-support consolidation: this footer used to link straight out to the
+  // one-on-one Google Form, which meant the single most visible "talk to a person"
+  // route in the app bypassed the central router and sent families into a second
+  // intake form after HubSpot Start Here. It now points at #navigator-meet, the one
+  // place that decides new-vs-returning, so this link and the 16 in-page CTAs and the
+  // bottom-nav Support button all resolve through the same logic. href is a real hash
+  // so the link still works without JavaScript and can be copied or long-pressed.
+  a.href='#navigator-meet';
   a.onclick=function(e){
     e.preventDefault();
-    window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer');
+    state.screen='navigator-meet';
+    render();
   };
-  a.appendChild(el('span','footer-en','Prefer to talk privately? Request a private meeting.'));
-  const es=el('span','footer-es','¿Prefiere hablar en privado? Solicite una reunión privada.');
+  a.appendChild(el('span','footer-en','Need help from a person? Talk with an AP Navigator.'));
+  const es=el('span','footer-es','¿Necesita ayuda de una persona? Habla con un Navegador de AP.');
   a.appendChild(es);
   foot.appendChild(a);
   return foot;
@@ -5220,37 +5223,113 @@ function withFamilyIdPrefill(baseUrl, entryParam){
   if(!familyId) return baseUrl;
   return baseUrl + '?' + entryParam + '=' + encodeURIComponent(familyId);
 }
+// RETIRED 2026 — neither helper is reachable from any public route any more. Human
+// support now begins at HubSpot Start Here (new families) or goes directly to the
+// verified Clínica booking / a named staff contact (returning families). The URLs,
+// entry IDs and helpers are deliberately left in place: the forms still hold real
+// historical submissions and may be reopened for internal use, and nothing is
+// deleted merely because it is no longer publicly linked.
 function getHeadsUpFormUrl(){ return withFamilyIdPrefill(HEADS_UP_FORM_URL, HEADS_UP_FAMILY_ID_ENTRY); }
 function getPrivateMeetingFormUrl(){ return withFamilyIdPrefill(PRIVATE_MEETING_FORM_URL, PRIVATE_MEETING_FAMILY_ID_ENTRY); }
 
-/* ============ HOW WOULD YOU LIKE TO MEET? (AP Navigator routing choice) ============
-   AP Navigator support is the umbrella service. Virtual video meetings and in-person
-   AP Clínica are two ways to receive that support — this screen is the single place
-   every generic "get help" CTA in the app routes to, so Clínica is never presented as
-   the only human-support option. Both destinations below are verified, existing routes:
-   the virtual option opens PRIVATE_MEETING_FORM_URL (a request form, not an instant
-   booking), and the in-person option goes to the existing, unmodified clinicaScreen(). */
+/* HubSpot Start Here is the single intake and system of record for a family who wants
+   human support from Anchored Pathways for the first time. It is intentionally the ONLY
+   intake form in the whole system: no Google Form, no second questionnaire, and never a
+   prerequisite for the free guides, tools, checklist, Core Tracker or O*NET. */
+const START_HERE_URL = 'https://share-na2.hsforms.com/1iccok1BsTWq4lSxMG9yjNg42z7hu';
+const AP_CONTACT_EMAIL = 'contact@anchoredpathways.org';
+// Returning families reach a person directly instead of re-completing intake. The Family
+// ID already stored on this device is carried in the subject line so staff can match the
+// message to the existing HubSpot record without asking for their details again. This is
+// a mail link, not authentication and not a new form.
+function getReturningContactUrl(){
+  const familyId = getOrCreateFamilyId();
+  const subject = (isEn() ? 'Returning family - support request' : 'Familia que regresa - solicitud de apoyo')
+    + (familyId ? ' (' + familyId + ')' : '');
+  return 'mailto:' + AP_CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject);
+}
+
+/* ============ TALK WITH AN AP NAVIGATOR (central human-support router) ============
+   THIS IS THE ONE PLACE human support is routed. All 16 in-page "Talk with an AP
+   Navigator" / "I Need Help Understanding This" CTAs, the bottom-nav Support button and
+   the site footer resolve here, so future changes to how families reach a person are
+   made in this function and nowhere else.
+
+   It asks one question a person can answer about themselves — are you new to us, or
+   have we worked with you before — because that is the only branch that matters and it
+   needs no accounts, no login and no detection. New families go to HubSpot Start Here,
+   which is the intake and the system of record. Returning families never see intake
+   again; they go to navigatorReturningScreen(). Nobody is asked to fill in anything to
+   keep using the free guides and tools, which is stated explicitly below. */
 function navigatorMeetScreen(){
   const wrap=el('div');
-  wrap.appendChild(screenHeader(isEn()?'How would you like to meet?':'¿Cómo prefieres reunirte?', 'home'));
+  wrap.appendChild(screenHeader(isEn()?'Talk with an AP Navigator':'Habla con un Navegador de AP', 'home'));
 
   const intro=el('div','card');
   intro.appendChild(el('p','', isEn()
-    ? 'AP Navigator support is available both virtually and in person. Pick whichever works better for you.'
-    : 'El apoyo de un Navegador de AP está disponible tanto virtualmente como en persona. Elige lo que te funcione mejor.'));
+    ? 'An AP Navigator can help you in person at AP Clínica or in a private virtual conversation. First, tell us which of these sounds like you — it just saves you from repeating yourself.'
+    : 'Un Navegador de AP puede ayudarte en persona en AP Clínica o en una conversación privada por video. Primero, dinos cuál de estas opciones te describe — solo es para que no tengas que repetir tu información.'));
   wrap.appendChild(intro);
+
+  const newCard=el('button','triage-card');
+  newCard.style.width='100%'; newCard.style.marginBottom='10px';
+  newCard.innerHTML=`<div class="emoji">🌱</div><div style="flex:1;"><div class="txt-en">${isEn()?"I'm new to Anchored Pathways":'Soy nuevo en Anchored Pathways'}</div><div class="txt-es">${isEn()?'Start Here is our one intake form. About three minutes, in English or Spanish, and you never fill it out twice.':'Comience aquí es nuestro único formulario. Unos tres minutos, en inglés o español, y nunca lo llenas dos veces.'}</div></div><div class="chev">›</div>`;
+  newCard.onclick=()=>{ window.open(START_HERE_URL, '_blank', 'noopener,noreferrer'); };
+  wrap.appendChild(newCard);
+
+  const returningCard=el('button','triage-card');
+  returningCard.style.width='100%'; returningCard.style.marginBottom='10px';
+  returningCard.innerHTML=`<div class="emoji">🤝</div><div style="flex:1;"><div class="txt-en">${isEn()?"I've already connected with Anchored Pathways":'Ya me he comunicado con Anchored Pathways'}</div><div class="txt-es">${isEn()?'Book a Clínica appointment or reach your Navigator directly. No forms again.':'Reserva una cita de Clínica o comunícate directamente con tu Navegador. Sin formularios otra vez.'}</div></div><div class="chev">›</div>`;
+  returningCard.onclick=()=>{ state.screen='navigator-returning'; render(); };
+  wrap.appendChild(returningCard);
+
+  const browse=el('div','card');
+  browse.appendChild(el('p','es', isEn()
+    ? "Just looking around? You don't need to fill out anything. Every guide, checklist and tool in this app is free and open — use them as long as you like and come back here only when you want to talk to a person."
+    : '¿Solo estás explorando? No necesitas llenar nada. Todas las guías, listas y herramientas de esta aplicación son gratuitas y abiertas — úsalas todo el tiempo que quieras y vuelve aquí solo cuando quieras hablar con una persona.'));
+  wrap.appendChild(browse);
+
+  return wrap;
+}
+
+/* Returning-family branch of the router. The whole point of this screen is that it
+   contains NO intake: a family we already know goes straight to the verified Clínica
+   booking, or straight to a person. Their Family ID is shown so they can quote it, and
+   it is carried into the mail subject automatically. */
+function navigatorReturningScreen(){
+  const wrap=el('div');
+  wrap.appendChild(screenHeader(isEn()?'Welcome back':'Bienvenido de nuevo', 'navigator-meet'));
+
+  const intro=el('div','card');
+  intro.appendChild(el('p','', isEn()
+    ? "Because we've already worked together, you don't need to complete Start Here again. Pick whichever way you'd like to meet."
+    : 'Como ya hemos trabajado juntos, no necesitas llenar Comience aquí otra vez. Elige cómo prefieres reunirte.'));
+  wrap.appendChild(intro);
+
+  const clinicaCard=el('button','triage-card');
+  clinicaCard.style.width='100%'; clinicaCard.style.marginBottom='10px';
+  clinicaCard.innerHTML=`<div class="emoji">📍</div><div style="flex:1;"><div class="txt-en">${isEn()?'Visit AP Clínica in person':'Visitar AP Clínica en persona'}</div><div class="txt-es">${isEn()?'Thursdays, 5:15–7:45 PM in Pasadena. Reserve a 30-minute appointment.':'Los jueves, 5:15–7:45 PM en Pasadena. Reserva una cita de 30 minutos.'}</div></div><div class="chev">›</div>`;
+  clinicaCard.onclick=()=>{ state.screen='clinica'; render(); };
+  wrap.appendChild(clinicaCard);
 
   const virtualCard=el('button','triage-card');
   virtualCard.style.width='100%'; virtualCard.style.marginBottom='10px';
-  virtualCard.innerHTML=`<div class="emoji">💻</div><div style="flex:1;"><div class="txt-en">${isEn()?'Meet virtually':'Reunirme virtualmente'}</div><div class="txt-es">${isEn()?'Request or schedule a video conversation from anywhere.':'Solicita o programa una conversación por video desde cualquier lugar.'}</div></div><div class="chev">›</div>`;
-  virtualCard.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
+  virtualCard.innerHTML=`<div class="emoji">💻</div><div style="flex:1;"><div class="txt-en">${isEn()?'Ask for a private virtual conversation':'Pedir una conversación privada por video'}</div><div class="txt-es">${isEn()?'Emails your Navigator directly. Someone follows up to schedule it — no form to fill in.':'Envía un correo directamente a tu Navegador. Alguien te contactará para agendarla — sin formulario.'}</div></div><div class="chev">›</div>`;
+  // Assigned rather than window.open: a mailto in a new tab leaves a blank tab behind
+  // once the mail client takes over, and some mobile browsers block it outright.
+  virtualCard.onclick=()=>{ window.location.href = getReturningContactUrl(); };
   wrap.appendChild(virtualCard);
 
-  const inPersonCard=el('button','triage-card');
-  inPersonCard.style.width='100%';
-  inPersonCard.innerHTML=`<div class="emoji">📍</div><div style="flex:1;"><div class="txt-en">${isEn()?'Visit AP Clínica in person':'Visitar AP Clínica en persona'}</div><div class="txt-es">${isEn()?'View current Clínica locations, dates, hours, and participation information.':'Consulta las ubicaciones, fechas, horarios y requisitos disponibles.'}</div></div><div class="chev">›</div>`;
-  inPersonCard.onclick=()=>{ state.screen='clinica'; render(); };
-  wrap.appendChild(inPersonCard);
+  const idCard=el('div','card');
+  const fid=getOrCreateFamilyId();
+  if(fid){
+    idCard.appendChild(el('div','section-label', isEn()?'Your Family ID':'Tu ID de familia'));
+    idCard.appendChild(el('h2','', fid));
+  }
+  idCard.appendChild(el('p','es', isEn()
+    ? "Mention this if you contact us — it helps us find your record faster. Not sure you've connected with us before? Go back and choose the first option; completing Start Here twice causes no problems on our end."
+    : 'Menciónalo si nos contactas — nos ayuda a encontrar tu registro más rápido. ¿No estás seguro de haberte comunicado antes? Regresa y elige la primera opción; llenar Comience aquí dos veces no causa ningún problema.'));
+  wrap.appendChild(idCard);
 
   return wrap;
 }
@@ -5271,6 +5350,24 @@ function clinicaScreen(){
   card.appendChild(el('p','es', isEn()?'Need to cancel? Let us know so we can give the time to another family — cancel through your confirmation email or message us on WhatsApp. There is no penalty, and you can book again any time.':'¿Necesitas cancelar? Avísanos para poder dar ese horario a otra familia — cancela desde tu correo de confirmación o escríbenos por WhatsApp. No hay penalidad, y puedes reservar de nuevo cuando quieras.'));
   wrap.appendChild(card);
 
+  // New-vs-returning, applied to Clínica. The booking button above is deliberately left
+  // first and fully working — nobody is blocked from reserving a spot, and this is a
+  // prompt, not a gate. It only tells a first-time family that Start Here exists so we
+  // arrive at their appointment already knowing their situation. A family we have
+  // already met needs nothing from this card, which is why it says so out loud.
+  const startHereCard=el('div','card');
+  startHereCard.appendChild(el('h2','', isEn()?'First time with Anchored Pathways?':'¿Primera vez con Anchored Pathways?'));
+  startHereCard.appendChild(el('p','', isEn()
+    ? "Reserve your spot above either way — it's yours. If we haven't worked with you before, filling out Start Here takes about three minutes and means we can prepare for your appointment instead of spending it collecting your details."
+    : 'Reserva tu espacio arriba de cualquier manera — es tuyo. Si no hemos trabajado contigo antes, llenar Comience aquí toma unos tres minutos y nos permite prepararnos para tu cita en lugar de usarla recopilando tu información.'));
+  const shBtn=el('button','secondary-btn', isEn()?'Complete Start Here':'Llenar Comience aquí');
+  shBtn.onclick=()=>{ window.open(START_HERE_URL, '_blank', 'noopener,noreferrer'); };
+  startHereCard.appendChild(shBtn);
+  startHereCard.appendChild(el('p','es', isEn()
+    ? "Already connected with us? Skip this — you never need to complete Start Here twice."
+    : '¿Ya te comunicaste con nosotros? Omite esto — nunca necesitas llenar Comience aquí dos veces.'));
+  wrap.appendChild(startHereCard);
+
   const card2=el('div','card');
   card2.appendChild(el('div','section-label', isEn()?'What families bring':'Lo que las familias traen'));
   const bringList = isEn()
@@ -5281,20 +5378,19 @@ function clinicaScreen(){
   card2.appendChild(list);
   wrap.appendChild(card2);
 
-  const card3=el('div','card');
-  card3.appendChild(el('h2','', isEn()?'Already booked your spot?':'¿Ya reservaste tu espacio?'));
-  card3.appendChild(el('p','', isEn()?'This optional form gives us a heads-up about what you may want help with ahead of your appointment, so we can be better prepared. It does not reserve a time on its own — please book your spot above first.':'Este formulario opcional nos ayuda a saber con anticipación en qué podrías necesitar apoyo antes de tu cita, para estar mejor preparados. No reserva un horario por sí solo — por favor reserva tu espacio arriba primero.'));
-  const btn=el('button','primary-btn', isEn()?'Send an optional heads-up':'Enviar aviso opcional');
-  btn.onclick=()=>{ window.open(getHeadsUpFormUrl(), '_blank', 'noopener,noreferrer'); };
-  card3.appendChild(btn);
-  card3.appendChild(el('p','es', isEn()?'This form is optional. You still need to reserve your spot above.':'Este formulario es opcional. Aún necesitas reservar tu espacio arriba.'));
-  wrap.appendChild(card3);
+  // The optional pre-appointment "heads-up" Google Form that used to sit here has been
+  // retired (Aug 2026). It read as a second form to fill in after intake, which is
+  // exactly the friction this restructure removes. What it collected is now asked once,
+  // in HubSpot Start Here, or in person at the appointment.
 
   const card4=el('div','card');
   card4.appendChild(el('h2','', isEn()?'Prefer a private conversation instead?':'¿Prefieres una conversación privada?'));
-  card4.appendChild(el('p','', isEn()?"Clínica, including the reserved 30-minute spots, still happens in a shared space at the Activity Center. If you'd rather have a longer, private conversation over Zoom, you can request a one-on-one meeting with a Navigator instead. This is a request, not an instant booking, someone will follow up with you to schedule it.":'La Clínica, incluyendo los espacios reservados de 30 minutos, sigue siendo en un espacio compartido en el Activity Center. Si prefieres una conversación más larga y privada por Zoom, puedes pedir una reunión individual con un Navegador. Esto es una solicitud, no una cita inmediata, alguien te contactará para agendarla.'));
-  const privBtn=el('button','secondary-btn', isEn()?'Request a Private Meeting':'Solicitar una Reunión Privada');
-  privBtn.onclick=()=>{ window.open(getPrivateMeetingFormUrl(), '_blank', 'noopener,noreferrer'); };
+  card4.appendChild(el('p','', isEn()?"Clínica, including the reserved 30-minute spots, still happens in a shared space at the Activity Center. If you'd rather have a longer, private conversation over video, a Navigator can arrange one. This is a request, not an instant booking — someone follows up with you to schedule it.":'La Clínica, incluyendo los espacios reservados de 30 minutos, sigue siendo en un espacio compartido en el Activity Center. Si prefieres una conversación más larga y privada por video, un Navegador puede organizarla. Esto es una solicitud, no una cita inmediata — alguien te contactará para agendarla.'));
+  const privBtn=el('button','secondary-btn', isEn()?'Ask about a private meeting':'Preguntar por una reunión privada');
+  // Routes back through the central router instead of opening the retired Google Form,
+  // so a private conversation follows the same new-vs-returning logic as every other
+  // human-support request in the app.
+  privBtn.onclick=()=>{ state.screen='navigator-meet'; render(); };
   card4.appendChild(privBtn);
   wrap.appendChild(card4);
 

@@ -246,6 +246,7 @@
    router. Declared here because data tables further down reference them. */
 const CAREER_EXPLORER_URL='https://contact432.github.io/anchored-pathways-next-step/career-explorer.html';
 const SCHOLARSHIPS_PAGE_URL='https://contact432.github.io/anchored-pathways-next-step/scholarships.html';
+const IMMIGRATION_PAGE_URL='https://contact432.github.io/anchored-pathways-next-step/immigration.html';
 
 /* ============ STRINGS ============ */
 // T.en and T.es are selected wholesale by t() based on the language toggle, and
@@ -269,15 +270,20 @@ const T = {
     todaySection: "What brings you here today?",
     resourcesSection: "Where would you like to begin?",
     frameworkSubtitle: "Wherever you are right now, there's a place to start.",
+    resourcesHeading: "Resources for the question in front of you",
+    resourcesSubheading: "Use a tool or guide when you need clear information about college, training, money, or your next step.",
+    navResources: "Resources",
+    seeAllResources: "See all six resources",
+    backToResources: "\u2190 Back to Resources",
     chooseTopic: "Tell us what's going on",
     navHome:"Home", navExplore:"Explore", navClinica:"Support", navApply:"Advance", navMe:"Family",
     back:"Back",
     stages: [
-      {key:'explore', ic:'🧭', c1:'#257F8A', en:'Explore', es:'Explora', descEn:'Start with who you are and what matters to you', descEs:'Empieza con quién eres y lo que te importa'},
-      {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decide', descEn:'Compare cost, time, and paths side by side', descEs:'Compara costo, tiempo y caminos lado a lado'},
-      {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Advance', es:'Avanza', descEn:'FAFSA, TASFA, scholarships & applications', descEs:'FAFSA, TASFA, becas y solicitudes'},
-      {key:'persist', ic:'🌱', c1:'#3AABB8', en:'Persist', es:'Persevera', descEn:'Renewals, check-ins, staying enrolled', descEs:'Renovaciones y apoyo continuo'},
-      {key:'redefine', ic:'🔄', c1:'#B85A26', en:'Redefine', es:'Redefine tu camino', descEn:'Changing programs, schools, or careers', descEs:'Cambiar de programa, escuela o carrera'},
+      {key:'explore', ic:'🧭', c1:'#257F8A', en:'Explore', es:'Explora', descEn:'Learn about yourself and the options you may want to consider.', descEs:'Aprende sobre ti y las opciones que podrías considerar.'},
+      {key:'decide', ic:'⚖️', c1:'#E8832A', en:'Decide', es:'Decide', descEn:'Compare options and think through what fits your situation.', descEs:'Compara opciones y piensa en lo que encaja con tu situación.'},
+      {key:'apply', ic:'📝', c1:'#1A5F6E', en:'Advance', es:'Avanza', descEn:'Take action on applications, forms, and next steps.', descEs:'Toma acción en solicitudes, formularios y próximos pasos.'},
+      {key:'persist', ic:'🌱', c1:'#3AABB8', en:'Persist', es:'Persevera', descEn:'Get support staying enrolled and moving forward.', descEs:'Recibe apoyo para seguir inscrito y avanzando.'},
+      {key:'redefine', ic:'🔄', c1:'#B85A26', en:'Redefine', es:'Redefine tu camino', descEn:'Make a new plan when your direction changes.', descEs:'Haz un plan nuevo cuando cambie tu dirección.'},
     ],
     triage: [
       {emoji:"📝", en:"My child needs to apply for financial aid", es:"Mi hijo/a necesita solicitar ayuda financiera", key:'fafsa'},
@@ -294,6 +300,11 @@ const T = {
     todaySection: "¿Qué te trae por aquí hoy?",
     resourcesSection: "¿Por dónde te gustaría empezar?",
     frameworkSubtitle: "Estés donde estés ahora mismo, hay un lugar por dónde empezar.",
+    resourcesHeading: "Recursos para la pregunta que tienes enfrente",
+    resourcesSubheading: "Usa una herramienta o guía cuando necesites información clara sobre la universidad, la capacitación, el dinero o tu próximo paso.",
+    navResources: "Recursos",
+    seeAllResources: "Ver los seis recursos",
+    backToResources: "\u2190 Volver a Recursos",
     chooseTopic: "Cuéntanos qué está pasando",
     navHome:"Inicio", navExplore:"Explora", navClinica:"Apoyo", navApply:"Avanza", navMe:"Familia",
     back:"Atrás",
@@ -1143,6 +1154,101 @@ function pageLink(url, label, cls){
   a.style.textDecoration='none';
   return a;
 }
+/* ============ RESOURCES ============
+   Resources are task-based, not stage-based. A family arrives with a question already
+   in front of them ("what does this training cost?", "can we get aid with our status?")
+   and needs an answer, not a planning journey. So these live on Home above the stage
+   banners, on their own #resources screen, and in the bottom nav — never behind an
+   accordion and never inside Explore / Decide / Advance.
+
+   `url` items are standalone pages and render as ordinary anchors that open in the same
+   tab, matching how the rest of the app links to sibling pages. `newTab` items are
+   separate tools (the checklist and tracker) and keep the app's existing new-tab
+   behavior for those two. `guide` items open an AP guide inside this app and set
+   guideReturnScreen so their back chevron returns to Resources, not to Advance. */
+/* The three stages a student planning journey actually runs on. Persist and Redefine
+   remain full stages with unchanged content, but they are entered contextually (from
+   Home, or from the screen that raised the situation) rather than shown as equal
+   top-level options on every screen. */
+const PRIMARY_STAGE_KEYS = ['explore','decide','apply'];
+
+const RESOURCE_ITEMS = [
+  {ic:'\u{1F4CA}', bg:'#E6F3EC', url:CAREER_EXPLORER_URL,
+   titleEn:'Career Cost & Pay Explorer', titleEs:'Explorador de Costo y Salario de Carreras',
+   descEn:'Explore training time, Houston-area pay, and important things to check before you enroll.',
+   descEs:'Explora el tiempo de capacitaci\u00f3n, los salarios del \u00e1rea de Houston y cosas importantes que revisar antes de inscribirte.'},
+  {ic:'\u{1F4B0}', bg:'#FCEFDD', url:SCHOLARSHIPS_PAGE_URL,
+   titleEn:'Scholarships & Funding', titleEs:'Becas y Financiamiento',
+   descEn:'Find college funding options and support for students starting or continuing school.',
+   descEs:'Encuentra opciones de financiamiento y apoyo para estudiantes que empiezan o contin\u00faan sus estudios.'},
+  {ic:'\u{1F6E1}\uFE0F', bg:'#EEF6F5', url:IMMIGRATION_PAGE_URL,
+   titleEn:'Immigration Status & College Aid', titleEs:'Estatus Migratorio y Ayuda Universitaria',
+   descEn:'Understand how immigration status may affect college options, tuition, financial aid, and scholarships.',
+   descEs:'Entiende c\u00f3mo el estatus migratorio puede afectar las opciones universitarias, la colegiatura, la ayuda financiera y las becas.'},
+  {ic:'\u{1F527}', bg:'#F0EAF9', guide:'workforceTraining',
+   titleEn:'Workforce Training', titleEs:'Capacitaci\u00f3n Laboral',
+   descEn:'Read AP\'s guide to short-term training programs in Houston and the Gulf Coast.',
+   descEs:'Lee la gu\u00eda de AP sobre programas de capacitaci\u00f3n cortos en Houston y la Costa del Golfo.'},
+  {ic:'\u2705', bg:'#F3EEE4', newTab:true, urlFn:()=>FAMILY_CHECKLIST_URL,
+   titleEn:'Family Checklist', titleEs:'Lista Familiar',
+   descEn:'Open the printable, step-by-step checklist families can work through together.',
+   descEs:'Abre la lista imprimible, paso a paso, que las familias pueden trabajar juntas.'},
+  {ic:'\u{1F393}', bg:'#E4EFF1', newTab:true, urlFn:()=>CORE_TRACKER_URL,
+   titleEn:'Texas Core Tracker', titleEs:'Rastreador del Core de Texas',
+   descEn:'Check off the 42-hour core at 13 Texas colleges and universities.',
+   descEs:'Marca el core de 42 horas en 13 colegios y universidades de Texas.'},
+];
+
+/* Builds one resource card. Anchors wherever a real URL exists, so the destination can
+   be copied, opened in a new tab, and read as a link by a screen reader. */
+function resourceCard(item){
+  const href = item.url || (item.urlFn ? item.urlFn() : null);
+  const card = document.createElement(href ? 'a' : 'button');
+  card.className = 'assess-card';
+  if(href){
+    card.href = href;
+    card.style.textDecoration='none';
+    card.style.color='inherit';
+    if(item.newTab){ card.target='_blank'; card.rel='noopener noreferrer'; }
+  } else {
+    card.onclick=()=>{
+      state.currentGuideKey=item.guide;
+      state.guideReturnScreen='resources';
+      state.screen='apply-guide';
+      render();
+    };
+  }
+  card.innerHTML=`<div class="ic" style="background:${item.bg}">${item.ic}</div>
+    <div class="info"><h4>${isEn()?item.titleEn:item.titleEs}</h4><div class="es-sub">${isEn()?item.descEn:item.descEs}</div></div>
+    <div class="status">\u203a</div>`;
+  return card;
+}
+
+function resourcesHeadingBlock(){
+  const h=el('div');
+  h.style.margin='4px 2px 10px';
+  h.innerHTML=`<div style="font-family:var(--font-head); font-size:16px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:2px;">${t().resourcesHeading}</div><div style="font-size:12px; color:var(--ink-soft); line-height:1.4;">${t().resourcesSubheading}</div>`;
+  return h;
+}
+
+function resourcesScreen(){
+  const wrap=el('div','content');
+  wrap.appendChild(screenHeader(isEn()?'Resources':'Recursos','home'));
+  const intro=el('div','card');
+  intro.appendChild(el('h2','',t().resourcesHeading));
+  intro.appendChild(el('p','',t().resourcesSubheading));
+  wrap.appendChild(intro);
+  const grid=el('div','explore-grid');
+  grid.style.margin='0 18px';
+  RESOURCE_ITEMS.forEach(item=>grid.appendChild(resourceCard(item)));
+  wrap.appendChild(grid);
+  wrap.appendChild(resourcesHandoff(
+    'Looking for longer guides or grade-by-grade planning? Visit our Resources page.',
+    '\u00bfBuscas gu\u00edas m\u00e1s largas o planificaci\u00f3n por grado escolar? Visita nuestra p\u00e1gina de Recursos.'
+  ));
+  return wrap;
+}
+
 function careerExplorerLink(labelEn, labelEs, cls){ return pageLink(CAREER_EXPLORER_URL, isEn()?labelEn:labelEs, cls); }
 function scholarshipsPageLink(labelEn, labelEs, cls){ return pageLink(SCHOLARSHIPS_PAGE_URL, isEn()?labelEn:labelEs, cls); }
 function t(){ return T[state.lang]; }
@@ -1168,6 +1274,7 @@ const SCREEN_MAP = {
      #apply-scholarships / -list / -detail / -saved (superseded by scholarships.html).
      The occupation and scholarship data tables and their screen functions are still in
      this file for future reuse, but nothing routes to them and no link targets them. */
+  resources:resourcesScreen,
   'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
   'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
 
@@ -1282,19 +1389,25 @@ function topbar(){
     const g=el('div','greeting'); g.appendChild(el('h1','',t().hello)); g.appendChild(el('p','',t().sub)); bar.appendChild(g);
   }
   // stage breadcrumb shown on every stage-related screen
-  const stageScreens = ['explore','decide','apply','persist','redefine','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-questions','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide','explore-orientation','explore-reflect','explore-onet','explore-practical','explore-careers','explore-investigate','explore-compare','explore-family','explore-conversation','explore-share'];
-  if(stageScreens.includes(state.screen)){
+  /* Persist and Redefine are contextual paths, not equal top-level navigation. Their
+     content is unchanged and still reachable from Home and from the screens that raise
+     them, but they no longer appear as chips in this header and their own screens no
+     longer render the stage crumb — showing five stages everywhere implied a family had
+     to walk the whole journey to answer one question. */
+  const stageScreens = ['explore','decide','apply','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-questions','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide','explore-orientation','explore-reflect','explore-onet','explore-practical','explore-careers','explore-investigate','explore-compare','explore-family','explore-conversation','explore-share'];
+  if(stageScreens.includes(state.screen) && !isResourceGuide()){
     const active = state.screen.startsWith('assess') || state.screen==='pathprofile' || state.screen.startsWith('explore-') ? 'explore'
                  : state.screen.startsWith('decide-') ? 'decide'
                  : (state.screen.startsWith('apply-local-pathway') || state.screen==='apply-topic' || state.screen==='apply-guide') ? 'apply'
                  : state.screen;
     const crumb=el('div','stage-crumb');
-    t().stages.forEach((s,i)=>{
+    const primaryStages = t().stages.filter(s=>PRIMARY_STAGE_KEYS.includes(s.key));
+    primaryStages.forEach((s,i)=>{
       const chip=el('span','crumb-chip'+(s.key===active?' active':''), isEn()?s.en:s.es);
       chip.style.cursor='pointer';
       chip.onclick=()=>{ state.screen = s.key==='explore' ? 'explore' : s.key; render(); };
       crumb.appendChild(chip);
-      if(i<t().stages.length-1) crumb.appendChild(el('span','crumb-arrow','›'));
+      if(i<primaryStages.length-1) crumb.appendChild(el('span','crumb-arrow','›'));
     });
     bar.appendChild(crumb);
   }
@@ -1340,17 +1453,25 @@ function siteFooter(){
   return foot;
 }
 
+// A guide opened from Resources belongs to Resources, not to Advance, even though it
+// renders through the shared #apply-guide screen.
+function isResourceGuide(){ return state.screen==='apply-guide' && state.guideReturnScreen==='resources'; }
+
 function bottomnav(){
   const nav=el('div','bottomnav');
   const items=[
     {ic:'🏠', label:t().navHome, screen:'home'},
+    // Resources sits in the persistent nav so the three standalone pages are always one
+    // tap away, from any screen, without entering a framework stage.
+    {ic:'📚', label:t().navResources, screen:'resources'},
     {ic:'🤝', label:t().navClinica, screen:'navigator-meet'},
     {ic:'📝', label:t().navApply, screen:'apply'},
     {ic:'👪', label:t().navMe, screen:'family'},
   ];
   items.forEach(item=>{
     const active = state.screen===item.screen
-      || (item.screen==='apply' && state.screen.startsWith('apply'));
+      || (item.screen==='apply' && state.screen.startsWith('apply') && !isResourceGuide())
+      || (item.screen==='resources' && isResourceGuide());
     const b=el('button','navbtn'+(active?' active':''));
     b.innerHTML=`<span class="ic">${item.ic}</span><span>${item.label}</span>`;
     b.onclick=()=>{ state.screen=item.screen; render(); };
@@ -1399,8 +1520,24 @@ function homeScreen(){
     wrap.appendChild(list);
   }
 
-  // Framework banners now sit below triage as a secondary, browse-on-your-own
-  // surface — still one tap away, just no longer the first thing a family sees.
+  /* Resources sit above the framework banners. A family arriving with a specific
+     question — what does this training cost, can we get aid with our status — should be
+     able to answer it from Home without first entering Explore, Decide, or Advance.
+     Three full cards render inline; the remaining three are one tap away on #resources,
+     which is also in the bottom nav. Nothing here is collapsed. */
+  const resourcesWrap=el('div');
+  resourcesWrap.style.marginTop='28px';
+  resourcesWrap.appendChild(resourcesHeadingBlock());
+  const resGrid=el('div','explore-grid');
+  RESOURCE_ITEMS.slice(0,3).forEach(item=>resGrid.appendChild(resourceCard(item)));
+  resourcesWrap.appendChild(resGrid);
+  const allRes=el('button','secondary-btn', t().seeAllResources);
+  allRes.onclick=()=>{ state.screen='resources'; render(); };
+  resourcesWrap.appendChild(allRes);
+  wrap.appendChild(resourcesWrap);
+
+  // Framework banners now sit below triage and Resources as a secondary,
+  // browse-on-your-own surface for families who want the planning journey.
   const frameworkHeading=el('div');
   frameworkHeading.style.margin='28px 2px 10px';
   frameworkHeading.innerHTML=`<div style="font-family:var(--font-head); font-size:16px; font-weight:600; color:var(--teal-deep); line-height:1.25; margin-bottom:2px;">${t().resourcesSection}</div><div style="font-size:12px; color:var(--ink-soft); line-height:1.4;">${t().frameworkSubtitle}</div>`;
@@ -1408,7 +1545,7 @@ function homeScreen(){
   // Stay and Shift come off the banner row. They are not a fourth and fifth
   // thing to browse, they are the two doors a family looks for when the plan broke,
   // and a colored card next to Explore made them read as optional stages.
-  const HOME_BANNER_KEYS = ['explore','decide','apply'];
+  const HOME_BANNER_KEYS = PRIMARY_STAGE_KEYS;
   // Text stays white on backgrounds that aren't part of the WCAG-flagged set (Deep Teal here).
   // Cards whose c1 is Bright Gold / Mid Amber switch to --ap-ink-deep text (dedicated ink color for
   // Gold/Amber contexts). Bright Teal keeps Navy Teal text (Navy still improves contrast there and
@@ -1537,7 +1674,7 @@ function buildVisionCard(standalone){
   textarea.value = state.visionReflection || '';
   field.appendChild(textarea);
   card.appendChild(field);
-  const btn=el('button','primary-btn', isEnFlag?'Continue':'Continuar');
+  const btn=el('button','primary-btn', isEnFlag?'Save and see my Explore progress':'Guardar y ver mi progreso en Explora');
   btn.onclick=()=>{
     state.visionReflection = textarea.value.trim();
     state.visionAsked = true;
@@ -1751,7 +1888,7 @@ function valuesScreen(){
     state.results.values.forEach((v,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${isEn()?v.en:v.es}</span>`; list.appendChild(li); });
     card.appendChild(list);
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
-    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    const btn=el('button','primary-btn', isEn()?'See my Explore progress':'Ver mi progreso en Explora');
     btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
@@ -1826,7 +1963,7 @@ function strengthsScreen(){
     state.results.strengths.forEach((s,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${isEn()?s.en:s.es}</span>`; list.appendChild(li); });
     card.appendChild(list);
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
-    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    const btn=el('button','primary-btn', isEn()?'See my Explore progress':'Ver mi progreso en Explora');
     btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
@@ -1867,7 +2004,7 @@ function personalityScreen(){
     card.appendChild(el('h2','', `${type} · ${state.results.personality.name}`));
     card.appendChild(el('p','', isEn()?'This is a short version. A fuller 20-question version is coming as the platform grows.':'Esta es una versión corta. Una versión completa de 20 preguntas llegará conforme crezca la plataforma.'));
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
-    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    const btn=el('button','primary-btn', isEn()?'See my Explore progress':'Ver mi progreso en Explora');
     btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
@@ -1923,7 +2060,7 @@ function interestsScreen(){
     state.results.interests.forEach((r,i)=>{ const li=el('li'); li.innerHTML=`<span class="step-num">${i+1}</span><span>${isEn()?r.en:r.es} · ${isEn()?r.descEn:r.descEs}</span>`; list.appendChild(li); });
     card.appendChild(list);
     card.appendChild(el('p','es', isEn()?"Let's see what else stands out.":'Veamos qué más resalta.'));
-    const btn=el('button','primary-btn', isEn()?'Back to Explore':'Volver a Explorar');
+    const btn=el('button','primary-btn', isEn()?'See my Explore progress':'Ver mi progreso en Explora');
     btn.onclick=()=>{ state.screen=state.assessmentReturnTo||'explore'; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
@@ -1999,7 +2136,7 @@ function exploreReflectScreen(){
   curiousTa.value = state.curiousField || '';
   curiousField.appendChild(curiousTa);
   curiousCard.appendChild(curiousField);
-  const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
+  const btn=el('button','primary-btn', isEn()?'Next: explore your interests':'Siguiente: explora tus intereses');
   btn.onclick=()=>{
     state.enjoyReflection = enjoyTa.value.trim();
     state.curiousField = curiousTa.value.trim();
@@ -2086,7 +2223,7 @@ function exploreOnetScreen(){
   wrap.appendChild(onetPrivacyDisclosure());
 
   const contCard=el('div','card');
-  const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
+  const btn=el('button','primary-btn', isEn()?'Next: your practical preferences':'Siguiente: tus preferencias prácticas');
   btn.onclick=()=>{ state.screen='explore-practical'; render(); };
   contCard.appendChild(btn);
   wrap.appendChild(contCard);
@@ -2276,7 +2413,7 @@ function explorePracticalScreen(){
   dwTa.oninput = ()=>{ state.dontWantReflection = dwTa.value; };
   dwField.appendChild(dwTa);
   dontWantCard.appendChild(dwField);
-  const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
+  const btn=el('button','primary-btn', isEn()?'Next: careers worth exploring':'Siguiente: carreras que vale la pena explorar');
   btn.onclick=()=>{
     state.dontWantReflection = dwTa.value.trim();
     state.completed.practical = true;
@@ -2603,7 +2740,7 @@ function exploreFamilyScreen(){
     });
     card.appendChild(grid);
     card.appendChild(el('div','chip-counter', isEn()?`${state.parentPriorities.length} of 3 selected`:`${state.parentPriorities.length} de 3 seleccionadas`));
-    const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
+    const btn=el('button','primary-btn', isEn()?'Next: how involved you want to be':'Siguiente: qué tan involucrado/a quieres estar');
     btn.onclick=()=>{ state.familyStep=2; render(); };
     card.appendChild(btn);
     wrap.appendChild(card);
@@ -2627,7 +2764,7 @@ function exploreFamilyScreen(){
       row.onclick=()=>{ state.parentInvolvement=o.id; render(); };
       card2.appendChild(row);
     });
-    const btn=el('button','primary-btn', isEn()?'Continue':'Continuar');
+    const btn=el('button','primary-btn', isEn()?'Next: topics you want help with':'Siguiente: temas en los que quieres ayuda');
     btn.onclick=()=>{ state.familyStep=3; render(); };
     card2.appendChild(btn);
     wrap.appendChild(card2);
@@ -4305,7 +4442,7 @@ function applyTopicScreen(){
   const guideKeys = topic.guideKeys || [];
   if(guideKeys.length>0){
     const guideCard=el('div','card');
-    guideCard.appendChild(el('div','section-label', isEn()?'Learn More':'Aprende Más'));
+    guideCard.appendChild(el('div','section-label', isEn()?"AP's own guides":'Guías propias de AP'));
     guideCard.appendChild(el('p','', isEn()?"Want the fuller picture? AP's own guide walks through this in more depth.":'¿Quieres saber más? La guía de AP explica esto con más profundidad.'));
     guideKeys.forEach(gKey=>{
       const guide = GUIDES[gKey];

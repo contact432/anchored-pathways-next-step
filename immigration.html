@@ -465,6 +465,20 @@
             }
         }
     </style>
+
+    <style>
+    /* Resource-page navigation. Deliberately only Home and Resources: a resource page
+       answers a question, so returning into a planning stage would loop the reader. */
+    .ap-crumb { font-size: 13px; line-height: 1.5; margin: 0 0 18px; color: #6B6459; }
+    .ap-crumb a { color: #1A5F6E; text-decoration: none; font-weight: 600; }
+    .ap-crumb a:hover { text-decoration: underline; }
+    .ap-crumb .sep { margin: 0 6px; color: #A9A296; }
+    .ap-crumb .current { color: #6B6459; }
+    .ap-back-resources { display: inline-block; margin: 24px 0 8px; padding: 10px 16px;
+      border: 1.5px solid #1A5F6E; border-radius: 12px; color: #1A5F6E;
+      font-weight: 700; font-size: 14px; text-decoration: none; }
+    .ap-back-resources:hover { background: #1A5F6E; color: #fff; }
+    </style>
 </head>
 <body>
     <div class="language-toggle">
@@ -473,6 +487,10 @@
     </div>
 
     <div class="container">
+    <nav class="ap-crumb" id="apCrumb" aria-label="Breadcrumb">
+      <a href="index.html" id="apCrumbHome">Home</a><span class="sep">/</span><a href="index.html#resources" id="apCrumbResources">Resources</a><span class="sep">/</span><span class="current" id="apCrumbCurrent">Immigration Status & College Aid</span>
+    </nav>
+
         <div class="intro">
             <h1 id="page-title">Immigration Status & College Aid</h1>
             <p id="intro-p1">Your immigration status can affect which colleges, financial aid forms, and scholarship opportunities may be available. This page can help you identify the right questions and connect you with trusted resources and support.</p>
@@ -510,7 +528,8 @@
         <div class="last-reviewed">
             <p id="last-reviewed-text">Last reviewed: September 2026. College policies and legal requirements can change. Always verify current information directly with the college or legal provider.</p>
         </div>
-    </div>
+            <a href="index.html#resources" class="ap-back-resources" id="apBackResources">&larr; Back to Resources</a>
+</div>
 
     <script>
         // FUNDING OPTIONS DATA
@@ -919,5 +938,29 @@
             changeLanguage(currentLang);
         });
     </script>
+
+<script>
+/* Keeps the breadcrumb and the Back to Resources link in the same language as the rest
+   of the page. Each page owns its own language switcher, so this wraps whichever one
+   this page defines instead of adding a second language mechanism. */
+(function(){
+  var TEXT = {
+    en: { home:'Home', resources:'Resources', current:'Immigration Status & College Aid', back:'\u2190 Back to Resources' },
+    es: { home:'Inicio', resources:'Recursos', current:'Estatus Migratorio y Ayuda Universitaria', back:'\u2190 Volver a Recursos' }
+  };
+  function apply(){
+    var l = (typeof currentLang !== 'undefined' && TEXT[currentLang]) ? currentLang : 'en';
+    var s = TEXT[l], set = function(id, v){ var e = document.getElementById(id); if(e) e.textContent = v; };
+    set('apCrumbHome', s.home); set('apCrumbResources', s.resources);
+    set('apCrumbCurrent', s.current); set('apBackResources', s.back);
+  }
+  var fn = 'changeLanguage';
+  if (typeof window[fn] === 'function'){
+    var original = window[fn];
+    window[fn] = function(){ var r = original.apply(this, arguments); apply(); return r; };
+  }
+  apply();
+})();
+</script>
 </body>
 </html>

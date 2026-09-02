@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarships & Funding for First-Generation Students - Anchored Pathways</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .language-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 100;
+        }
+
+        .lang-button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+
+        .lang-button.active {
+            background: #1A5F6E;
+            color: white;
+            border-color: #1A5F6E;
+        }
+
+        .lang-button:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px 16px;
+            padding-top: 60px;
+        }
+
+        .intro {
+            margin-bottom: 32px;
+        }
+
+        .intro h1 {
+            font-size: 32px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            color: #14505E;
+            font-weight: 600;
+        }
+
+        .intro p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .info-link {
+            background: #e8f4f7;
+            border-left: 4px solid #1A5F6E;
+            padding: 16px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .info-link p {
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .info-link a {
+            color: #1A5F6E;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .info-link a:hover {
+            text-decoration: underline;
+        }
+
+        .info-link a:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin: 32px 0 24px 0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+            color: #1A5F6E;
+        }
+
+        .tab-button.active {
+            color: #1A5F6E;
+            border-bottom-color: #1A5F6E;
+        }
+
+        .tab-button:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: -4px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .region-section {
+            margin-bottom: 40px;
+        }
+
+        .region-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+        }
+
+        .region-header h2 {
+            font-size: 20px;
+            color: #14505E;
+            font-weight: 600;
+        }
+
+        .region-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .scholarships-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .scholarship-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .scholarship-card:hover {
+            box-shadow: 0 4px 12px rgba(26, 95, 110, 0.1);
+            border-color: #1A5F6E;
+        }
+
+        .scholarship-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A5F6E;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .scholarship-card .program {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .scholarship-card .award {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1A5F6E;
+            margin: 12px 0;
+        }
+
+        .scholarship-card .deadline-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .deadline-badge.open-now {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .deadline-badge.coming-soon {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .deadline-badge.check-cycle {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .scholarship-card .who {
+            font-size: 13px;
+            color: #555;
+            font-style: italic;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .scholarship-card .disclaimer {
+            font-size: 12px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .scholarship-card .verified {
+            font-size: 11px;
+            color: #999;
+            margin: 12px 0;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .scholarship-card a {
+            padding: 10px 12px;
+            background: #1A5F6E;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.2s ease;
+        }
+
+        .scholarship-card a:hover {
+            background: #14505E;
+        }
+
+        .scholarship-card a:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .action-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .action-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #14505E;
+            margin-bottom: 12px;
+        }
+
+        .action-card > p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .support-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .support-card:hover {
+            box-shadow: 0 4px 12px rgba(26, 95, 110, 0.1);
+            border-color: #1A5F6E;
+        }
+
+        .support-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #14505E;
+            margin-bottom: 4px;
+        }
+
+        .support-card .program-name {
+            font-size: 13px;
+            color: #1A5F6E;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .support-card .helps-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+            margin-top: 8px;
+        }
+
+        .support-card .helps-with {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .support-card .how-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+            margin-top: 8px;
+        }
+
+        .support-card .how-begin {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .support-card .verified {
+            font-size: 11px;
+            color: #999;
+            margin: 12px 0;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .support-card a {
+            padding: 10px 12px;
+            background: #1A5F6E;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.2s ease;
+        }
+
+        .support-card a:hover {
+            background: #14505E;
+        }
+
+        .support-card a:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .ap-clinica-card {
+            background: #e8f4f7;
+            border: 2px solid #1A5F6E;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ap-clinica-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #14505E;
+            margin-bottom: 8px;
+        }
+
+        .ap-clinica-card p {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .ap-clinica-card a {
+            padding: 10px 12px;
+            background: #1A5F6E;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.2s ease;
+            width: fit-content;
+        }
+
+        .ap-clinica-card a:hover {
+            background: #14505E;
+        }
+
+        .ap-clinica-card a:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .current-students-footer {
+            font-size: 12px;
+            color: #999;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .intro h1 {
+                font-size: 24px;
+            }
+
+            .scholarships-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-nav {
+                flex-wrap: wrap;
+            }
+
+            .action-card {
+                padding: 16px;
+            }
+
+            .support-card, .ap-clinica-card {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-toggle">
+        <button class="lang-button active" data-lang="en" onclick="changeLanguage('en')">English</button>
+        <button class="lang-button" data-lang="es" onclick="changeLanguage('es')">Español</button>
+    </div>
+
+    <div class="container">
+        <div class="intro">
+            <h1 id="page-title">Scholarships & Funding for First-Generation Students</h1>
+            <p id="intro-text">These are verified funding opportunities available to first-generation students in the Houston, Eagle Pass, and San Antonio areas. Scholarships have different requirements and deadlines. Always contact the institution to confirm current eligibility and application details.</p>
+        </div>
+
+        <!-- Link to immigration-specific page -->
+        <div class="info-link">
+            <p>
+                <span id="immigration-prompt">Looking for scholarships or information about undocumented status, DACA, TPS, or mixed-status families?</span>
+                <a href="https://contact432.github.io/anchored-pathways-next-step/immigration.html" id="immigration-link">Visit the Immigration Status & College Aid page.</a>
+            </p>
+        </div>
+
+        <!-- Tab navigation -->
+        <div class="tab-nav">
+            <button class="tab-button active" data-tab="event-new-students">New Students</button>
+            <button class="tab-button" data-tab="event-current-students">Current Students</button>
+        </div>
+
+        <!-- NEW STUDENTS TAB -->
+        <div id="event-new-students" class="tab-content active">
+            <!-- Houston Area -->
+            <div class="region-section">
+                <div class="region-header">
+                    <h2 id="houston-title">Houston Area</h2>
+                    <span class="region-label" id="houston-label">7 Options</span>
+                </div>
+                <div class="scholarships-grid" id="houston-grid"></div>
+            </div>
+
+            <!-- Eagle Pass -->
+            <div class="region-section">
+                <div class="region-header">
+                    <h2 id="eagle-pass-title">Eagle Pass</h2>
+                    <span class="region-label" id="eagle-pass-label">1 Option</span>
+                </div>
+                <div class="scholarships-grid" id="eagle-pass-grid"></div>
+            </div>
+
+            <!-- San Antonio -->
+            <div class="region-section">
+                <div class="region-header">
+                    <h2 id="san-antonio-title">San Antonio</h2>
+                    <span class="region-label" id="san-antonio-label">2 Options</span>
+                </div>
+                <div class="scholarships-grid" id="san-antonio-grid"></div>
+            </div>
+        </div>
+
+        <!-- CURRENT STUDENTS TAB -->
+        <div id="event-current-students" class="tab-content">
+            <div class="action-card">
+                <h2 id="current-students-title">Need Help Staying Enrolled?</h2>
+                <p id="current-students-desc">If you are already enrolled and struggling with costs or other barriers, your college may have resources that can help.</p>
+                <p id="current-students-note">Support and eligibility can vary. Check the official source or contact your college directly.</p>
+            </div>
+
+            <div class="support-grid" id="support-cards-grid"></div>
+
+            <p class="current-students-footer" id="current-students-footer">Your college may have additional options based on your enrollment, need, and situation. Check directly with the college before relying on a program.</p>
+        </div>
+    </div>
+
+    <script>
+        // SCHOLARSHIP DATA
+        const scholarships = [
+            // HOUSTON AREA
+            {
+                region: 'houston',
+                id: 'ust',
+                institution_en: 'University of St. Thomas–Houston',
+                institution_es: 'Universidad de St. Thomas–Houston',
+                program_en: 'Merit Scholarships & St. Thomas Promise',
+                program_es: 'Becas de Mérito y Promesa de St. Thomas',
+                award_en: '$10,000–$20,000/year merit; Full tuition (Promise for families earning <$50,000)',
+                award_es: '$10,000–$20,000/año mérito; Matrícula completa (Promesa para familias que ganan <$50,000)',
+                deadline_en: 'At admission (rolling)',
+                deadline_es: 'En la admisión (rolling)',
+                deadline_status: 'open-now',
+                who_en: 'High school students and first-year applicants with a minimum 2.5 GPA.',
+                who_es: 'Estudiantes de preparatoria y solicitantes de primer año con un GPA mínimo de 2.5.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check UST\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de UST.',
+                url: 'https://stthom.edu/tuition-aid/',
+                verified_en: 'Verified',
+                verified_es: 'Verificado',
+                verified_date: 'September 2026',
+            },
+            {
+                region: 'houston',
+                id: 'rice',
+                institution_en: 'Rice University',
+                institution_es: 'Universidad Rice',
+                program_en: 'Need-Based Financial Aid (meets 100% of demonstrated need)',
+                program_es: 'Ayuda Financiera Basada en Necesidad (cubre el 100% de la necesidad demostrada)',
+                award_en: '100% of demonstrated financial need',
+                award_es: '100% de la necesidad financiera demostrada',
+                deadline_en: 'Nov 1 (Early Decision); Jan 1 (Regular Decision)',
+                deadline_es: '1 nov. (Decisión temprana); 1 ene. (Decisión regular)',
+                deadline_status: 'coming-soon',
+                who_en: 'Highly selective admission. Need-blind admissions treats all students equally regardless of immigration status.',
+                who_es: 'Admisión altamente selectiva. Admisiones sin considerar necesidad. Trata a todos los estudiantes por igual independientemente del estado migratorio.',
+                disclaimer_en: '',
+                disclaimer_es: '',
+                url: 'https://financialaid.rice.edu/apply-aid/daca-undocumented-students',
+                verified_en: 'Verified',
+                verified_es: 'Verificado',
+                verified_date: 'September 2026',
+            },
+            {
+                region: 'houston',
+                id: 'sanjac',
+                institution_en: 'San Jacinto College',
+                institution_es: 'Universidad San Jacinto College',
+                program_en: 'Foundation Scholarships (Last Step, Chevron-CPET, ACIT, and 10+ others)',
+                program_es: 'Becas de Fundación (Last Step, Chevron-CPET, ACIT, y 10+ otras)',
+                award_en: '$1,500–$5,000/year depending on scholarship',
+                award_es: '$1,500–$5,000/año según la beca',
+                deadline_en: 'Priority: April 15 (check each cycle at sjcd.academicworks.com)',
+                deadline_es: 'Prioridad: 15 de abril (verifica cada ciclo en sjcd.academicworks.com)',
+                deadline_status: 'check-cycle',
+                who_en: 'Current and prospective students. Anchored Pathways\' primary partner serving East Harris County and Pasadena ISD.',
+                who_es: 'Estudiantes actuales y prospectivos. El socio principal de Anchored Pathways sirviendo al Condado Este de Harris e ISD Pasadena.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check San Jac\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de San Jac.',
+                url: 'https://www.sanjac.edu/admissions/paying-for-college/tuition-costs/tuition-exemption',
+                fa_phone: '281-998-6150',
+                fa_email: 'FinAid@sjcd.edu',
+                verified_en: 'Primary partner',
+                verified_es: 'Socio principal',
+                verified_date: 'August 2026',
+            },
+            {
+                region: 'houston',
+                id: 'hcc',
+                institution_en: 'Houston Community College (HCC)',
+                institution_es: 'Houston Community College (HCC)',
+                program_en: 'Chancellor Scholarship (auto, 4.0 GPA), Impact Scholarship (auto, >2.74 GPA), HCC Foundation Scholarships ($1,000+)',
+                program_es: 'Beca Canciller (automática, GPA 4.0), Beca Impact (automática, >2.74 GPA), Becas de Fundación HCC ($1,000+)',
+                award_en: 'Chancellor: automatic for eligible students with a 4.0 GPA; Impact: varies; Foundation: $1,000+',
+                award_es: 'Canciller: automática (matrícula); Impact: varía; Fundación: $1,000+',
+                deadline_en: 'Chancellor/Impact: automatic; HCC Foundation: June 15 – Dec 15, 2026; Eagle Promise: Sept 30, 2026',
+                deadline_es: 'Canciller/Impact: automática; Fundación HCC: 15 jun. – 15 dic. 2026; Eagle Promise: 30 sept. 2026',
+                deadline_status: 'open-now',
+                who_en: 'Current and prospective students. Multiple pathways for different GPA ranges. Largest community college in Houston.',
+                who_es: 'Estudiantes actuales y prospectivos. Múltiples caminos para diferentes rangos de GPA. Colegio comunitario más grande de Houston.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check HCC\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de HCC.',
+                url: 'https://www.hccs.edu/paying-for-college/financial-aid--scholarships/scholarships/',
+                fa_email: 'finaid.district@hccs.edu',
+                verified_en: 'Verified',
+                verified_es: 'Verificado',
+                verified_date: 'September 2026',
+            },
+            {
+                region: 'houston',
+                id: 'lsc',
+                institution_en: 'Lone Star College System',
+                institution_es: 'Lone Star College System',
+                program_en: 'Honors Chancellor\'s Fellows, LSC Foundation Scholarships ($1,000+), Honors College Merit Scholarships',
+                program_es: 'Honors Chancellor\'s Fellows, Becas de Fundación LSC ($1,000+), Becas de Mérito Honors College',
+                award_en: '$1,000+ (Foundation); Chancellor\'s Fellows: tuition equivalent',
+                award_es: '$1,000+ (Fundación); Chancellor\'s Fellows: equivalente de matrícula',
+                deadline_en: 'Spring 2027: Nov 1, 2026 (OPEN NOW); varies by program',
+                deadline_es: 'Primavera 2027: 1 nov. 2026 (ABIERTO AHORA); varía por programa',
+                deadline_status: 'open-now',
+                who_en: 'Current and prospective students. Serves North Houston and surrounding areas. Multiple scholarship cycles.',
+                who_es: 'Estudiantes actuales y prospectivos. Sirve al norte de Houston y áreas cercanas. Múltiples ciclos de becas.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check LSC\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de LSC.',
+                url: 'https://www.lonestar.edu/scholarships.htm',
+                fa_email: 'FACC@LoneStar.edu',
+                verified_en: 'Verify directly',
+                verified_es: 'Verificar directamente',
+                verified_date: 'September 2026',
+            },
+            {
+                region: 'houston',
+                id: 'tsu',
+                institution_en: 'Texas Southern University (TSU)',
+                institution_es: 'Texas Southern University (TSU)',
+                program_en: 'Regents Scholarship (up to $14K/yr), Presidents Transformation (up to $10K), Tiger Genesis (up to $7K), Tiger P.A.W. ($1K)',
+                program_es: 'Beca Regents (hasta $14K/año), Transformación Presidencial (hasta $10K), Tiger Genesis (hasta $7K), Tiger P.A.W. ($1K)',
+                award_en: '$1,000–$14,000/year depending on scholarship',
+                award_es: '$1,000–$14,000/año según la beca',
+                deadline_en: 'Varies by scholarship; contact financial aid office',
+                deadline_es: 'Varía según la beca; contacta a la oficina de ayuda financiera',
+                deadline_status: 'check-cycle',
+                who_en: 'Current and prospective students. An HBCU located in Houston. Requires minimum 2.5 GPA. Ask financial aid office about your eligibility.',
+                who_es: 'Estudiantes actuales y prospectivos. Una HBCU ubicada en Houston. Requiere GPA mínimo de 2.5. Pregunta a la oficina de ayuda financiera sobre tu elegibilidad.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Contact TSU directly at 713-313-7802.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Contacta a TSU directamente al 713-313-7802.',
+                url: 'https://www.tsu.edu/admissions/financial-aid/types-of-aid/scholarships/index.php',
+                fa_phone: '713-313-7802',
+                verified_en: 'Call first',
+                verified_es: 'Llamar primero',
+                verified_date: 'September 2026',
+            },
+            {
+                region: 'houston',
+                id: 'uhcl',
+                institution_en: 'University of Houston–Clear Lake (UHCL)',
+                institution_es: 'University of Houston–Clear Lake (UHCL)',
+                program_en: 'Hawk Scholars ($2K first semester + $1K/term), President\'s Excellence ($3K/yr), New Hawk Scholarship',
+                program_es: 'Hawk Scholars ($2K primer semestre + $1K/término), President\'s Excellence ($3K/año), New Hawk Scholarship',
+                award_en: '$1,000–$3,000/year depending on scholarship',
+                award_es: '$1,000–$3,000/año según la beca',
+                deadline_en: 'Jan 15 priority (fall); Sept 15 priority (spring)',
+                deadline_es: '15 ene. prioridad (otoño); 15 sept. prioridad (primavera)',
+                deadline_status: 'check-cycle',
+                who_en: 'Current and prospective students. Requires minimum 3.5 GPA. Located close to Pasadena.',
+                who_es: 'Estudiantes actuales y prospectivos. Requiere GPA mínimo de 3.5. Ubicado cerca de Pasadena.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check UHCL\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de UHCL.',
+                url: 'https://www.uhcl.edu/costs-aid/scholarships/',
+                fa_phone: '281-283-2480',
+                verified_en: 'Verify directly',
+                verified_es: 'Verificar directamente',
+                verified_date: 'September 2026',
+            },
+
+            // EAGLE PASS
+            {
+                region: 'eagle-pass',
+                id: 'swtjc',
+                institution_en: 'Southwest Texas Junior College (SWTJC)',
+                institution_es: 'Southwest Texas Junior College (SWTJC)',
+                program_en: 'SWTJC Foundation Scholarship (~$1,000/semester), TPEG State Aid',
+                program_es: 'Beca de Fundación SWTJC (~$1,000/semestre), Ayuda Estatal TPEG',
+                award_en: '~$1,000/semester (Foundation); TPEG amount varies',
+                award_es: '~$1,000/semestre (Fundación); cantidad de TPEG varía',
+                deadline_en: 'Varies; check swtxc.edu for current deadlines',
+                deadline_es: 'Varía; verifica swtxc.edu para fechas límite actuales',
+                deadline_status: 'check-cycle',
+                who_en: 'Current and prospective students. Located in Eagle Pass. Not qualifying for federal grants does not mean you cannot receive scholarships, state aid, or work-study.',
+                who_es: 'Estudiantes actuales y prospectivos. Ubicado en Eagle Pass. No calificar para becas federales no significa que no puedas recibir becas, ayuda estatal o trabajo-estudio.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Call 830-758-4117 to confirm current availability.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Llama al 830-758-4117 para confirmar la disponibilidad actual.',
+                url: 'https://www.swtxc.edu/admissions-aid/financial-aid/index.html',
+                fa_phone: '830-758-4117',
+                verified_en: 'Verify directly',
+                verified_es: 'Verificar directamente',
+                verified_date: 'August 2026',
+            },
+
+            // SAN ANTONIO
+            {
+                region: 'san-antonio',
+                id: 'sac',
+                institution_en: 'San Antonio College (Alamo Colleges)',
+                institution_es: 'San Antonio College (Alamo Colleges)',
+                program_en: 'Alamo District Competitive Scholarship Waiver, AlamoPROMISE, Foundation Scholarships',
+                program_es: 'Exención de Beca Competitiva del Distrito Alamo, AlamoPROMISE, Becas de Fundación',
+                award_en: 'Varies by scholarship; contact college for details',
+                award_es: 'Varía según la beca; contacta al colegio para detalles',
+                deadline_en: 'Varies; check alamo.edu for current deadlines',
+                deadline_es: 'Varía; verifica alamo.edu para fechas límite actuales',
+                deadline_status: 'check-cycle',
+                who_en: 'Current and prospective students in San Antonio area. AlamoPROMISE accepts TASFA as well as FAFSA.',
+                who_es: 'Estudiantes actuales y prospectivos en el área de San Antonio. AlamoPROMISE acepta TASFA y FAFSA.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check SAC\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de SAC.',
+                url: 'https://www.alamo.edu/sac/scholarships/',
+                fa_phone: '210-212-5266',
+                verified_en: 'Verify directly',
+                verified_es: 'Verificar directamente',
+                verified_date: 'August 2026',
+            },
+            {
+                region: 'san-antonio',
+                id: 'ollu',
+                institution_en: 'Our Lady of the Lake University (OLLU)',
+                institution_es: 'Our Lady of the Lake University (OLLU)',
+                program_en: 'Institutional Aid & Merit Scholarships (average $18,814/year)',
+                program_es: 'Ayuda Institucional y Becas de Mérito (promedio $18,814/año)',
+                award_en: 'Average $18,814/year in institutional aid',
+                award_es: 'Promedio $18,814/año en ayuda institucional',
+                deadline_en: 'At admission (rolling)',
+                deadline_es: 'En la admisión (rolling)',
+                deadline_status: 'open-now',
+                who_en: 'High school students and first-year applicants. Located in San Antonio. Requires minimum 2.5 GPA.',
+                who_es: 'Estudiantes de preparatoria y solicitantes de primer año. Ubicado en San Antonio. Requiere GPA mínimo de 2.5.',
+                disclaimer_en: 'Eligibility depends on the specific scholarship and your student situation. Check OLLU\'s current requirements directly.',
+                disclaimer_es: 'La elegibilidad depende de la beca específica y tu situación. Verifica directamente los requisitos actuales de OLLU.',
+                url: 'https://www.ollusa.edu/costs-aid/index.html',
+                fa_phone: '210-431-3960',
+                verified_en: 'Verified',
+                verified_es: 'Verificado',
+                verified_date: 'September 2026',
+            },
+        ];
+
+        // CURRENT STUDENT SUPPORT CARDS DATA
+        const supportOptions = [
+            {
+                id: 'sanjac-ravens',
+                institution_en: 'San Jacinto College',
+                institution_es: 'San Jacinto College',
+                program_en: 'Ravens Rise Student Emergency Fund',
+                program_es: 'Fondo de Emergencia para Estudiantes Ravens Rise',
+                helps_en: 'Transportation, household costs, food, childcare, health care, and other urgent challenges that could affect academic success.',
+                helps_es: 'Transporte, costos del hogar, comida, cuidado de niños, atención médica y otros desafíos urgentes que podrían afectar el éxito académico.',
+                begin_en: 'Use the Ravens Rise Student Emergency Fund page. Also Raven\'s Wing can help students connect to housing, food, utilities, transportation, and childcare resources.',
+                begin_es: 'Usa la página del Fondo de Emergencia para Estudiantes Ravens Rise. También Raven\'s Wing puede ayudar a los estudiantes a conectarse con recursos de vivienda, comida, servicios públicos, transporte y cuidado de niños.',
+                url: 'https://www.sanjac.edu/support/personal-support/student-emergency-fund/index.php',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'hcc-emergency',
+                institution_en: 'Houston Community College (HCC)',
+                institution_es: 'Houston Community College (HCC)',
+                program_en: 'HCC Emergency Help and Basic Needs Support',
+                program_es: 'Ayuda de Emergencia HCC y Apoyo para Necesidades Básicas',
+                helps_en: 'Financial emergencies, basic-needs concerns, and information about internal and external resources.',
+                helps_es: 'Emergencias financieras, preocupaciones de necesidades básicas e información sobre recursos internos y externos.',
+                begin_en: 'Complete the Basic Need Questionnaire or visit the HCC Emergency Help page.',
+                begin_es: 'Completa el Cuestionario de Necesidad Básica o visita la página de Ayuda de Emergencia HCC.',
+                url: 'https://www.hccs.edu/paying-for-college/financial-aid--scholarships/grants/emergency-help/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'lsc-care',
+                institution_en: 'Lone Star College System',
+                institution_es: 'Lone Star College System',
+                program_en: 'CARE Program',
+                program_es: 'Programa CARE',
+                helps_en: 'Food, housing, clothing, employment, mental-health, and academic-support resources.',
+                helps_es: 'Comida, vivienda, ropa, empleo, salud mental y recursos de apoyo académico.',
+                begin_en: 'Visit the CARE Program hub or contact the student-support office at the student\'s specific Lone Star campus.',
+                begin_es: 'Visita el centro del Programa CARE o contacta a la oficina de apoyo estudiantil en el campus específico de Lone Star.',
+                url: 'https://www.lonestar.edu/CARE',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'swtjc-emergency',
+                institution_en: 'Southwest Texas Junior College (Eagle Pass)',
+                institution_es: 'Southwest Texas Junior College (Eagle Pass)',
+                program_en: 'Emergency Aid Program',
+                program_es: 'Programa de Ayuda de Emergencia',
+                helps_en: 'Unexpected hardships threatening enrollment, including tuition, utilities, transportation, housing, or food.',
+                helps_es: 'Dificultades inesperadas que amenazan la inscripción, incluyendo matrícula, servicios públicos, transporte, vivienda o comida.',
+                begin_en: 'Visit Student Services and use the Emergency Aid Application information.',
+                begin_es: 'Visita Servicios Estudiantiles y usa la información de la Solicitud de Ayuda de Emergencia.',
+                url: 'https://www.swtxc.edu/campus-life/student-services/index.html',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'uhcl-hawk',
+                institution_en: 'University of Houston–Clear Lake (UHCL)',
+                institution_es: 'University of Houston–Clear Lake (UHCL)',
+                program_en: 'Hawk Emergency Fund',
+                program_es: 'Fondo de Emergencia Hawk',
+                helps_en: 'A recent, unforeseen basic-needs hardship that could interfere with staying enrolled. Students may request up to $500 one time during their academic career.',
+                helps_es: 'Una dificultad reciente e imprevisible de necesidades básicas que podría interferir con mantenerse inscrito. Los estudiantes pueden solicitar hasta $500 una sola vez durante su carrera académica.',
+                begin_en: 'Review the criteria and apply through the Hawk Emergency Fund page.',
+                begin_es: 'Revisa los criterios y solicita a través de la página del Fondo de Emergencia Hawk.',
+                url: 'https://www.uhcl.edu/dean-of-students/emergency-assistance/hawk-emergency-fund-grant',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'tsu-emergency',
+                institution_en: 'Texas Southern University (TSU)',
+                institution_es: 'Texas Southern University (TSU)',
+                program_en: 'Emergency Student Scholarship',
+                program_es: 'Beca de Emergencia para Estudiantes',
+                helps_en: 'Financial burdens that could jeopardize remaining in school, including academic costs, food, or housing.',
+                helps_es: 'Cargas financieras que podrían poner en riesgo mantenerse en la escuela, incluidos costos académicos, comida o vivienda.',
+                begin_en: 'Contact TSU Student Financial Assistance to ask about the Emergency Student Scholarship and current application process.',
+                begin_es: 'Contacta a Asistencia Financiera para Estudiantes de TSU para preguntar sobre la Beca de Emergencia para Estudiantes y el proceso actual de solicitud.',
+                url: 'https://giving.tsu.edu/emergency-student-scholarship/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'alamo-advocacy',
+                institution_en: 'Alamo Colleges (including San Antonio College)',
+                institution_es: 'Alamo Colleges (incluyendo San Antonio College)',
+                program_en: 'Student Advocacy Centers and Emergency Aid',
+                program_es: 'Centros de Defensa Estudiantil y Ayuda de Emergencia',
+                helps_en: 'Emergency aid, food, housing, health care, and other barriers to staying enrolled.',
+                helps_es: 'Ayuda de emergencia, comida, vivienda, atención médica y otras barreras para mantenerse inscrito.',
+                begin_en: 'Contact the Alamo Colleges Advocacy Helpline at 210-486-1111 or the student-advocacy center at the student\'s campus.',
+                begin_es: 'Contacta la Línea de Ayuda de Defensa de Alamo Colleges al 210-486-1111 o al centro de defensa estudiantil de tu campus.',
+                url: 'https://www.alamo.edu/about-us/our-district/contact-us/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'ollu-caritas',
+                institution_en: 'Our Lady of the Lake University (OLLU)',
+                institution_es: 'Our Lady of the Lake University (OLLU)',
+                program_en: 'Caritas Student Emergency Fund',
+                program_es: 'Fondo de Emergencia para Estudiantes Caritas',
+                helps_en: 'Emergency financial assistance for current students.',
+                helps_es: 'Asistencia financiera de emergencia para estudiantes actuales.',
+                begin_en: 'Contact Student Affairs at studentaffairs@ollusa.edu or 346-342-1300.',
+                begin_es: 'Contacta a Asuntos Estudiantiles en studentaffairs@ollusa.edu o 346-342-1300.',
+                url: 'https://houston.ollusa.edu/info-for/current-students/index.html',
+                verified_date: 'September 2026',
+            },
+        ];
+
+        const text = {
+            en: {
+                'page-title': 'Scholarships & Funding for First-Generation Students',
+                'intro-text': 'These are curated scholarship and funding options that may be useful to first-generation students in the Houston, Eagle Pass, and San Antonio areas. Scholarships have different requirements and deadlines. Always contact the institution to confirm current eligibility and application details.',
+                'immigration-prompt': 'Looking for scholarships or information about undocumented status, DACA, TPS, or mixed-status families?',
+                'immigration-link': 'Visit the Immigration Status & College Aid page.',
+                'houston-title': 'Houston Area',
+                'houston-label': '7 Options',
+                'eagle-pass-title': 'Eagle Pass',
+                'eagle-pass-label': '1 Option',
+                'san-antonio-title': 'San Antonio',
+                'san-antonio-label': '2 Options',
+                'current-students-title': 'Need Help Staying Enrolled?',
+                'current-students-desc': 'If you are already enrolled and struggling with costs or other barriers, your college may have resources that can help.',
+                'current-students-note': 'Support and eligibility can vary. Check the official source or contact your college directly.',
+                'current-students-footer': 'Your college may have additional options based on your enrollment, need, and situation. Check directly with the college before relying on a program.',
+                'label-award': 'Award amount',
+                'label-deadline': 'Deadline',
+                'label-verified': 'Last verified',
+                'label-helps': 'May help with',
+                'label-begin': 'How to begin',
+                'visit-official': 'Visit official page',
+                'open-now': 'Open now',
+                'coming-soon': 'Deadline coming soon',
+                'check-cycle': 'Check next cycle',
+                'ap-clinica-title': 'Not sure which step to take?',
+                'ap-clinica-desc': 'Start Here can help us understand what you need and connect you to the right next step, resource, or appointment. Anchored Pathways provides education navigation, not financial or legal advice.',
+                'ap-clinica-button': 'Start Here',
+            },
+            es: {
+                'page-title': 'Becas y Financiamiento para Estudiantes de Primera Generación',
+                'intro-text': 'Estas son opciones de becas y financiamiento seleccionadas que pueden ser útiles para estudiantes de primera generación en las áreas de Houston, Eagle Pass y San Antonio. Las becas tienen diferentes requisitos y fechas límite. Siempre contacta a la institución para confirmar la elegibilidad actual y detalles de aplicación.',
+                'immigration-prompt': '¿Buscas becas o información sobre estatus indocumentado, DACA, TPS o familias con estatus migratorio mixto?',
+                'immigration-link': 'Visita la página de Estado Migratorio y Ayuda para la Universidad.',
+                'houston-title': 'Área de Houston',
+                'houston-label': '7 Opciones',
+                'eagle-pass-title': 'Eagle Pass',
+                'eagle-pass-label': '1 Opción',
+                'san-antonio-title': 'San Antonio',
+                'san-antonio-label': '2 Opciones',
+                'current-students-title': '¿Necesitas Ayuda para Permanecer Inscrito?',
+                'current-students-desc': 'Si ya estás inscrito y tienes dificultades con costos u otros obstáculos, tu universidad puede tener recursos que puedan ayudarte.',
+                'current-students-note': 'El apoyo y la elegibilidad pueden variar. Verifica la fuente oficial o contacta directamente a tu universidad.',
+                'current-students-footer': 'Tu universidad puede tener opciones adicionales según tu inscripción, necesidad y situación. Verifica directamente con la universidad antes de confiar en un programa.',
+                'label-award': 'Cantidad de la beca',
+                'label-deadline': 'Fecha límite',
+                'label-verified': 'Última verificación',
+                'label-helps': 'Puede ayudar con',
+                'label-begin': 'Cómo comenzar',
+                'visit-official': 'Visitar sitio oficial',
+                'open-now': 'Abierto ahora',
+                'coming-soon': 'Fecha límite próxima',
+                'check-cycle': 'Verifica próximo ciclo',
+                'ap-clinica-title': '¿Inseguro de cuál es el próximo paso?',
+                'ap-clinica-desc': 'Start Here puede ayudarnos a entender lo que necesitas y conectarte con el próximo paso correcto, recurso o cita. Anchored Pathways proporciona navegación educativa, no asesoramiento financiero o legal.',
+                'ap-clinica-button': 'Start Here',
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function t(key) {
+            return text[currentLang][key] || text['en'][key] || key;
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+
+            document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+
+            // Update static text
+            if (document.getElementById('page-title')) document.getElementById('page-title').textContent = t('page-title');
+            if (document.getElementById('intro-text')) document.getElementById('intro-text').textContent = t('intro-text');
+            
+            // FIX: Update only the span, NOT the parent paragraph
+            if (document.getElementById('immigration-prompt')) document.getElementById('immigration-prompt').textContent = t('immigration-prompt');
+            if (document.getElementById('immigration-link')) document.getElementById('immigration-link').textContent = t('immigration-link');
+            
+            // Update region headers
+            if (document.getElementById('houston-title')) document.getElementById('houston-title').textContent = t('houston-title');
+            if (document.getElementById('eagle-pass-title')) document.getElementById('eagle-pass-title').textContent = t('eagle-pass-title');
+            if (document.getElementById('san-antonio-title')) document.getElementById('san-antonio-title').textContent = t('san-antonio-title');
+            if (document.getElementById('houston-label')) document.getElementById('houston-label').textContent = t('houston-label');
+            if (document.getElementById('eagle-pass-label')) document.getElementById('eagle-pass-label').textContent = t('eagle-pass-label');
+            if (document.getElementById('san-antonio-label')) document.getElementById('san-antonio-label').textContent = t('san-antonio-label');
+
+            // Update current students section
+            if (document.getElementById('current-students-title')) document.getElementById('current-students-title').textContent = t('current-students-title');
+            if (document.getElementById('current-students-desc')) document.getElementById('current-students-desc').textContent = t('current-students-desc');
+            if (document.getElementById('current-students-note')) document.getElementById('current-students-note').textContent = t('current-students-note');
+            if (document.getElementById('current-students-footer')) document.getElementById('current-students-footer').textContent = t('current-students-footer');
+
+            // Re-render support cards
+            renderScholarshipCards();
+            renderCurrentStudentsCards();
+        }
+
+        function renderScholarshipCards() {
+            const regions = {
+                'houston': document.getElementById('houston-grid'),
+                'eagle-pass': document.getElementById('eagle-pass-grid'),
+                'san-antonio': document.getElementById('san-antonio-grid'),
+            };
+
+            Object.values(regions).forEach(grid => grid.innerHTML = '');
+
+            scholarships.forEach(scholarship => {
+                const langSuffix = `_${currentLang}`;
+                const deadlineStatusMap = {
+                    'open-now': 'open-now',
+                    'coming-soon': 'coming-soon',
+                    'check-cycle': 'check-cycle',
+                };
+
+                const card = document.createElement('div');
+                card.className = 'scholarship-card';
+
+                let html = `
+                    <h3>${scholarship['institution' + langSuffix]}</h3>
+                    <div class="program">${scholarship['program' + langSuffix]}</div>
+                    <div class="award">${scholarship['award' + langSuffix]}</div>
+                    <span class="deadline-badge ${deadlineStatusMap[scholarship.deadline_status]}">${t('label-deadline')}: ${scholarship['deadline' + langSuffix]}</span>
+                    <div class="who">${scholarship['who' + langSuffix]}</div>
+                `;
+
+                if (scholarship['disclaimer' + langSuffix]) {
+                    html += `<div class="disclaimer">${scholarship['disclaimer' + langSuffix]}</div>`;
+                }
+
+                html += `
+                    <div class="verified">${t('label-verified')}: ${scholarship.verified_date}</div>
+                    <a href="${scholarship.url}" target="_blank" rel="noopener">${t('visit-official')}</a>
+                `;
+
+                card.innerHTML = html;
+                regions[scholarship.region].appendChild(card);
+            });
+        }
+
+        function renderCurrentStudentsCards() {
+            const grid = document.getElementById('support-cards-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+
+            supportOptions.forEach(option => {
+                const langSuffix = `_${currentLang}`;
+                const card = document.createElement('div');
+                card.className = 'support-card';
+
+                card.innerHTML = `
+                    <h3>${option['institution' + langSuffix]}</h3>
+                    <div class="program-name">${option['program' + langSuffix]}</div>
+                    <div class="helps-label">${t('label-helps')}</div>
+                    <div class="helps-with">${option['helps' + langSuffix]}</div>
+                    <div class="how-label">${t('label-begin')}</div>
+                    <div class="how-begin">${option['begin' + langSuffix]}</div>
+                    <div class="verified">${t('label-verified')}: ${option.verified_date}</div>
+                    <a href="${option.url}" target="_blank" rel="noopener">${t('visit-official')}</a>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            // Add AP Start Here card
+            const startHereCard = document.createElement('div');
+            startHereCard.className = 'ap-clinica-card';
+            startHereCard.innerHTML = `
+                <h3>${t('ap-clinica-title')}</h3>
+                <p>${t('ap-clinica-desc')}</p>
+                <a href="https://contact432.github.io/anchored-pathways-next-step/start-here.html" target="_blank" rel="noopener">${t('ap-clinica-button')}</a>
+            `;
+            grid.appendChild(startHereCard);
+        }
+
+        // Tab navigation
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderScholarshipCards();
+            renderCurrentStudentsCards();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immigration Status & College Aid - Anchored Pathways</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .language-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 100;
+            background: white;
+            padding: 4px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .lang-button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .lang-button.active {
+            background: #1A5F6E;
+            color: white;
+            border-color: #1A5F6E;
+        }
+
+        .lang-button:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px 16px 40px;
+            padding-top: 80px;
+        }
+
+        .intro {
+            margin-bottom: 32px;
+        }
+
+        .intro h1 {
+            font-size: 32px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            color: #14505E;
+            font-weight: 600;
+        }
+
+        .intro p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .disclaimer-box {
+            background: #fef3cd;
+            border: 2px solid #ffc107;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+
+        .disclaimer-box h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .disclaimer-box p {
+            font-size: 13px;
+            color: #333;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .hotline-box {
+            background: white;
+            border-left: 4px solid #1A5F6E;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 24px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .hotline-box h2 {
+            font-size: 18px;
+            color: #14505E;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .hotline-box p {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .hotline-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A5F6E;
+            margin: 12px 0;
+        }
+
+        .hotline-link {
+            display: inline-block;
+            color: #1A5F6E;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .hotline-link:hover {
+            text-decoration: underline;
+        }
+
+        .hotline-link:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .funding-section {
+            margin: 40px 0;
+            padding-top: 24px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .funding-section h2 {
+            font-size: 22px;
+            color: #14505E;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .funding-section > p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .funding-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .funding-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .funding-card:hover {
+            box-shadow: 0 4px 12px rgba(26, 95, 110, 0.1);
+            border-color: #1A5F6E;
+        }
+
+        .funding-card-category {
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .funding-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #14505E;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .funding-card p {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .funding-card-meta {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 12px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 8px;
+        }
+
+        .funding-button {
+            padding: 10px 12px;
+            background: #1A5F6E;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .funding-button:hover {
+            background: #14505E;
+        }
+
+        .funding-button:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .legal-section {
+            margin: 40px 0;
+            padding-top: 24px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .legal-section h2 {
+            font-size: 22px;
+            color: #14505E;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .accordion {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .accordion-button {
+            width: 100%;
+            padding: 20px;
+            background: white;
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.2s ease;
+            font-size: 16px;
+            font-weight: 600;
+            color: #14505E;
+        }
+
+        .accordion-button:hover {
+            background: #f8f9fa;
+        }
+
+        .accordion-button:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: -2px;
+            background: #f8f9fa;
+        }
+
+        .accordion-button-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .accordion-icon {
+            flex-shrink: 0;
+            font-size: 20px;
+            color: #1A5F6E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-content.open {
+            max-height: 3000px;
+        }
+
+        .accordion-body {
+            padding: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .accordion-body p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .accordion-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .accordion-body strong {
+            color: #14505E;
+        }
+
+        .resource-box {
+            background: #f0f7f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .resource-box h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #14505E;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .resource-box p {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .resource-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .resource-link {
+            color: #1A5F6E;
+            text-decoration: none;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .resource-link:hover {
+            text-decoration: underline;
+        }
+
+        .resource-link:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #1A5F6E;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 24px;
+            padding: 8px 0;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .back-link:focus {
+            outline: 2px solid #1A5F6E;
+            outline-offset: 2px;
+        }
+
+        .last-reviewed {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            padding: 24px 0;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .intro h1 {
+                font-size: 24px;
+            }
+
+            .language-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 16px;
+            }
+
+            .container {
+                padding-top: 24px;
+            }
+
+            .funding-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .accordion-button {
+                padding: 16px;
+                font-size: 15px;
+            }
+
+            .accordion-body {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .accordion-button {
+                padding: 14px;
+                font-size: 14px;
+                gap: 12px;
+            }
+
+            .accordion-button-text {
+                word-break: break-word;
+            }
+
+            .accordion-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 18px;
+            }
+
+            .accordion-body {
+                padding: 12px;
+            }
+
+            .accordion-body p {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-toggle">
+        <button class="lang-button active" data-lang="en" onclick="changeLanguage('en')">English</button>
+        <button class="lang-button" data-lang="es" onclick="changeLanguage('es')">Español</button>
+    </div>
+
+    <div class="container">
+        <div class="intro">
+            <h1 id="page-title">Immigration Status & College Aid</h1>
+            <p id="intro-p1">Your immigration status can affect which colleges, financial aid forms, and scholarship opportunities may be available. This page can help you identify the right questions and connect you with trusted resources and support.</p>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer-box">
+            <h3 id="disclaimer-header">⚠️ Important</h3>
+            <p id="disclaimer-text">Anchored Pathways provides education navigation, not legal advice. Your situation may be different from someone else's. For legal advice about your immigration status or specific eligibility questions, speak with a qualified immigration attorney or accredited legal-services provider.</p>
+        </div>
+
+        <!-- Primary resource: Houston hotline -->
+        <div class="hotline-box">
+            <h2 id="hotline-title">Start Here: Houston Immigrants' Rights Hotline</h2>
+            <p id="hotline-desc">The Houston Immigrants' Rights Hotline provides free, confidential information and referrals to immigration attorneys and legal-service providers who can answer questions about your specific situation.</p>
+            <div class="hotline-number" id="hotline-number">1-833-HOU-IMMI (1-833-468-4664)</div>
+            <p><a href="https://houstonimmigration.org/" target="_blank" rel="noopener" class="hotline-link" id="hotline-link">houstonimmigration.org</a></p>
+        </div>
+
+        <!-- FUNDING OPTIONS SECTION -->
+        <div class="funding-section">
+            <h2 id="funding-title">Funding Options to Explore</h2>
+            <p id="funding-intro">These opportunities may have different requirements. Always check the official source for current eligibility, deadlines, and application instructions.</p>
+            <div class="funding-grid" id="funding-grid"></div>
+        </div>
+
+        <!-- LEGAL GUIDANCE SECTION -->
+        <div class="legal-section">
+            <h2 id="legal-guidance-title">Understanding Your Situation</h2>
+            <div class="sections-container" id="sections-container"></div>
+        </div>
+
+        <a href="scholarships.html" class="back-link" id="back-to-scholarships">← Back to Scholarships & Funding page</a>
+
+        <div class="last-reviewed">
+            <p id="last-reviewed-text">Last reviewed: September 2026. College policies and legal requirements can change. Always verify current information directly with the college or legal provider.</p>
+        </div>
+    </div>
+
+    <script>
+        // FUNDING OPTIONS DATA
+        const fundingOptions = [
+            {
+                id: 'ust',
+                name_en: 'University of St. Thomas–Houston',
+                name_es: 'Universidad de St. Thomas–Houston',
+                category_en: 'Institutional aid',
+                category_es: 'Ayuda institucional',
+                description_en: 'Merit Scholarships ($10,000–$20,000/yr) and St. Thomas Promise (full tuition for families earning <$50,000).',
+                description_es: 'Becas de Mérito ($10,000–$20,000/año) y Promesa de St. Thomas (matrícula completa para familias que ganan <$50,000).',
+                url: 'https://stthom.edu/tuition-aid/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'rice',
+                name_en: 'Rice University',
+                name_es: 'Universidad Rice',
+                category_en: 'Institutional aid',
+                category_es: 'Ayuda institucional',
+                description_en: 'Need-based financial aid meeting 100% of demonstrated need. Need-blind admissions treats all students equally.',
+                description_es: 'Ayuda financiera basada en necesidad cubriendo el 100% de la necesidad demostrada. Admisiones sin considerar necesidad tratan a todos los estudiantes por igual.',
+                url: 'https://financialaid.rice.edu/apply-aid/daca-undocumented-students',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'sanjac',
+                name_en: 'San Jacinto College',
+                name_es: 'San Jacinto College',
+                category_en: 'Local scholarship',
+                category_es: 'Beca local',
+                description_en: 'Foundation Scholarships ($1,500–$5,000/yr). Anchored Pathways\' primary partner serving East Harris County.',
+                description_es: 'Becas de Fundación ($1,500–$5,000/año). Socio principal de Anchored Pathways sirviendo al Condado Este de Harris.',
+                url: 'https://www.sanjac.edu/admissions/paying-for-college/tuition-costs/tuition-exemption',
+                verified_date: 'August 2026',
+            },
+            {
+                id: 'ollu',
+                name_en: 'Our Lady of the Lake University',
+                name_es: 'Our Lady of the Lake University',
+                category_en: 'Institutional aid',
+                category_es: 'Ayuda institucional',
+                description_en: 'Institutional Aid & Merit Scholarships (average $18,814/yr). TheDream.US partner school.',
+                description_es: 'Ayuda Institucional y Becas de Mérito (promedio $18,814/año). Escuela asociada de TheDream.US.',
+                url: 'https://www.ollusa.edu/costs-aid/index.html',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'azteca',
+                name_en: 'Azteca Scholarship',
+                name_es: 'Beca Azteca',
+                category_en: 'Local scholarship',
+                category_es: 'Beca local',
+                description_en: 'Houston-based scholarship that explicitly encourages undocumented students to apply. Minimum 2.0 GPA.',
+                description_es: 'Beca basada en Houston que explícitamente alienta a estudiantes indocumentados a aplicar. GPA mínimo de 2.0.',
+                url: 'https://www.houstoncommunityservices.com/scholarships-becas',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'galveston',
+                name_en: 'Galveston College',
+                name_es: 'Galveston College',
+                category_en: 'Local scholarship',
+                category_es: 'Beca local',
+                description_en: 'Universal Access Scholarship ($500–$2,500) has no stated citizenship requirement. Norma Rubin Nursing Scholarship explicitly has no citizenship requirement.',
+                description_es: 'Beca Universal Access ($500–$2,500) sin requisito de ciudadanía indicado. Beca de Enfermería Norma Rubin explícitamente sin requisito de ciudadanía.',
+                url: 'https://gc.edu/financial-aid/index.php',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'hacu',
+                name_en: 'HACU Scholarship Programs',
+                name_es: 'Programas de Becas HACU',
+                category_en: 'National scholarship',
+                category_es: 'Beca nacional',
+                description_en: 'Scholarships ($1,000–$5,000+) for Hispanic students. Some programs have no citizenship requirement. Covers multiple Texas institutions.',
+                description_es: 'Becas ($1,000–$5,000+) para estudiantes hispanos. Algunos programas no tienen requisito de ciudadanía. Cubre múltiples instituciones de Texas.',
+                url: 'https://hacu.net/programs/hacu-scholarship-program/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'immigrants-rising',
+                name_en: 'Immigrants Rising Scholarship Directory',
+                name_es: 'Directorio de Becas de Immigrants Rising',
+                category_en: 'Scholarship directory',
+                category_es: 'Directorio de becas',
+                description_en: 'Curated, ongoing directory of scholarships for undocumented students and their families.',
+                description_es: 'Directorio cuidadosamente seleccionado y continuo de becas para estudiantes indocumentados y sus familias.',
+                url: 'https://immigrantsrising.org/scholarships/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'united-we-dream',
+                name_en: 'United We Dream Scholarship Hub',
+                name_es: 'Centro de Becas United We Dream',
+                category_en: 'Scholarship resource hub',
+                category_es: 'Centro de recursos de becas',
+                description_en: 'Ongoing scholarship resource hub and community support for undocumented young people.',
+                description_es: 'Centro de recursos de becas continuo y apoyo comunitario para jóvenes indocumentados.',
+                url: 'https://unitedwedream.org/scholarships/',
+                verified_date: 'September 2026',
+            },
+            {
+                id: 'thedream',
+                name_en: 'TheDream.US National Scholarship',
+                name_es: 'Beca Nacional TheDream.US',
+                category_en: 'National scholarship',
+                category_es: 'Beca nacional',
+                description_en: 'Up to $33,000 (bachelor\'s) or $16,500 (associate\'s) plus $6,000 living stipend for DACA, TPS, and other eligible statuses. Typically open Nov 1 – Feb 28.',
+                description_es: 'Hasta $33,000 (licenciatura) o $16,500 (asociado) más $6,000 estipendio de vida para DACA, TPS y otros estatus elegibles. Típicamente abierto nov. 1 – feb. 28.',
+                url: 'https://thedream.us/scholarships/',
+                verified_date: 'September 2026',
+            },
+        ];
+
+        // LEGAL GUIDANCE SECTIONS
+        const sections = [
+            {
+                id: 'undocumented',
+                title_en: 'I am undocumented',
+                title_es: 'Soy indocumentado',
+                content_en: `
+                    <p><strong>College options:</strong> You can attend college in Texas. Some schools have specific pathways for undocumented students, while others are open to all applicants.</p>
+                    <p><strong>Financial aid:</strong> You may not qualify for federal financial aid (FAFSA), but some colleges offer institutional aid, scholarships, or fee waivers. Contact the college's financial aid office directly.</p>
+                    <p><strong>Important:</strong> Never provide false documentation. If you are unsure about your eligibility for a specific form or program, ask a legal advisor or the college's financial aid office.</p>
+                    <div class="resource-box">
+                        <h4>Next step</h4>
+                        <p>Contact the financial aid office at the college you are interested in. You can ask about funding options without disclosing more information than the college needs to answer your question.</p>
+                        <p style="margin-top: 8px;">Sample question: "What scholarships, institutional aid, or fee waivers are available to students without federal financial aid eligibility?"</p>
+                    </div>
+                `,
+                content_es: `
+                    <p><strong>Opciones de universidad:</strong> Puedes asistir a la universidad en Texas. Algunas escuelas tienen caminos específicos para estudiantes indocumentados, mientras que otras están abiertas a todos los solicitantes.</p>
+                    <p><strong>Ayuda financiera:</strong> Es posible que no califiques para ayuda financiera federal (FAFSA), pero algunas universidades ofrecen ayuda institucional, becas o exenciones de cuotas. Contacta directamente a la oficina de ayuda financiera de la universidad.</p>
+                    <p><strong>Importante:</strong> Nunca proporciones documentación falsa. Si no estás seguro de tu elegibilidad para una forma o programa específico, pregunta a un asesor legal o a la oficina de ayuda financiera de la universidad.</p>
+                    <div class="resource-box">
+                        <h4>Próximo paso</h4>
+                        <p>Contacta a la oficina de ayuda financiera en la universidad que te interesa. Puedes preguntar sobre opciones de financiamiento sin revelar más información de la que la universidad necesita para responder tu pregunta.</p>
+                        <p style="margin-top: 8px;">Pregunta de ejemplo: "¿Qué becas, ayuda institucional o exenciones de cuotas están disponibles para estudiantes sin elegibilidad para ayuda financiera federal?"</p>
+                    </div>
+                `,
+            },
+            {
+                id: 'daca',
+                title_en: 'I have DACA (Deferred Action for Childhood Arrivals)',
+                title_es: 'Tengo DACA (Acción Diferida para los Llegados en la Infancia)',
+                content_en: `
+                    <p><strong>Federal financial aid (FAFSA):</strong> DACA by itself does not make a student eligible for federal student aid. If you have questions about another immigration category or your specific situation, use official Federal Student Aid guidance or ask your college's financial-aid office before submitting a form.</p>
+                    <p><a href="https://studentaid.gov/" target="_blank" rel="noopener" class="resource-link">Visit Federal Student Aid (studentaid.gov)</a> for current guidance on your specific situation.</p>
+                    <p><strong>Texas state aid form (TASFA):</strong> If you are a Texas resident, you may qualify for state aid through TASFA. Contact the college's financial aid office to see if you are eligible and if your state residency qualifies.</p>
+                    <p><strong>Scholarships and institutional aid:</strong> Many colleges offer scholarships or institutional aid to DACA recipients. The college's financial aid office can tell you which ones are available.</p>
+                    <div class="resource-box">
+                        <h4>Next step</h4>
+                        <p>Call the financial aid office and say: "I have DACA. What state aid (TASFA) and scholarships am I eligible for?"</p>
+                    </div>
+                `,
+                content_es: `
+                    <p><strong>Ayuda financiera federal (FAFSA):</strong> DACA por sí solo no hace que un estudiante sea elegible para ayuda financiera federal. Si tienes preguntas sobre otra categoría de inmigración o tu situación específica, usa la orientación oficial de Federal Student Aid o pregunta a la oficina de ayuda financiera de tu universidad antes de enviar un formulario.</p>
+                    <p><a href="https://studentaid.gov/" target="_blank" rel="noopener" class="resource-link">Visita Federal Student Aid (studentaid.gov)</a> para obtener orientación actual sobre tu situación específica.</p>
+                    <p><strong>Forma de ayuda estatal de Texas (TASFA):</strong> Si eres residente de Texas, es posible que califiques para ayuda estatal a través de TASFA. Contacta a la oficina de ayuda financiera de la universidad para ver si eres elegible y si tu residencia estatal califica.</p>
+                    <p><strong>Becas y ayuda institucional:</strong> Muchas universidades ofrecen becas o ayuda institucional a beneficiarios de DACA. La oficina de ayuda financiera de la universidad puede decirte cuáles están disponibles.</p>
+                    <div class="resource-box">
+                        <h4>Próximo paso</h4>
+                        <p>Llama a la oficina de ayuda financiera y di: "Tengo DACA. ¿Para qué ayuda estatal (TASFA) y becas soy elegible?"</p>
+                    </div>
+                `,
+            },
+            {
+                id: 'mixed',
+                title_en: 'My family has mixed immigration statuses',
+                title_es: 'Mi familia tiene estatus migratorio mixto',
+                content_en: `
+                    <p><strong>Student's status matters first:</strong> A parent's immigration status does not automatically determine whether the student can pursue funding. Start with the student's own citizenship or immigration category, then ask the college which financial-aid form and funding options may apply.</p>
+                    <p><strong>FAFSA and family info:</strong> You may still be able to complete FAFSA even if not all family members are U.S. citizens or have legal status. Ask the college's financial aid office for guidance on what information to provide.</p>
+                    <p><strong>Talk to financial aid:</strong> Contact the college's financial aid office. You can ask about which forms you should complete to explore funding options. Share only the information the college needs to answer your question.</p>
+                    <p><a href="https://studentaid.gov/announcements-events/fafsa-support/contributor-social-security-number" target="_blank" rel="noopener" class="resource-link">Read Federal Student Aid's guidance on FAFSA contributors without Social Security numbers.</a></p>
+                    <div class="resource-box">
+                        <h4>Next step</h4>
+                        <p>Contact financial aid and ask: "My family includes members with different immigration statuses. Which forms should I complete to explore funding options?"</p>
+                    </div>
+                `,
+                content_es: `
+                    <p><strong>El estatus del estudiante importa primero:</strong> El estado migratorio de un padre no determina automáticamente si el estudiante puede buscar financiamiento. Comienza con la propia categoría de ciudadanía o inmigración del estudiante, luego pregunta a la universidad qué forma de ayuda financiera y opciones de financiamiento pueden aplicarse.</p>
+                    <p><strong>FAFSA e información familiar:</strong> Es posible que aún puedas completar FAFSA incluso si no todos los miembros de la familia son ciudadanos estadounidenses o tienen estatus legal. Pregunta a la oficina de ayuda financiera de la universidad para obtener orientación sobre qué información proporcionar.</p>
+                    <p><strong>Habla con ayuda financiera:</strong> Contacta a la oficina de ayuda financiera de la universidad. Puedes preguntar qué formas debes completar para explorar opciones de financiamiento. Comparte solo la información que la universidad necesita para responder tu pregunta.</p>
+                    <p><a href="https://studentaid.gov/announcements-events/fafsa-support/contributor-social-security-number" target="_blank" rel="noopener" class="resource-link">Lee la orientación de Federal Student Aid sobre contribuyentes de FAFSA sin números de Seguro Social.</a></p>
+                    <div class="resource-box">
+                        <h4>Próximo paso</h4>
+                        <p>Contacta a ayuda financiera y pregunta: "Mi familia incluye miembros con diferentes estatus migratorios. ¿Qué formas debo completar para explorar opciones de financiamiento?"</p>
+                    </div>
+                `,
+            },
+            {
+                id: 'tps',
+                title_en: 'I have TPS, U visa, T visa, or another temporary status',
+                title_es: 'Tengo TPS, visa U, visa T u otro estatus temporal',
+                content_en: `
+                    <p><strong>Eligibility varies by status and program:</strong> Some college aid programs and scholarships may be available to you, depending on your specific status, how long you have been in the U.S., and the college's policies.</p>
+                    <p><strong>Ask directly:</strong> Do not assume you are ineligible. Contact the college's financial aid office and ask about what options exist for your situation. You can ask without disclosing more information than the college needs.</p>
+                    <p><strong>Federal financial aid (FAFSA):</strong> Eligibility depends on your status. The financial aid office can advise you on whether to submit FAFSA or TASFA.</p>
+                    <div class="resource-box">
+                        <h4>Next step</h4>
+                        <p>Contact the college's financial aid office and ask: "What financial aid, scholarships, or state aid programs am I eligible for?"</p>
+                    </div>
+                `,
+                content_es: `
+                    <p><strong>La elegibilidad varía según el estatus y el programa:</strong> Algunos programas de ayuda universitaria y becas pueden estar disponibles para ti, dependiendo de tu estatus específico, cuánto tiempo has estado en EE.UU. y las políticas de la universidad.</p>
+                    <p><strong>Pregunta directamente:</strong> No supongas que no eres elegible. Contacta a la oficina de ayuda financiera de la universidad y pregunta qué opciones existen para tu situación. Puedes preguntar sin revelar más información de la que la universidad necesita.</p>
+                    <p><strong>Ayuda financiera federal (FAFSA):</strong> La elegibilidad depende de tu estatus. La oficina de ayuda financiera puede asesorarte sobre si debes enviar FAFSA o TASFA.</p>
+                    <div class="resource-box">
+                        <h4>Próximo paso</h4>
+                        <p>Contacta a la oficina de ayuda financiera de la universidad y pregunta: "¿Para qué ayuda financiera, becas o programas de ayuda estatal soy elegible?"</p>
+                    </div>
+                `,
+            },
+            {
+                id: 'fafsa_tasfa',
+                title_en: 'I need help understanding FAFSA, TASFA, or state aid',
+                title_es: 'Necesito ayuda para entender FAFSA, TASFA o ayuda estatal',
+                content_en: `
+                    <p><strong>FAFSA (Free Application for Federal Student Aid):</strong> A form used to apply for federal financial aid. Eligibility depends on citizenship, legal status, and other factors.</p>
+                    <p><strong>TASFA (Texas Application for State Financial Aid):</strong> A form for Texas residents who are not eligible for FAFSA. Ask the college's financial aid office if you qualify.</p>
+                    <p><strong>Texas state aid programs:</strong> Some state aid may be available depending on residency, status, and the college's participation.</p>
+                    <p><strong>The safest approach:</strong> Tell the college's financial aid office what information you can share and ask which forms you should complete. You should not have to guess.</p>
+                    <div class="resource-box">
+                        <h4>Next step</h4>
+                        <p>Contact the college's financial aid office and say: "I am not sure which aid forms to complete. Can you help me figure out which forms are right for my situation?"</p>
+                    </div>
+                `,
+                content_es: `
+                    <p><strong>FAFSA (Solicitud Gratuita de Ayuda Federal para Estudiantes):</strong> Un formulario utilizado para solicitar ayuda financiera federal. La elegibilidad depende de la ciudadanía, el estatus legal y otros factores.</p>
+                    <p><strong>TASFA (Solicitud de Texas para Ayuda Financiera Estatal):</strong> Un formulario para residentes de Texas que no son elegibles para FAFSA. Pregunta a la oficina de ayuda financiera de la universidad si calificas.</p>
+                    <p><strong>Programas de ayuda estatal de Texas:</strong> Algunas ayudas estatales pueden estar disponibles dependiendo de la residencia, el estatus y la participación de la universidad.</p>
+                    <p><strong>El enfoque más seguro:</strong> Cuéntale a la oficina de ayuda financiera de la universidad qué información puedes compartir y pregunta qué formas debes completar. No deberías tener que adivinar.</p>
+                    <div class="resource-box">
+                        <h4>Próximo paso</h4>
+                        <p>Contacta a la oficina de ayuda financiera de la universidad y di: "No estoy seguro de qué formas de ayuda completar. ¿Puedes ayudarme a determinar qué formas son adecuadas para mi situación?"</p>
+                    </div>
+                `,
+            },
+            {
+                id: 'legal',
+                title_en: 'I need a trusted legal referral',
+                title_es: 'Necesito una referencia legal confiable',
+                content_en: `
+                    <p><strong>Start with the Houston Immigrants' Rights Hotline (above).</strong> This hotline connects people with qualified immigration attorneys and accredited legal-services providers who understand the U.S. immigration system and Texas laws.</p>
+                    <p>The hotline can answer questions about your specific situation and refer you to an attorney or legal organization that can provide legal advice.</p>
+                    <p><strong>What "accredited" means:</strong> An accredited provider has credentials recognized by U.S. immigration authorities. Only accredited providers and licensed attorneys can give you legal advice.</p>
+                    <div class="resource-box">
+                        <h4>Important</h4>
+                        <p>Be cautious of anyone who promises a specific immigration outcome or charges large upfront fees. Accredited providers and legal organizations often offer low-cost or free services based on income.</p>
+                    </div>
+                `,
+                content_es: `
+                    <p><strong>Comienza con la Línea Directa de Derechos de los Inmigrantes de Houston (arriba).</strong> Esta línea conecta a las personas con abogados de inmigración calificados y proveedores de servicios legales acreditados que comprenden el sistema de inmigración de EE.UU. y las leyes de Texas.</p>
+                    <p>La línea directa puede responder preguntas sobre tu situación específica y referirte a un abogado u organización legal que pueda proporcionarte asesoramiento legal.</p>
+                    <p><strong>Qué significa "acreditado":</strong> Un proveedor acreditado tiene credenciales reconocidas por las autoridades de inmigración de EE.UU. Solo los proveedores acreditados y abogados autorizados pueden darte asesoramiento legal.</p>
+                    <div class="resource-box">
+                        <h4>Importante</h4>
+                        <p>Ten cuidado con cualquiera que prometa un resultado migratorio específico o cobre honorarios grandes por adelantado. Los proveedores acreditados y organizaciones legales a menudo ofrecen servicios de bajo costo o gratuitos según los ingresos.</p>
+                    </div>
+                `,
+            },
+        ];
+
+        const text = {
+            en: {
+                'page-title': 'Immigration Status & College Aid',
+                'intro-p1': 'Your immigration status can affect which colleges, financial aid forms, and scholarship opportunities may be available. This page can help you identify the right questions and connect you with trusted resources and support.',
+                'disclaimer-header': '⚠️ Important',
+                'disclaimer-text': 'Anchored Pathways provides education navigation, not legal advice. Your situation may be different from someone else\'s. For legal advice about your immigration status or specific eligibility questions, speak with a qualified immigration attorney or accredited legal-services provider.',
+                'hotline-title': 'Start Here: Houston Immigrants\' Rights Hotline',
+                'hotline-desc': 'The Houston Immigrants\' Rights Hotline provides free, confidential information and referrals to immigration attorneys and legal-service providers who can answer questions about your specific situation.',
+                'hotline-number': '1-833-HOU-IMMI (1-833-468-4664)',
+                'hotline-link': 'houstonimmigration.org',
+                'funding-title': 'Funding Options to Explore',
+                'funding-intro': 'These opportunities may have different requirements. Always check the official source for current eligibility, deadlines, and application instructions.',
+                'legal-guidance-title': 'Understanding Your Situation',
+                'back-to-scholarships': '← Back to Scholarships & Funding page',
+                'last-reviewed-text': 'Last reviewed: September 2026. College policies and legal requirements can change. Always verify current information directly with the college or legal provider.',
+                'visit-button': 'Visit official source',
+            },
+            es: {
+                'page-title': 'Estado Migratorio y Ayuda para la Universidad',
+                'intro-p1': 'Tu estado migratorio puede afectar qué universidades, formas de ayuda financiera y oportunidades de becas pueden estar disponibles. Esta página puede ayudarte a identificar las preguntas correctas y conectarte con recursos y apoyo confiables.',
+                'disclaimer-header': '⚠️ Importante',
+                'disclaimer-text': 'Anchored Pathways proporciona navegación educativa, no asesoramiento legal. Tu situación puede ser diferente a la de otra persona. Para asesoramiento legal sobre tu estatus migratorio o preguntas específicas de elegibilidad, habla con un abogado de inmigración calificado o un proveedor de servicios legales acreditado.',
+                'hotline-title': 'Comienza Aquí: Línea Directa de Derechos de los Inmigrantes de Houston',
+                'hotline-desc': 'La Línea Directa de Derechos de los Inmigrantes de Houston proporciona información gratuita y confidencial y referencias a abogados de inmigración y proveedores de servicios legales que pueden responder preguntas sobre tu situación específica.',
+                'hotline-number': '1-833-HOU-IMMI (1-833-468-4664)',
+                'hotline-link': 'houstonimmigration.org',
+                'funding-title': 'Opciones de Financiamiento para Explorar',
+                'funding-intro': 'Estas oportunidades pueden tener diferentes requisitos. Siempre verifica la fuente oficial para obtener información actual sobre elegibilidad, fechas límite e instrucciones de solicitud.',
+                'legal-guidance-title': 'Entendiendo Tu Situación',
+                'back-to-scholarships': '← Volver a la página de Becas y Financiamiento',
+                'last-reviewed-text': 'Última revisión: septiembre de 2026. Las políticas de las universidades y los requisitos legales pueden cambiar. Siempre verifica la información actual directamente con la universidad o el proveedor legal.',
+                'visit-button': 'Visitar fuente oficial',
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'en';
+
+        function t(key) {
+            return text[currentLang][key] || text['en'][key] || key;
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('lang', lang);
+
+            document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+
+            // Update static text
+            if (document.getElementById('page-title')) document.getElementById('page-title').textContent = t('page-title');
+            if (document.getElementById('intro-p1')) document.getElementById('intro-p1').textContent = t('intro-p1');
+            if (document.getElementById('disclaimer-header')) document.getElementById('disclaimer-header').textContent = t('disclaimer-header');
+            if (document.getElementById('disclaimer-text')) document.getElementById('disclaimer-text').textContent = t('disclaimer-text');
+            if (document.getElementById('hotline-title')) document.getElementById('hotline-title').textContent = t('hotline-title');
+            if (document.getElementById('hotline-desc')) document.getElementById('hotline-desc').textContent = t('hotline-desc');
+            if (document.getElementById('hotline-number')) document.getElementById('hotline-number').textContent = t('hotline-number');
+            if (document.getElementById('hotline-link')) document.getElementById('hotline-link').textContent = t('hotline-link');
+            if (document.getElementById('funding-title')) document.getElementById('funding-title').textContent = t('funding-title');
+            if (document.getElementById('funding-intro')) document.getElementById('funding-intro').textContent = t('funding-intro');
+            if (document.getElementById('legal-guidance-title')) document.getElementById('legal-guidance-title').textContent = t('legal-guidance-title');
+            if (document.getElementById('back-to-scholarships')) document.getElementById('back-to-scholarships').textContent = t('back-to-scholarships');
+            if (document.getElementById('last-reviewed-text')) document.getElementById('last-reviewed-text').textContent = t('last-reviewed-text');
+
+            renderFundingOptions();
+            renderSections();
+        }
+
+        function renderFundingOptions() {
+            const grid = document.getElementById('funding-grid');
+            grid.innerHTML = '';
+
+            fundingOptions.forEach(option => {
+                const langSuffix = `_${currentLang}`;
+                const card = document.createElement('div');
+                card.className = 'funding-card';
+                
+                card.innerHTML = `
+                    <div class="funding-card-category">${option['category' + langSuffix]}</div>
+                    <h3>${option['name' + langSuffix]}</h3>
+                    <p>${option['description' + langSuffix]}</p>
+                    <div class="funding-card-meta">Last verified: ${option.verified_date}</div>
+                    <a href="${option.url}" target="_blank" rel="noopener" class="funding-button">${t('visit-button')}</a>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function renderSections() {
+            const container = document.getElementById('sections-container');
+            container.innerHTML = '';
+
+            sections.forEach((sec) => {
+                const titleKey = `title_${currentLang}`;
+                const contentKey = `content_${currentLang}`;
+                const title = sec[titleKey];
+                const content = sec[contentKey];
+
+                const accordion = document.createElement('div');
+                accordion.className = 'accordion';
+                
+                const button = document.createElement('button');
+                button.className = 'accordion-button';
+                button.setAttribute('aria-expanded', 'false');
+                button.setAttribute('aria-controls', `content-${sec.id}`);
+                button.setAttribute('type', 'button');
+                
+                button.innerHTML = `
+                    <span class="accordion-button-text">${title}</span>
+                    <span class="accordion-icon" aria-hidden="true">+</span>
+                `;
+                
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    toggleSection(sec.id);
+                };
+
+                const contentDiv = document.createElement('div');
+                contentDiv.id = `content-${sec.id}`;
+                contentDiv.className = 'accordion-content';
+                contentDiv.innerHTML = `<div class="accordion-body">${content}</div>`;
+
+                accordion.appendChild(button);
+                accordion.appendChild(contentDiv);
+                container.appendChild(accordion);
+            });
+        }
+
+        function toggleSection(id) {
+            const content = document.getElementById(`content-${id}`);
+            const button = content.previousElementSibling;
+            const icon = button.querySelector('.accordion-icon');
+            
+            content.classList.toggle('open');
+            button.setAttribute('aria-expanded', content.classList.contains('open'));
+            icon.textContent = content.classList.contains('open') ? '−' : '+';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            changeLanguage(currentLang);
+        });
+    </script>
+</body>
+</html>

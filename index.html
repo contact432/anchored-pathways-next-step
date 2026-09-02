@@ -1300,6 +1300,34 @@ const SCREEN_MAP = {
 // Alias hash -> canonical screen name used everywhere else in the app.
 const SCREEN_ALIASES = { persevere:'persist', stay:'persist', shift:'redefine', advance:'apply' };
 
+// Retired public hashes redirect before the normal screen router runs. Use replace()
+// so the obsolete URL does not remain as a misleading stop in browser history.
+function redirectLegacyHash(raw){
+  const cleaned = (raw || '').replace(/^#/, '');
+  const careerHashes = ['decide-roi', 'decide-roi-detail', 'decide-roi-compare'];
+  const scholarshipHashes = [
+    'apply-scholarships',
+    'apply-scholarships-detail',
+    'apply-scholarships-saved',
+    'apply-topic?topic=scholarships'
+  ];
+  if(careerHashes.includes(cleaned)){
+    location.replace(CAREER_EXPLORER_URL);
+    return true;
+  }
+  if(scholarshipHashes.includes(cleaned)){
+    location.replace(SCHOLARSHIPS_PAGE_URL);
+    return true;
+  }
+  if(cleaned === 'decide-afford'){
+    state.screen = 'resources';
+    try { history.replaceState(null, '', '#resources'); }
+    catch(e){ location.replace('#resources'); }
+    return true;
+  }
+  return false;
+}
+
 function renderScreen(){
   if(state.screen==='home' && previousScreen!=='home'){ state.homeTriageExpanded=false; }
   previousScreen = state.screen;
@@ -1365,6 +1393,7 @@ function applyHashToState(raw){
 }
 
 window.addEventListener('hashchange', function(){
+  if(redirectLegacyHash(location.hash)) return;
   routerIsNavigating = true;
   // An empty hash means the user went back past the first screen they navigated to,
   // which is Home, matching where they started.
@@ -1568,7 +1597,7 @@ function homeScreen(){
   });
 
   // Resources handoff: sits directly below the main route options (the stage banners
-  // above), before Persist/Redefine and the Checklist/Core Tracker cards. Opens the Wix
+  // above), before the contextual Persist/Redefine paths. Opens the Wix
   // Resources page in the SAME tab (approved Phase 1 nav/copy patch).
   wrap.appendChild(resourcesHandoff(
     'Looking for guides, printable checklists, or grade-by-grade planning? Visit our Resources page.',
@@ -1591,20 +1620,6 @@ function homeScreen(){
     linesWrap.appendChild(b);
   });
   wrap.appendChild(linesWrap);
-
-  const checklistCard=el('div','stage-banner');
-  checklistCard.style.background = 'linear-gradient(135deg, #8C6A3F, #8C6A3FCC)';
-  checklistCard.style.marginTop = '10px';
-  checklistCard.innerHTML = `<div class="ic">✅</div><div><h3>${isEn()?'Family Checklist':'Lista Familiar'}</h3><p>${isEn()?'A printable, step-by-step checklist for every stage':'Una lista imprimible, paso a paso, para cada etapa'}</p></div><div class="chev">›</div>`;
-  checklistCard.onclick=()=>{ window.open(FAMILY_CHECKLIST_URL, '_blank', 'noopener,noreferrer'); };
-  wrap.appendChild(checklistCard);
-
-  const coreTrackerCard=el('div','stage-banner');
-  coreTrackerCard.style.background = 'linear-gradient(135deg, #1A5F6E, #1A5F6ECC)';
-  coreTrackerCard.style.marginTop = '10px';
-  coreTrackerCard.innerHTML = `<div class="ic">🎓</div><div><h3>${isEn()?'Core Tracker':'Rastreador del Core'}</h3><p>${isEn()?'Check off the 42-hour core at 13 Texas colleges and universities':'Marque el core de 42 horas en 13 colegios y universidades de Texas'}</p></div><div class="chev">›</div>`;
-  coreTrackerCard.onclick=()=>{ window.open(CORE_TRACKER_URL, '_blank', 'noopener,noreferrer'); };
-  wrap.appendChild(coreTrackerCard);
 
   return wrap;
 }
@@ -5698,16 +5713,16 @@ function familyScreen(){
      index.html#explore
      index.html#decide-compare
      index.html#apply-topic?topic=military   (topic: pay, applying, military, career)
-   Retired hashes (#decide-afford, #decide-roi and its detail/compare variants,
-   #apply-scholarships and its list/detail/saved variants, and
-   #apply-topic?topic=scholarships) are no longer recognized. Career Explorer and
-   Scholarships & Funding are standalone pages now:
+   Retired ROI and scholarship hashes redirect to their standalone replacements.
+   #decide-afford redirects to the Resources hub. Career Explorer and
+   Scholarships & Funding now live at:
      career-explorer.html
      scholarships.html
-   Anything unrecognized, or no hash at all, falls through to Home exactly as
+   Any other unrecognized hash, or no hash at all, falls through to Home exactly as
    it did before. This only ever narrows the starting screen, it never breaks
    the existing default. */
 (function applyDeepLinkFromHash(){
+  if(redirectLegacyHash(location.hash)) return;
   if(!applyHashToState(location.hash)) return;
   // Give the first history entry a hash that matches what is on screen, so the
   // back button has somewhere to step back to instead of leaving the site.

@@ -1211,6 +1211,9 @@ function resourceCard(item){
     card.style.color='inherit';
     if(item.newTab){ card.target='_blank'; card.rel='noopener noreferrer'; }
   } else {
+    // Buttons inherit centred UA text-align; resource cards are always left-read.
+    card.style.textAlign='left';
+    card.style.font='inherit';
     card.onclick=()=>{
       state.currentGuideKey=item.guide;
       state.guideReturnScreen='resources';

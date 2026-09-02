@@ -240,6 +240,13 @@
 <body>
 <div id="app"></div>
 <script>
+/* ============ STANDALONE RESOURCE PAGES ============ */
+/* The standalone Career Explorer and Scholarships & Funding pages replaced the old
+   in-app #decide-roi and #apply-scholarships routes, which no longer exist in the
+   router. Declared here because data tables further down reference them. */
+const CAREER_EXPLORER_URL='https://contact432.github.io/anchored-pathways-next-step/career-explorer.html';
+const SCHOLARSHIPS_PAGE_URL='https://contact432.github.io/anchored-pathways-next-step/scholarships.html';
+
 /* ============ STRINGS ============ */
 // T.en and T.es are selected wholesale by t() based on the language toggle, and
 // every read site below uses whichever T.<lang> is currently active.
@@ -468,10 +475,9 @@ const PARENT_COMFORT_TOPICS = [
   {id:'apprenticeships', en:'Apprenticeships', es:'Aprendizajes (apprenticeships)', screen:'apply-topic', topic:'career'},
   {id:'military', en:'Military / service pathways', es:'Caminos militares / de servicio', screen:'apply-topic', topic:'military'},
   {id:'financialAid', en:'Financial aid', es:'Ayuda financiera', screen:'apply-topic', topic:'pay'},
-  {id:'costs', en:'College / program costs', es:'Costos de universidad / programas', screen:'decide-afford'},
-  {id:'scholarships', en:'Scholarships', es:'Becas', screen:'apply-scholarships-list'},
+  {id:'scholarships', en:'Scholarships', es:'Becas', url:SCHOLARSHIPS_PAGE_URL},
   {id:'majorsToCareers', en:'How majors connect to careers', es:'Cómo las carreras universitarias se conectan con profesiones', screen:'explore'},
-  {id:'howLongInSchool', en:'How long careers require in school', es:'Cuánto tiempo de estudio requieren las profesiones', screen:'decide-roi'},
+  {id:'howLongInSchool', en:'How long careers require in school', es:'Cuánto tiempo de estudio requieren las profesiones', url:CAREER_EXPLORER_URL},
 ];
 // Used only by "Our Conversation" to generate descriptive (never scored) overlap text between a
 // parent's Reflection 1 answers and a student's Practical Preferences (Screen D) answers.
@@ -756,9 +762,7 @@ function renderLocalPathwayCTA(cta){
     wrap.appendChild(btn);
   } else if(cta.type==='scholarships'){
     wrap.appendChild(el('p','es', isEn()?"Several scholarships are connected to your school or area, though no single verified program stood out above the rest.":'Varias becas están conectadas con tu escuela o zona, aunque ningún programa verificado se destacó por encima de los demás.'));
-    const btn=el('button','primary-btn', isEn()?'Browse Local Scholarships':'Explorar Becas Locales');
-    btn.onclick=()=>{ state.scholarshipCategory=null; clearScholarshipFilters(); state.screen='apply-scholarships-list'; render(); };
-    wrap.appendChild(btn);
+    wrap.appendChild(scholarshipsPageLink('Browse Local Scholarships','Explorar Becas Locales'));
   } else {
     wrap.appendChild(el('p','', isEn()?"We didn't find a single strongest lead for this school yet, a Navigator can help you look further.":'Aún no encontramos una pista principal clara para esta escuela, un Navegador puede ayudarte a buscar más.'));
     const btn=el('button','primary-btn', isEn()?'Talk with an AP Navigator':'Hablar con un Navegador de AP');
@@ -1123,6 +1127,24 @@ function questionsToKeepExploringCopy(synthesis){
 }
 
 function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; }
+
+/* 2026 resource-page handoff. Everything that used to set the #decide-roi or
+   #apply-scholarships screens now renders a real anchor to the standalone page, so the
+   destination works without JavaScript, can be copied or opened in a new tab, and is
+   announced by a screen reader as a link rather than a button. */
+function pageLink(url, label, cls){
+  const a=document.createElement('a');
+  a.className=cls||'primary-btn';
+  a.href=url;
+  a.textContent=label;
+  a.style.display='block';
+  a.style.boxSizing='border-box';
+  a.style.textAlign='center';
+  a.style.textDecoration='none';
+  return a;
+}
+function careerExplorerLink(labelEn, labelEs, cls){ return pageLink(CAREER_EXPLORER_URL, isEn()?labelEn:labelEs, cls); }
+function scholarshipsPageLink(labelEn, labelEs, cls){ return pageLink(SCHOLARSHIPS_PAGE_URL, isEn()?labelEn:labelEs, cls); }
 function t(){ return T[state.lang]; }
 function isEn(){ return state.lang==='en'; }
 
@@ -1139,10 +1161,13 @@ const SCREEN_MAP = {
   'assess-values':valuesScreen, 'assess-strengths':strengthsScreen, 'assess-personality':personalityScreen, 'assess-interests':interestsScreen,
   'assess-vision':visionScreen, 'reset-confirm':resetConfirmScreen,
   pathprofile:pathProfileScreen, decide:decideScreen, apply:applyScreen, persist:stayScreen, redefine:shiftScreen,
-  'decide-compare':decideCompareScreen, 'decide-afford':decideAffordScreen, 'decide-questions':decideQuestionsScreen,
-  'decide-roi':occExplorerScreen, 'decide-roi-detail':occDetailScreen, 'decide-roi-compare':occCompareScreen,
-  'apply-scholarships':scholarshipsHubScreen, 'apply-scholarships-list':scholarshipsListScreen,
-  'apply-scholarships-detail':scholarshipsDetailScreen, 'apply-scholarships-saved':scholarshipsSavedScreen,
+  'decide-compare':decideCompareScreen, 'decide-questions':decideQuestionsScreen,
+  /* Retired routes, deliberately absent from this table:
+     #decide-afford (Family Affordability Snapshot, removed),
+     #decide-roi / #decide-roi-detail / #decide-roi-compare (superseded by career-explorer.html),
+     #apply-scholarships / -list / -detail / -saved (superseded by scholarships.html).
+     The occupation and scholarship data tables and their screen functions are still in
+     this file for future reuse, but nothing routes to them and no link targets them. */
   'apply-local-pathway':localPathwayEntryScreen, 'apply-local-pathway-result':localPathwayResultScreen,
   'apply-topic':applyTopicScreen, 'apply-guide':guideScreen,
 
@@ -1176,7 +1201,7 @@ function renderScreen(){
 }
 
 /* ============ HASH ROUTER ============
-   Every screen gets its own URL: #explore, #apply-scholarships, and so on. The
+   Every screen gets its own URL: #explore, #decide-compare, and so on. The
    app still swaps screens in place; this only keeps the address bar in sync so
    screens can be linked to directly and so the phone back button steps backward
    through screens instead of leaving the site.
@@ -1257,11 +1282,11 @@ function topbar(){
     const g=el('div','greeting'); g.appendChild(el('h1','',t().hello)); g.appendChild(el('p','',t().sub)); bar.appendChild(g);
   }
   // stage breadcrumb shown on every stage-related screen
-  const stageScreens = ['explore','decide','apply','persist','redefine','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-afford','decide-questions','decide-roi','decide-roi-detail','decide-roi-compare','apply-scholarships','apply-scholarships-list','apply-scholarships-detail','apply-scholarships-saved','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide','explore-orientation','explore-reflect','explore-onet','explore-practical','explore-careers','explore-investigate','explore-compare','explore-family','explore-conversation','explore-share'];
+  const stageScreens = ['explore','decide','apply','persist','redefine','assess-values','assess-strengths','assess-personality','assess-interests','assess-vision','pathprofile','decide-compare','decide-questions','apply-local-pathway','apply-local-pathway-result','apply-topic','apply-guide','explore-orientation','explore-reflect','explore-onet','explore-practical','explore-careers','explore-investigate','explore-compare','explore-family','explore-conversation','explore-share'];
   if(stageScreens.includes(state.screen)){
     const active = state.screen.startsWith('assess') || state.screen==='pathprofile' || state.screen.startsWith('explore-') ? 'explore'
                  : state.screen.startsWith('decide-') ? 'decide'
-                 : (state.screen.startsWith('apply-scholarships') || state.screen.startsWith('apply-local-pathway') || state.screen==='apply-topic' || state.screen==='apply-guide') ? 'apply'
+                 : (state.screen.startsWith('apply-local-pathway') || state.screen==='apply-topic' || state.screen==='apply-guide') ? 'apply'
                  : state.screen;
     const crumb=el('div','stage-crumb');
     t().stages.forEach((s,i)=>{
@@ -2397,16 +2422,12 @@ function exploreInvestigateScreen(){
     qCard.appendChild(row);
   });
   if(occ){
-    const link=el('button','secondary-btn', isEn()?'See full cost & pay details':'Ver detalles completos de costo y salario');
-    link.onclick=()=>{ state.occDetailId=occ.id; state.screen='decide-roi-detail'; render(); };
-    qCard.appendChild(link);
+    qCard.appendChild(careerExplorerLink('See cost & pay details in Career Explorer','Ver detalles de costo y salario en el Explorador de Carreras','secondary-btn'));
   } else {
     qCard.appendChild(el('p','', isEn()
-      ?"We don't have cost and pay data linked for this specific career yet. You can browse related careers in the Career Cost & Pay Explorer."
-      :'A\u00fan no tenemos datos de costo y salario vinculados para esta carrera espec\u00edfica. Puedes explorar carreras relacionadas en el Explorador de Costo y Salario.'));
-    const link=el('button','secondary-btn', isEn()?'Browse the Career Cost & Pay Explorer':'Explorar el Explorador de Costo y Salario');
-    link.onclick=()=>{ state.screen='decide-roi'; render(); };
-    qCard.appendChild(link);
+      ?"You can browse related careers, with sourced wage and training-cost information, in Career Explorer."
+      :'Puedes explorar carreras relacionadas, con informaci\u00f3n salarial y de costos de capacitaci\u00f3n con fuentes, en el Explorador de Carreras.'));
+    qCard.appendChild(careerExplorerLink('Browse Career Explorer','Explorar el Explorador de Carreras','secondary-btn'));
   }
   wrap.appendChild(qCard);
 
@@ -2423,12 +2444,7 @@ function exploreInvestigateScreen(){
   };
   actionsCard.appendChild(saveBtn);
 
-  const compareBtn=el('button','secondary-btn', isEn()?'Compare This Path':'Comparar Este Camino');
-  compareBtn.onclick=()=>{
-    if(occ){ state.occCompareMode=true; state.occCompareIds=[occ.id]; }
-    state.screen='decide-roi'; render();
-  };
-  actionsCard.appendChild(compareBtn);
+  actionsCard.appendChild(careerExplorerLink('Compare This Path in Career Explorer','Comparar Este Camino en el Explorador de Carreras','secondary-btn'));
 
   const helpBtn=el('button','secondary-btn', isEn()?'I Need Help Understanding This':'Necesito Ayuda Para Entender Esto');
   helpBtn.onclick=()=>{ state.screen='navigator-meet'; render(); };
@@ -2518,10 +2534,7 @@ function exploreCompareScreen(){
       card.appendChild(eduP);
       const payP=document.createElement('p'); payP.innerHTML = `<b>${isEn()?'National median pay: ':'Salario mediano nacional: '}</b>${fmtMoney(o.national.medianWage)} \u00b7 <span style="font-size:11px;">${o.national.source}</span>`;
       card.appendChild(payP);
-      const link=document.createElement('button'); link.className='secondary-btn';
-      link.textContent = isEn()?'See full details':'Ver detalles completos';
-      link.onclick=()=>{ state.occDetailId=o.id; state.screen='decide-roi-detail'; render(); };
-      card.appendChild(link);
+      card.appendChild(careerExplorerLink('See full details in Career Explorer','Ver detalles completos en el Explorador de Carreras','secondary-btn'));
     } else {
       const none=document.createElement('p'); none.textContent = isEn()
         ?"We don't have structured information on this yet in Next Step. That's exactly the kind of question a Navigator can help you dig into."
@@ -2649,14 +2662,20 @@ function exploreFamilyScreen(){
       const helpCard=el('div','card');
       helpCard.appendChild(el('div','section-label', isEn()?'Resources for the topics you flagged':'Recursos para los temas que marcaste'));
       wantHelpTopics.forEach(t=>{
-        const row=document.createElement('button');
+        // Topics carrying a `url` open a standalone resource page, so they render as anchors.
+        const row=document.createElement(t.url?'a':'button');
         row.className='choice-opt';
         row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center';
         row.innerHTML = `<span>${isEn()?t.en:t.es}</span><span>\u203a</span>`;
-        row.onclick=()=>{
-          if(t.screen==='apply-topic'){ state.applyTopicKey=t.topic; }
-          state.screen=t.screen; render();
-        };
+        if(t.url){
+          row.href=t.url;
+          row.style.textDecoration='none'; row.style.color='inherit';
+        } else {
+          row.onclick=()=>{
+            if(t.screen==='apply-topic'){ state.applyTopicKey=t.topic; }
+            state.screen=t.screen; render();
+          };
+        }
         helpCard.appendChild(row);
       });
       wrap.appendChild(helpCard);
@@ -3109,18 +3128,24 @@ function decideScreen(){
 
   const tools = [
     {key:'decide-compare', ic:'⚖️', bg:'#FCEFDD', titleEn:'Compare Two Paths', titleEs:'Comparar Dos Caminos', descEn:'Cost, time, salary, and licensure side by side', descEs:'Costo, tiempo, salario y licencia lado a lado'},
-    {key:'decide-afford', ic:'💵', bg:'#EEF6F5', titleEn:'Family Affordability Snapshot', titleEs:'Resumen de Asequibilidad Familiar', descEn:'A rough starting estimate of what you might pay', descEs:'Un estimado inicial de lo que podrías pagar'},
     {key:'decide-questions', ic:'❓', bg:'#F0EAF9', titleEn:'Questions to Ask', titleEs:'Preguntas Para Hacer', descEn:'For schools and for employers', descEs:'Para escuelas y para empleadores'},
-    {key:'decide-roi', ic:'📊', bg:'#E6F3EC', titleEn:'Career Cost & Pay Explorer', titleEs:'Explorador de Costo y Salario', descEn:'Compare training pathways and national pay data', descEs:'Compara rutas de capacitación y datos salariales nacionales'},
+    {url:CAREER_EXPLORER_URL, ic:'📊', bg:'#E6F3EC', titleEn:'Career Explorer', titleEs:'Explorador de Carreras', descEn:'Houston-area training paths, wages, and projected growth', descEs:'Rutas de capacitación, salarios y crecimiento proyectado en el área de Houston'},
   ];
   wrap.appendChild(el('div','section-label', isEn()?'Decide tools':'Herramientas de Decidir'));
   const grid=el('div','explore-grid'); grid.style.margin='0 18px';
   tools.forEach(a=>{
-    const card=el('button','assess-card');
+    // Tools with a `url` live on their own standalone page, so they render as anchors.
+    const card = a.url ? document.createElement('a') : el('button','assess-card');
+    if(a.url){
+      card.className='assess-card';
+      card.href=a.url;
+      card.style.textDecoration='none';
+      card.style.color='inherit';
+    }
     card.innerHTML=`<div class="ic" style="background:${a.bg}">${a.ic}</div>
       <div class="info"><h4>${isEn()?a.titleEn:a.titleEs}</h4><div class="es-sub">${isEn()?a.descEn:a.descEs}</div></div>
       <div class="status">›</div>`;
-    card.onclick=()=>{ state.screen=a.key; render(); };
+    if(!a.url){ card.onclick=()=>{ state.screen=a.key; render(); }; }
     grid.appendChild(card);
   });
   wrap.appendChild(grid);
@@ -3212,10 +3237,8 @@ function decideCompareScreen(){
   // so send families to the sourced-wage tool instead of stating a number here.
   const payCard=el('div','card');
   payCard.appendChild(el('div','section-label', isEn()?'Curious about pay?':'¿Te interesa el salario?'));
-  payCard.appendChild(el('p','', isEn()?'Pay varies widely by occupation. Use Career Cost & Pay Explorer for sourced wage information on specific careers.':'El salario varía mucho según la ocupación. Usa el Explorador de Costo y Salario para información salarial con fuentes sobre carreras específicas.'));
-  const roiBtn=el('button','primary-btn', isEn()?'Open Career Cost & Pay Explorer':'Abrir el Explorador de Costo y Salario');
-  roiBtn.onclick=()=>{ state.screen='decide-roi'; render(); };
-  payCard.appendChild(roiBtn);
+  payCard.appendChild(el('p','', isEn()?'Pay varies widely by occupation. Use Career Explorer for sourced wage information on specific careers.':'El salario varía mucho según la ocupación. Usa el Explorador de Carreras para información salarial con fuentes sobre carreras específicas.'));
+  payCard.appendChild(careerExplorerLink('Open Career Explorer','Abrir el Explorador de Carreras'));
   wrap.appendChild(payCard);
 
   const disclaimer=el('div','card');
@@ -4162,26 +4185,11 @@ const APPLY_TOPICS = {
        aEn:"Some licensed fields in Texas require proof of lawful presence. This doesn't apply to every path, check requirements for your specific one before enrolling.", aEs:'Algunos campos con licencia en Texas requieren prueba de presencia legal. Esto no aplica a todos los caminos; verifica los requisitos de tu camino específico antes de inscribirte.'},
     ],
   },
-  scholarships:{
-    titleEn:'Scholarships', titleEs:'Becas',
-    teaserEn:"General searches, and AP's specialized list, used together.", teaserEs:'Búsquedas generales, y la lista especializada de AP, juntas.',
-    bodyEn:"General resources, like your school's own financial aid office or broad national searches, can help with a lot of scholarships. AP's own list is different, it was built specifically for questions general searches don't answer well, like which scholarships work for DACA, TPS, or undocumented students. Using both together works better than either alone.",
-    bodyEs:'Los recursos generales, como la oficina de ayuda financiera de tu escuela o búsquedas nacionales amplias, pueden ayudarte con muchas becas. La lista de AP es diferente, se creó específicamente para preguntas que las búsquedas generales no responden bien, como cuáles becas funcionan para estudiantes con DACA, TPS o indocumentados. Usar ambas juntas funciona mejor que cualquiera por separado.',
-    actions:[{type:'screen', screen:'apply-scholarships', labelEn:"Explore AP's Specialized List", labelEs:'Explorar la Lista Especializada de AP'}],
-    guideKeys:[], // no Scholarships guide yet — attaches here without redesign once one exists
-    faqs:[
-      {qEn:'Where should we even start looking?', qEs:'¿Por dónde deberíamos empezar a buscar?',
-       aEn:"Your school's financial aid office first, then AP's list for status-specific questions.", aEs:'Primero la oficina de ayuda financiera de tu escuela, luego la lista de AP para preguntas específicas de estatus.'},
-      {qEn:'Are there scholarships for undocumented or DACA students?', qEs:'¿Hay becas para estudiantes indocumentados o con DACA?',
-       aEn:"Yes, that's exactly what AP's list is built to surface.", aEs:'Sí, para eso está hecha la lista de AP.'},
-      {qEn:'Do we need a certain GPA?', qEs:'¿Necesitamos cierto promedio?',
-       aEn:"Varies a lot by scholarship, check each one's specific listing.", aEs:'Varía mucho según la beca, revisa el detalle de cada una.'},
-      {qEn:'How many can we apply for?', qEs:'¿A cuántas podemos aplicar?',
-       aEn:"As many as you're eligible for, there's no limit.", aEs:'A tantas como seas elegible, no hay límite.'},
-    ],
-  },
+  /* The 'scholarships' topic (#apply-topic?topic=scholarships) was retired in 2026. Its
+     content now lives on the standalone Scholarships & Funding page, which the Apply
+     screen links to directly. */
 };
-const APPLY_TOPIC_ORDER = ['pay','applying','military','career','scholarships'];
+const APPLY_TOPIC_ORDER = ['pay','applying','military','career'];
 
 function applyScreen(){
 
@@ -4229,6 +4237,14 @@ function applyScreen(){
     wrap.appendChild(row);
   });
 
+  // Scholarships now live on their own page, so this row is a real link, not a screen swap.
+  const schRow=document.createElement('a');
+  schRow.className='triage-card';
+  schRow.href=SCHOLARSHIPS_PAGE_URL;
+  schRow.style.width='100%'; schRow.style.textDecoration='none'; schRow.style.color='inherit';
+  schRow.innerHTML=`<div style="flex:1;"><div class="txt-en">${isEn()?'Scholarships & Funding':'Becas y Financiamiento'}</div><div class="txt-es">${isEn()?'Verified funding options, including status-specific scholarships.':'Opciones de financiamiento verificadas, incluidas becas específicas por estatus.'}</div></div><div class="chev">›</div>`;
+  wrap.appendChild(schRow);
+
   const lpRow=el('button','triage-card');
   lpRow.style.width='100%'; lpRow.style.marginTop='10px';
   lpRow.innerHTML=`<div class="emoji">🧭</div><div style="flex:1;"><div class="txt-en">${isEn()?"What's Available Near Us?":'¿Qué Hay Disponible Cerca de Nosotros?'}</div><div class="txt-es">${isEn()?'See what connects to your specific school.':'Ve qué se conecta con tu escuela específica.'}</div></div><div class="chev">›</div>`;
@@ -4264,7 +4280,12 @@ function applyTopicScreen(){
   const actionCard=el('div','card');
   actionCard.appendChild(el('div','section-label', isEn()?'Next Steps':'Próximos Pasos'));
   topic.actions.forEach((action,i)=>{
-    const btn=el('button', i===0?'primary-btn':'secondary-btn', isEn()?action.labelEn:action.labelEs);
+    const cls = i===0?'primary-btn':'secondary-btn';
+    if(action.type==='url'){
+      actionCard.appendChild(pageLink(action.url, isEn()?action.labelEn:action.labelEs, cls));
+      return;
+    }
+    const btn=el('button', cls, isEn()?action.labelEn:action.labelEs);
     btn.onclick=()=>{
       if(action.type==='clinica'){ state.screen='navigator-meet'; render(); }
       else if(action.type==='screen'){
@@ -5535,9 +5556,14 @@ function familyScreen(){
    could drift out of date.
    Recognized formats:
      index.html#explore
-     index.html#decide-roi
-     index.html#apply-scholarships
-     index.html#apply-topic?topic=military   (topic: pay, applying, military, career, scholarships)
+     index.html#decide-compare
+     index.html#apply-topic?topic=military   (topic: pay, applying, military, career)
+   Retired hashes (#decide-afford, #decide-roi and its detail/compare variants,
+   #apply-scholarships and its list/detail/saved variants, and
+   #apply-topic?topic=scholarships) are no longer recognized. Career Explorer and
+   Scholarships & Funding are standalone pages now:
+     career-explorer.html
+     scholarships.html
    Anything unrecognized, or no hash at all, falls through to Home exactly as
    it did before. This only ever narrows the starting screen, it never breaks
    the existing default. */

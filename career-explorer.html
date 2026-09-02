@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Explorer - Anchored Pathways Next Step</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { --ap-deep-teal: #1A5F6E; --ap-bright-gold: #F5A623; --ap-navy: #14505E; --ap-white: #FFFFFF; --ap-mid-teal: #2A8A96; --ap-bright-teal: #3AABB8; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--ap-white);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        header {
+            background: linear-gradient(135deg, var(--ap-deep-teal) 0%, var(--ap-mid-teal) 100%);
+            color: var(--ap-white);
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+        
+        header h1 { font-size: 2em; margin-bottom: 10px; }
+        header p { font-size: 1.05em; opacity: 0.95; }
+        
+        .lang-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--ap-bright-gold);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 100;
+            color: #333;
+        }
+        
+        .intro-section {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .intro-section h2 { color: var(--ap-deep-teal); margin-bottom: 12px; }
+        .intro-section p { font-size: 1.05em; color: #555; margin-bottom: 20px; }
+        
+        .starting-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .choice-btn {
+            background: var(--ap-bright-teal);
+            color: var(--ap-white);
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .choice-btn:hover { background: var(--ap-deep-teal); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(26, 95, 110, 0.2); }
+        
+        .secondary-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .secondary-btn {
+            background: none;
+            border: 2px solid var(--ap-bright-teal);
+            color: var(--ap-deep-teal);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .secondary-btn:hover { background: var(--ap-bright-teal); color: var(--ap-white); }
+        
+        .results-summary {
+            background: #f0f8ff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--ap-deep-teal);
+        }
+        
+        .results-summary.hidden { display: none; }
+        
+        .careers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .careers-grid.hidden { display: none; }
+        
+        .career-card {
+            background: var(--ap-white);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        
+        .career-card:hover { border-color: var(--ap-deep-teal); box-shadow: 0 4px 12px rgba(26, 95, 110, 0.1); }
+        
+        .career-header { margin-bottom: 12px; }
+        .career-title { font-size: 1.3em; font-weight: 600; color: var(--ap-deep-teal); margin-bottom: 8px; }
+        .career-route { background: #f9f9f9; padding: 12px; border-left: 3px solid var(--ap-bright-teal); margin-bottom: 12px; font-size: 0.95em; color: #333; }
+        .career-main-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .fact-item { padding: 10px; background: #fafafa; border-radius: 4px; }
+        .fact-label { font-weight: 600; color: var(--ap-deep-teal); font-size: 0.8em; }
+        .fact-value { margin-top: 4px; font-size: 1.05em; font-weight: 500; }
+        .good-to-know { padding: 12px; background: #fffbf0; border-left: 3px solid var(--ap-bright-gold); margin-bottom: 12px; font-size: 0.9em; color: #333; }
+        .expand-btn { background: var(--ap-bright-teal); color: var(--ap-white); border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500; width: 100%; font-size: 0.9em; }
+        .expand-btn:hover { background: var(--ap-mid-teal); }
+        .career-details { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; }
+        .career-details.open { display: block; }
+        .detail-section { margin-bottom: 12px; font-size: 0.9em; }
+        .detail-label { font-weight: 600; color: var(--ap-deep-teal); margin-bottom: 4px; }
+        .detail-value { color: #333; }
+        .cost-note { background: #f0f8ff; padding: 10px; border-radius: 4px; font-size: 0.85em; margin-top: 4px; border-left: 3px solid var(--ap-bright-teal); }
+        .no-results { text-align: center; padding: 40px 20px; color: #999; font-size: 1.05em; }
+        .no-results.hidden { display: none; }
+        .browse-all-btn { display: block; width: 100%; background: var(--ap-navy); color: var(--ap-white); border: none; padding: 12px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1em; margin-bottom: 40px; }
+        .browse-all-btn:hover { background: var(--ap-deep-teal); }
+        .browse-all-btn.hidden { display: none; }
+        .start-here-btn { display: block; width: 100%; background: linear-gradient(135deg, var(--ap-bright-gold) 0%, #E8832A 100%); color: #333; border: none; padding: 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 1.1em; margin-top: 40px; margin-bottom: 40px; text-decoration: none; text-align: center; }
+        .start-here-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(245, 166, 35, 0.3); }
+        .footer-note { background: #f5f5f5; padding: 16px; border-radius: 8px; font-size: 0.9em; color: #666; margin-top: 40px; line-height: 1.6; }
+        .hidden { display: none; }
+        
+        @media (max-width: 768px) {
+            .careers-grid { grid-template-columns: 1fr; }
+            .starting-points { grid-template-columns: 1fr; }
+            .lang-toggle { position: static; margin-bottom: 20px; }
+            header h1 { font-size: 1.5em; }
+            .secondary-controls { flex-direction: column; }
+            .secondary-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <button class="lang-toggle" id="langToggle">Español</button>
+    
+    <div class="container">
+        <header>
+            <h1 id="pageTitle">Career Explorer</h1>
+            <p id="pageSubtitle">Explore 33 training paths and earning opportunities in the Houston area</p>
+        </header>
+        
+        <div id="introSection" class="intro-section">
+            <h2 id="introHeading">Where do you want to start?</h2>
+            <p id="introText">Choose a path that matches your goals, or browse all careers.</p>
+            
+            <div class="starting-points">
+                <button class="choice-btn" id="btn-quick" onclick="filterByStartingPoint('quick')">
+                    <span id="l-quick">Start working sooner</span><br>
+                    <span style="font-size: 0.85em; opacity: 0.9;" id="l-quick-sub">Under 1 year</span>
+                </button>
+                <button class="choice-btn" id="btn-paid" onclick="filterByStartingPoint('paid')">
+                    <span id="l-paid">Earn while you learn</span><br>
+                    <span style="font-size: 0.85em; opacity: 0.9;" id="l-paid-sub">Paid apprenticeship</span>
+                </button>
+                <button class="choice-btn" id="btn-2year" onclick="filterByStartingPoint('2year')">
+                    <span id="l-2year">Build toward a 2-year career</span><br>
+                    <span style="font-size: 0.85em; opacity: 0.9;" id="l-2year-sub">1–2 years</span>
+                </button>
+                <button class="choice-btn" id="btn-bachelor" onclick="filterByStartingPoint('bachelor')">
+                    <span id="l-bachelor">Explore bachelor's+ careers</span><br>
+                    <span style="font-size: 0.85em; opacity: 0.9;" id="l-bachelor-sub">4+ years</span>
+                </button>
+            </div>
+            
+            <div class="secondary-controls">
+                <button class="secondary-btn" id="btn-growth" onclick="toggleGrowthFilter()">
+                    <span id="l-growth-btn">Show careers growing 10%+</span>
+                </button>
+                <button class="secondary-btn" id="btn-browseall" onclick="showAll()">
+                    <span id="l-browseall-btn">Browse all 33 careers</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="results-summary hidden" id="resultsSummary"></div>
+        
+        <div id="careersContainer" class="careers-grid hidden"></div>
+        <div id="noResults" class="no-results hidden"></div>
+        
+        <button id="browseAllOption" class="browse-all-btn hidden" onclick="showAll()">
+            <span id="l-browseall-text">Browse all 33 careers</span>
+        </button>
+        
+        <a href="https://share-na2.hsforms.com/1iccok1BsTWq4lSxMG9yjNg42z7hu" class="start-here-btn" id="startHereBtn">
+            <span id="l-start-here">Start Here: Tell us what you need</span>
+        </a>
+        
+        <div class="footer-note">
+            <strong id="footerTitle">About these careers:</strong>
+            <p id="footerText">Houston-area wages are from the Texas Workforce Commission (2025) or BLS OEWS (2025). Projected growth is from the U.S. Bureau of Labor Statistics (2025–2035). Training costs vary; ask schools for current, complete program costs. This tool shows information only; it does not determine eligibility for any program.</p>
+        </div>
+    </div>
+    
+    <script>
+        const lang = { en: {}, es: {} };
+        
+        lang.en.pageTitle = "Career Explorer";
+        lang.en.pageSubtitle = "Explore 33 training paths and earning opportunities in the Houston area";
+        lang.en.introHeading = "Where do you want to start?";
+        lang.en.introText = "Choose a path that matches your goals, or browse all careers.";
+        lang.en.quick = "Start working sooner";
+        lang.en['quick-sub'] = "Under 1 year";
+        lang.en.paid = "Earn while you learn";
+        lang.en['paid-sub'] = "Paid apprenticeship";
+        lang.en['2year'] = "Build toward a 2-year career";
+        lang.en['2year-sub'] = "1–2 years";
+        lang.en.bachelor = "Explore bachelor's+ careers";
+        lang.en['bachelor-sub'] = "4+ years";
+        lang.en['growth-btn'] = "Show careers growing 10%+";
+        lang.en['browseall-btn'] = "Browse all 33 careers";
+        lang.en['browseall-text'] = "Browse all 33 careers";
+        lang.en['start-here'] = "Start Here: Tell us what you need";
+        lang.en.resultsFor = "Careers matching your choice";
+        lang.en.careersFound = "careers found";
+        lang.en.noResults = "No careers match your filters. Try adjusting your choices.";
+        lang.en.footerTitle = "About these careers:";
+        lang.en.footerText = "Houston-area wages are from the Texas Workforce Commission (2025) or BLS OEWS (2025). Projected growth is from the U.S. Bureau of Labor Statistics (2025–2035). Training costs vary; ask schools for current, complete program costs. This tool shows information only; it does not determine eligibility for any program.";
+        lang.en.moreDetails = "More details";
+        lang.en.hideDetails = "Hide details";
+        lang.en.trainingTime = "Typical training";
+        lang.en.houstonPay = "Houston median pay";
+        lang.en.growth = "Projected growth";
+        lang.en.cost = "Cost information";
+        lang.en.costType = "Cost type";
+        lang.en.costNote = "Cost note";
+        lang.en.soc = "SOC code";
+        lang.en.nationalPay = "National median pay";
+        lang.en.houstonSource = "Houston source";
+        lang.en.nationalSource = "National source";
+        
+        lang.es.pageTitle = "Explorador de Carreras";
+        lang.es.pageSubtitle = "Explora 33 caminos de capacitación y oportunidades de ganancia en el área de Houston";
+        lang.es.introHeading = "¿Por dónde quieres empezar?";
+        lang.es.introText = "Elige un camino que coincida con tus objetivos, o explora todas las carreras.";
+        lang.es.quick = "Empieza a trabajar pronto";
+        lang.es['quick-sub'] = "Menos de 1 año";
+        lang.es.paid = "Gana mientras aprendes";
+        lang.es['paid-sub'] = "Aprendizaje pagado";
+        lang.es['2year'] = "Construye hacia una carrera de 2 años";
+        lang.es['2year-sub'] = "1–2 años";
+        lang.es.bachelor = "Explora carreras de licenciatura+";
+        lang.es['bachelor-sub'] = "4+ años";
+        lang.es['growth-btn'] = "Mostrar carreras con crecimiento 10%+";
+        lang.es['browseall-btn'] = "Explorar los 33 carreras";
+        lang.es['browseall-text'] = "Explorar los 33 carreras";
+        lang.es['start-here'] = "Empieza aquí: Cuéntanos lo que necesitas";
+        lang.es.resultsFor = "Carreras que coinciden con tu elección";
+        lang.es.careersFound = "carreras encontradas";
+        lang.es.noResults = "Ninguna carrera coincide con tus filtros. Intenta ajustar tus elecciones.";
+        lang.es.footerTitle = "Acerca de estas carreras:";
+        lang.es.footerText = "Los salarios del área de Houston provienen de la Comisión de Fuerza Laboral de Texas (2025) o BLS OEWS (2025). El crecimiento proyectado es de la Oficina de Estadísticas Laborales de EE.UU. (2025–2035). Los costos de capacitación varían; pregunta a las escuelas por costos actuales y completos. Esta herramienta solo muestra información; no determina elegibilidad.";
+        lang.es.moreDetails = "Más detalles";
+        lang.es.hideDetails = "Ocultar detalles";
+        lang.es.trainingTime = "Capacitación típica";
+        lang.es.houstonPay = "Salario mediano Houston";
+        lang.es.growth = "Crecimiento proyectado";
+        lang.es.cost = "Información de costo";
+        lang.es.costType = "Tipo de costo";
+        lang.es.costNote = "Nota sobre costo";
+        lang.es.soc = "Código SOC";
+        lang.es.nationalPay = "Salario mediano nacional";
+        lang.es.houstonSource = "Fuente Houston";
+        lang.es.nationalSource = "Fuente nacional";
+        
+        const careersData = [
+            {id: "truckdriver", title_en: "Heavy and Tractor-Trailer Truck Driver", title_es: "Conductor de Camión Pesado", soc: "53-3032", route_en: "Commercial Driver License (CDL) training", route_es: "Capacitación de Licencia de Conductor Comercial (CDL)", time_en: "3–8 weeks", time_es: "3–8 semanas", houston_median: "$56,841", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$58,640", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "4%", growth_note: "2025–2035", good_to_know_en: "Quick entry. CDL required. Extended time away from home.", good_to_know_es: "Entrada rápida. Se requiere CDL. Tiempo prolongado fuera del hogar.", cost_type_en: "Institution-published total", cost_type_es: "Total publicado por institución", cost_value: "$4,330", cost_note_en: "San Jacinto College published total.", cost_note_es: "Total publicado de San Jacinto College.", filters: ["quick"]},
+            {id: "lvn", title_en: "Licensed Vocational Nurse", title_es: "Enfermera Práctica Licenciada", soc: "29-2061", route_en: "State-approved LVN certificate program", route_es: "Programa de certificado LVN aprobado por el estado", time_en: "12–18 months", time_es: "12–18 meses", houston_median: "$63,668", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$64,400", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "3%", growth_note: "2025–2035", good_to_know_en: "Licensing exam (NCLEX-PN) required.", good_to_know_es: "Se requiere examen de licencia (NCLEX-PN).", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$3,735", cost_note_en: "San Jacinto College: $83/credit × 45 credits. Excludes books, exams, licensing fees.", cost_note_es: "San Jacinto College: $83/crédito × 45 créditos. Excluye libros, exámenes, cuotas.", filters: ["2year"]},
+            {id: "dentalhyg", title_en: "Dental Hygienist", title_es: "Higienista Dental", soc: "29-1292", route_en: "Associate degree in dental hygiene", route_es: "Grado asociado en higiene dental", time_en: "2 years", time_es: "2 años", houston_median: "$104,927", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$98,100", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "8%", growth_note: "2025–2035", good_to_know_en: "State licensing exam required.", good_to_know_es: "Se requiere examen de licencia estatal.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$5,746", cost_note_en: "HCC: $84.50/credit × 68 credits. Excludes books, exam, licensing fees.", cost_note_es: "HCC: $84.50/crédito × 68 créditos. Excluye libros, examen, cuotas.", filters: ["2year"]},
+            {id: "radiologic", title_en: "Radiologic Technologist", title_es: "Técnico Radiológico", soc: "29-2034", route_en: "Associate degree in radiologic technology", route_es: "Grado asociado en tecnología radiológica", time_en: "2 years", time_es: "2 años", houston_median: "$80,783", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$80,110", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "5%", growth_note: "2025–2035", good_to_know_en: "ARRT certification required.", good_to_know_es: "Se requiere certificación ARRT.", cost_type_en: "Institution-published total", cost_type_es: "Total publicado por institución", cost_value: "$7,917", cost_note_en: "San Jacinto College program cost sheet.", cost_note_es: "Hoja de costo del programa de San Jacinto College.", filters: ["2year"]},
+            {id: "pta", title_en: "Physical Therapist Assistant", title_es: "Asistente de Terapeuta Físico", soc: "31-2021", route_en: "Associate degree program", route_es: "Programa de grado asociado", time_en: "2 years", time_es: "2 años", houston_median: "$77,276", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$68,380", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "17%", growth_note: "2025–2035", good_to_know_en: "Licensing exam required. Strong growth field.", good_to_know_es: "Se requiere examen de licencia. Campo de crecimiento sólido.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$5,478", cost_note_en: "San Jacinto College: $83/credit × 66 credits. Excludes books, exam, licensing fees.", cost_note_es: "San Jacinto College: $83/crédito × 66 créditos. Excluye libros, examen, cuotas.", filters: ["2year", "growth10"]},
+            {id: "datascientist", title_en: "Data Scientist", title_es: "Científico de Datos", soc: "15-2051", route_en: "Bachelor degree (data science, CS, or statistics)", route_es: "Licenciatura (ciencia de datos, CS, o estadística)", time_en: "4 years", time_es: "4 años", houston_median: "$106,749", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$120,230", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "35%", growth_note: "2025–2035", good_to_know_en: "Fastest-growing career on this list.", good_to_know_es: "Carrera de más rápido crecimiento de esta lista.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$46,271", cost_note_en: "UH: $385.59/credit × 120 credits. Excludes fees, books, living costs.", cost_note_es: "UH: $385.59/crédito × 120 créditos. Excluye cuotas, libros, costos de vida.", filters: ["bachelor", "growth10"]},
+            {id: "sonographer", title_en: "Diagnostic Medical Sonographer", title_es: "Técnico de Ultrasonido", soc: "29-2032", route_en: "Associate degree in diagnostic medical sonography", route_es: "Grado asociado en sonografía médica diagnóstica", time_en: "2 years", time_es: "2 años", houston_median: "$95,100", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$96,590", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "14%", growth_note: "2025–2035", good_to_know_en: "Selective admission. High-demand field.", good_to_know_es: "Admisión selectiva. Campo de alta demanda.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC program available. Ask the program for cost details.", cost_note_es: "Programa HCC disponible. Pregunta al programa por detalles de costo.", filters: ["2year", "growth10"]},
+            {id: "ota", title_en: "Occupational Therapy Assistant", title_es: "Asistente de Terapia Ocupacional", soc: "31-2011", route_en: "Associate degree program", route_es: "Programa de grado asociado", time_en: "2 years", time_es: "2 años", houston_median: "$81,340", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$72,300", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "20%", growth_note: "2025–2035", good_to_know_en: "Strong growth. Licensing usually required.", good_to_know_es: "Crecimiento sólido. Licencia usualmente requerida.", cost_type_en: "Institution-published total", cost_type_es: "Total publicado por institución", cost_value: "$4,980", cost_note_en: "San Jacinto College (Fall 2023): $3,320 + $1,660 prerequisites. Current rates may differ.", cost_note_es: "San Jacinto College (Fall 2023): $3,320 + $1,660 requisitos previos. Las tasas actuales pueden variar.", filters: ["2year", "growth10"]},
+            {id: "radiotherapy", title_en: "Radiation Therapist", title_es: "Terapeuta de Radiación", soc: "29-1124", route_en: "Associate degree in radiation therapy", route_es: "Grado asociado en terapia de radiación", time_en: "2 years", time_es: "2 años", houston_median: "$105,770", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$105,310", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "3%", growth_note: "2025–2035", good_to_know_en: "High pay. No local Houston community college program found.", good_to_know_es: "Sueldo alto. Sin programa local encontrado.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "UT MD Anderson offers bachelor-level program. Ask for cost details.", cost_note_es: "UT MD Anderson ofrece programa de licenciatura. Pregunta por detalles de costo.", filters: ["2year"]},
+            {id: "respiratory", title_en: "Respiratory Therapist", title_es: "Terapeuta Respiratorio", soc: "29-1126", route_en: "Associate degree program", route_es: "Programa de grado asociado", time_en: "2 years", time_es: "2 años", houston_median: "$80,449", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$82,280", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "9%", growth_note: "2025–2035", good_to_know_en: "Licensing exam required. In-demand role.", good_to_know_es: "Se requiere examen de licencia. Rol de alta demanda.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$5,478", cost_note_en: "San Jacinto College: $83/credit × 66 credits. Excludes books, exam, licensing fees.", cost_note_es: "San Jacinto College: $83/crédito × 66 créditos. Excluye libros, examen, cuotas.", filters: ["2year"]},
+            {id: "welder", title_en: "Welder", title_es: "Soldador", soc: "51-4121", route_en: "Welding technician certificate program", route_es: "Programa de certificado de técnico soldador", time_en: "6–12 months", time_es: "6–12 meses", houston_median: "$57,940", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$53,750", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "2%", growth_note: "2025–2035", good_to_know_en: "Slowest-growing on this list. Outdoor/confined work.", good_to_know_es: "Crecimiento más lento de esta lista. Trabajo al aire libre o confinado.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$1,919", cost_note_en: "HCC Welding Technician program. Excludes books and materials.", cost_note_es: "Programa HCC de Técnico Soldador. Excluye libros y materiales.", filters: ["quick"]},
+            {id: "plumber", title_en: "Plumber, Pipefitter, Steamfitter", title_es: "Plomero, Instalador de Tuberías", soc: "47-2152", route_en: "Registered apprenticeship program", route_es: "Programa de aprendizaje registrado", time_en: "4–5 years", time_es: "4–5 años", houston_median: "$61,300", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$63,800", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "7%", growth_note: "2025–2035", good_to_know_en: "Paid apprenticeship. License required.", good_to_know_es: "Aprendizaje pagado. Se requiere licencia.", cost_type_en: "Paid apprenticeship", cost_type_es: "Aprendizaje pagado", cost_value: null, cost_note_en: "Paid on-the-job training; no student tuition.", cost_note_es: "Capacitación pagada en el trabajo; sin matrícula de estudiante.", filters: ["paid"]},
+            {id: "powerline", title_en: "Electrical Power-Line Installer and Repairer", title_es: "Instalador de Líneas Eléctricas", soc: "49-9051", route_en: "Registered apprenticeship program", route_es: "Programa de aprendizaje registrado", time_en: "4–5 years", time_es: "4–5 años", houston_median: "$82,710", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$95,320", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "10%", growth_note: "2025–2035", good_to_know_en: "Paid apprenticeship. High-voltage work at heights.", good_to_know_es: "Aprendizaje pagado. Trabajo en alturas con alto voltaje.", cost_type_en: "Paid apprenticeship", cost_type_es: "Aprendizaje pagado", cost_value: null, cost_note_en: "Paid on-the-job training; no student tuition.", cost_note_es: "Capacitación pagada en el trabajo; sin matrícula de estudiante.", filters: ["paid", "growth10"]},
+            {id: "elevator", title_en: "Elevator and Escalator Installer and Repairer", title_es: "Instalador de Ascensores", soc: "47-4021", route_en: "IUEC apprenticeship program (paid)", route_es: "Programa de aprendizaje IUEC (pagado)", time_en: "4–5 years", time_es: "4–5 años", houston_median: "$104,350", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$109,910", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "6%", growth_note: "2025–2035", good_to_know_en: "Highest pay on list. Paid apprenticeship.", good_to_know_es: "Salario más alto de esta lista. Aprendizaje pagado.", cost_type_en: "Paid apprenticeship", cost_type_es: "Aprendizaje pagado", cost_value: null, cost_note_en: "IUEC/NEIEP: full-time paid apprenticeship. No tuition. $25 test fee.", cost_note_es: "IUEC/NEIEP: aprendizaje pagado a tiempo completo. Sin matrícula. Cuota de prueba $25.", filters: ["paid"]},
+            {id: "firefighter", title_en: "Firefighter", title_es: "Bombero", soc: "33-2011", route_en: "Fire academy training program", route_es: "Programa de capacitación de academia de bomberos", time_en: "Varies by program", time_es: "Varía según el programa", houston_median: "$59,120", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$59,280", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "4%", growth_note: "2025–2035", good_to_know_en: "EMT/paramedic prerequisites vary by department.", good_to_know_es: "Los requisitos previos de EMT varían según el departamento.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$6,000", cost_note_en: "LSC Academy: ~$2,700 tuition + fees. Other programs vary; ask for totals.", cost_note_es: "LSC Academy: ~$2,700 matrícula + cuotas. Otros programas varían.", filters: []},
+            {id: "police", title_en: "Police and Sheriff's Patrol Officer", title_es: "Oficial de Patrulla de Policía", soc: "33-3051", route_en: "Police academy training program", route_es: "Programa de capacitación de academia de policía", time_en: "Varies by academy", time_es: "Varía según la academia", houston_median: "$74,570", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$76,210", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "3%", growth_note: "2025–2035", good_to_know_en: "Citizenship, age 21+, background check, physical and psych exam required.", good_to_know_es: "Se requiere ciudadanía, 21+ años, verificación de antecedentes.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$1,600–$5,400", cost_note_en: "HCC: $1,629. LSC: $4,725 + extras. Ask your academy for current totals.", cost_note_es: "HCC: $1,629. LSC: $4,725 + extras. Pregunta tu academia por totales.", filters: []},
+            {id: "rn", title_en: "Registered Nurse", title_es: "Enfermera Registrada", soc: "29-1141", route_en: "ADN, BSN, or Diploma (choose your pathway)", route_es: "ADN, BSN, o Diploma (elige tu camino)", time_en: "2–4 years", time_es: "2–4 años", houston_median: "$99,831", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$97,550", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "6%", growth_note: "2025–2035", good_to_know_en: "Multiple pathways to the same license. NCLEX-RN exam required.", good_to_know_es: "Múltiples caminos hacia la misma licencia. Se requiere examen NCLEX-RN.", cost_type_en: "Varies", cost_type_es: "Varía", cost_value: "$4,980–$58,178", cost_note_en: "ADN (San Jac): $4,980 tuition-only. BSN (UH): $58,178 tuition-only. Diploma: cost not available.", cost_note_es: "ADN (San Jac): $4,980. BSN (UH): $58,178. Diploma: no disponible.", filters: ["2year"]},
+            {id: "hvac", title_en: "HVACR Technician", title_es: "Técnico de HVACR", soc: "49-9021", route_en: "Certificate (1yr) or Associate degree (2yr)", route_es: "Certificado (1 año) o Grado asociado (2 años)", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$58,936", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$61,010", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "11%", growth_note: "2025–2035", good_to_know_en: "Two pathways available. Good growth.", good_to_know_es: "Dos caminos disponibles. Buen crecimiento.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$1,328–$4,980", cost_note_en: "San Jacinto College: Cert $1,328; AAS $4,980. Excludes books, tools, licensing.", cost_note_es: "San Jacinto College: Cert $1,328; AAS $4,980. Excluye libros, herramientas, licencia.", filters: ["2year", "growth10"]},
+            {id: "webdev", title_en: "Web Developer", title_es: "Desarrollador Web", soc: "15-1254", route_en: "Certificate/AAS (2yr) or Bachelor's degree", route_es: "Certificado/AAS (2 años) o Licenciatura", time_en: "2–4 years", time_es: "2–4 años", houston_median: "$89,042", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$92,650", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "5%", growth_note: "2025–2035", good_to_know_en: "Multiple pathways. Boot camps also available locally.", good_to_know_es: "Múltiples caminos. Boot camps también disponibles localmente.", cost_type_en: "Varies", cost_type_es: "Varía", cost_value: "$4,980+", cost_note_en: "San Jacinto Cert/AAS: $4,980 tuition-only. Bachelor's cost varies.", cost_note_es: "San Jacinto Cert/AAS: $4,980. Licenciatura varía.", filters: ["2year"]},
+            {id: "electrician", title_en: "Electrician", title_es: "Electricista", soc: "47-2111", route_en: "Apprenticeship (paid) or College certificate", route_es: "Aprendizaje (pagado) o Certificado colegial", time_en: "1–4 years", time_es: "1–4 años", houston_median: "$59,179", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$63,190", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "9%", growth_note: "2025–2035", good_to_know_en: "Paid apprenticeship available or quick college certificate option.", good_to_know_es: "Aprendizaje pagado disponible u opción de certificado colegial rápido.", cost_type_en: "Varies", cost_type_es: "Varía", cost_value: "Free–$1,328", cost_note_en: "Apprenticeship: paid, no tuition. San Jacinto Cert: $1,328 tuition-only.", cost_note_es: "Aprendizaje: pagado. San Jacinto Cert: $1,328.", filters: ["paid"]},
+            {id: "imm", title_en: "Industrial Machinery Mechanic", title_es: "Mecánico de Maquinaria Industrial", soc: "49-9041", route_en: "Certificate (1yr) or Associate degree (2yr)", route_es: "Certificado (1 año) o Grado asociado (2 años)", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$63,180", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$64,100", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "14%", growth_note: "2025–2035", good_to_know_en: "Good growth. Two clear pathways.", good_to_know_es: "Buen crecimiento. Dos caminos claros.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$2,028–$5,070", cost_note_en: "HCC: Cert $2,028; AAS $5,070. Excludes books, tools.", cost_note_es: "HCC: Cert $2,028; AAS $5,070. Excluye libros, herramientas.", filters: ["2year", "growth10"]},
+            {id: "windturbine", title_en: "Wind Turbine Service Technician", title_es: "Técnico de Servicio de Turbina Eólica", soc: "49-9081", route_en: "Certificate (1yr) or Associate degree (2yr)", route_es: "Certificado (1 año) o Grado asociado (2 años)", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$64,052", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$64,120", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "30%", growth_note: "2025–2035", good_to_know_en: "Fastest-growing green energy career.", good_to_know_es: "Carrera de energía verde de más rápido crecimiento.", cost_type_en: "Varies", cost_type_es: "Varía", cost_value: "$1,750–$16,200", cost_note_en: "UH-Downtown Cert (online): $1,750. TSTC AAS: $16,200. AAS not in Houston area.", cost_note_es: "UH-Downtown Cert: $1,750. TSTC AAS: $16,200. AAS no en el área de Houston.", filters: ["2year", "growth10"]},
+            {id: "surgtec", title_en: "Surgical Technologist", title_es: "Tecnólogo Quirúrgico", soc: "29-2055", route_en: "Certificate or Associate degree", route_es: "Certificado o Grado asociado", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$71,050", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$64,650", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "5%", growth_note: "2025–2035", good_to_know_en: "Fast-paced operating room environment.", good_to_know_es: "Ambiente quirúrgico de ritmo rápido.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC program available. Exam fees ~$75. Ask HCC for total program cost.", cost_note_es: "Programa HCC disponible. Cuotas de examen ~$75. Pregunta a HCC por costo total.", filters: ["2year"]},
+            {id: "labtech", title_en: "Medical/Clinical Laboratory Technician", title_es: "Técnico de Laboratorio Clínico", soc: "29-2012", route_en: "Associate degree (entry) or Bachelor's degree (typical)", route_es: "Grado asociado (entrada) o Licenciatura (típico)", time_en: "2–4 years", time_es: "2–4 años", houston_median: "$61,350", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$62,930", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "3%", growth_note: "2025–2035", good_to_know_en: "Two pathways with different credentials.", good_to_know_es: "Dos caminos con diferentes credenciales.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC offers AAS program. Cost not verified. Ask HCC for details.", cost_note_es: "HCC ofrece programa AAS. Costo no verificado. Pregunta a HCC.", filters: ["2year"]},
+            {id: "aircraft", title_en: "Aircraft and Avionics Equipment Mechanic", title_es: "Mecánico de Aviones y Aviónica", soc: "49-3011", route_en: "FAA-approved certificate or Associate degree", route_es: "Certificado aprobado por FAA o Grado asociado", time_en: "18–24 months", time_es: "18–24 meses", houston_median: "$85,400–$93,110", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$79,870–$82,280", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "6%", growth_note: "2025–2035", good_to_know_en: "Two specializations (Aircraft or Avionics). FAA licensing required.", good_to_know_es: "Dos especializaciones. Se requiere licencia FAA.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC offers program. Tool costs not included in typical tuition. Ask HCC.", cost_note_es: "HCC ofrece programa. Costos de herramientas no incluidos. Pregunta a HCC.", filters: []},
+            {id: "atc", title_en: "Air Traffic Controller", title_es: "Controlador de Tráfico Aéreo", soc: "53-2021", route_en: "ATCI program (Associate or Bachelor's) or work experience", route_es: "Programa ATCI o experiencia laboral", time_en: "2–4 years or work-based", time_es: "2–4 años o basado en trabajo", houston_median: "Not published", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$148,080", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "2%", growth_note: "2025–2035", good_to_know_en: "Highest national pay. Age 30 limit applies. No local Houston wage.", good_to_know_es: "Pago nacional más alto. Límite de edad de 30 años aplica.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "ATCI programs available; FAA Academy cost not verified. Ask providers.", cost_note_es: "Programas ATCI disponibles; costo de Academia FAA no verificado.", filters: ["bachelor"]},
+            {id: "compuser", title_en: "Computer User Support Specialist", title_es: "Especialista de Soporte Técnico", soc: "15-1232", route_en: "Some college + IT certs OR HS diploma + IT certs", route_es: "Algunos créditos + certs IT O Diploma HS + certs IT", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$59,250", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$61,860", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "-3%", growth_note: "2025–2035", good_to_know_en: "Declining job growth. Focus on specialized certifications.", good_to_know_es: "Crecimiento laboral decreciente. Enfoque en certificaciones especializadas.", cost_type_en: "Cost varies", cost_type_es: "El costo varía", cost_value: null, cost_note_en: "Cert costs vary ($100–$500 each). College costs vary. Ask providers.", cost_note_es: "Costos de cert varían. Costos colegiales varían. Pregunta a proveedores.", filters: ["2year"]},
+            {id: "dental", title_en: "Dental Assistant", title_es: "Asistente Dental", soc: "31-9091", route_en: "Certificate (1yr) or Associate degree (2yr)", route_es: "Certificado (1 año) o Grado asociado (2 años)", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$43,730", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$48,070", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "7%", growth_note: "2025–2035", good_to_know_en: "Quick entry. Patient-facing role.", good_to_know_es: "Entrada rápida. Rol de cara al paciente.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC offers Cert and AAS options. Cost not verified. Ask HCC.", cost_note_es: "HCC ofrece opciones de Cert y AAS. Costo no verificado. Pregunta a HCC.", filters: ["quick"]},
+            {id: "pharm", title_en: "Pharmacy Technician", title_es: "Técnico de Farmacia", soc: "29-2052", route_en: "Certificate options or Associate degree", route_es: "Opciones de certificado o Grado asociado", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$46,400", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$45,750", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "6%", growth_note: "2025–2035", good_to_know_en: "Quick entry. Certification and licensing required.", good_to_know_es: "Entrada rápida. Se requiere certificación y licencia.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC offers cert levels and AAS. Cost not verified. Ask HCC.", cost_note_es: "HCC ofrece niveles de cert y AAS. Costo no verificado. Pregunta a HCC.", filters: ["quick"]},
+            {id: "paramedic", title_en: "Paramedic", title_es: "Paramédico", soc: "29-2043", route_en: "Certificate (1yr) or Associate degree (2yr)", route_es: "Certificado (1 año) o Grado asociado (2 años)", time_en: "1–2 years", time_es: "1–2 años", houston_median: "$60,130", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$60,600", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "6%", growth_note: "2025–2035", good_to_know_en: "High-stress role. Licensing and continuing education required.", good_to_know_es: "Rol de alto estrés. Se requiere licencia y educación continua.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "HCC and TSTC offer programs. Cost not verified. Ask schools.", cost_note_es: "HCC y TSTC ofrecen programas. Costo no verificado. Pregunta a escuelas.", filters: ["2year"]},
+            {id: "process", title_en: "Process Technology / Chemical Plant Operator", title_es: "Operador de Planta Química", soc: "51-8091", route_en: "Associate degree or Certificate program", route_es: "Grado asociado o Programa de certificado", time_en: "2 years", time_es: "2 años", houston_median: "$106,020", houston_source: "BLS OEWS", houston_year: "2025", national_median: "$78,120", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "-5.2%", growth_note: "2025–2035", good_to_know_en: "High Houston wage; declining nationally. Industrial facility work.", good_to_know_es: "Salario alto en Houston; decreciente nacionalmente.", cost_type_en: "Cost not verified", cost_type_es: "Costo no verificado", cost_value: null, cost_note_en: "Lone Star offers AAS and Cert. Cost not verified. Ask Lone Star.", cost_note_es: "Lone Star ofrece AAS y Cert. Costo no verificado. Pregunta a Lone Star.", filters: []},
+            {id: "infosec", title_en: "Information Security Analyst", title_es: "Analista de Seguridad Informática", soc: "15-1212", route_en: "Bachelor's degree + certs (after IT experience)", route_es: "Licenciatura + certs (después de experiencia en TI)", time_en: "4+ years + experience", time_es: "4+ años + experiencia", houston_median: "$126,368", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$129,180", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "21%", growth_note: "2025–2035", good_to_know_en: "Strong growth. Usually a next step after IT experience.", good_to_know_es: "Crecimiento sólido. Usualmente un paso siguiente después de experiencia en TI.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$9,960", cost_note_en: "San Jacinto College: $83/credit × 120 credits. Excludes fees, books, certifications.", cost_note_es: "San Jacinto College: $83/crédito × 120 créditos. Excluye cuotas, libros, certs.", filters: ["bachelor", "growth10"]},
+            {id: "np", title_en: "Nurse Practitioner", title_es: "Enfermera Practicante", soc: "29-1171", route_en: "Master's degree (MSN/DNP) + prior RN license", route_es: "Maestría (MSN/DNP) + licencia RN previa", time_en: "6–8 years total", time_es: "6–8 años total", houston_median: "$134,558", houston_source: "Texas Workforce Commission", houston_year: "2025", national_median: "$134,920", national_source: "U.S. Bureau of Labor Statistics", national_year: "May 2025", growth: "36%", growth_note: "2025–2035", good_to_know_en: "Fastest growth on list. Requires RN + master's degree.", good_to_know_es: "Crecimiento más rápido de esta lista. Requiere RN + maestría.", cost_type_en: "Tuition-only estimate", cost_type_es: "Estimación de matrícula solamente", cost_value: "$29,095", cost_note_en: "UH: $29,095 (inclusive of course fees). Excludes books, licensing. RN degree separate.", cost_note_es: "UH: $29,095 (inclusive de cuotas). Excluye libros, licencia. Carrera RN separada.", filters: ["bachelor", "growth10"]}
+        ];
+        
+        let currentLang = localStorage.getItem('explorerLang') || 'en';
+        let currentFilters = [];
+        let selectionsHaveBeenMade = false;
+        
+        const fieldMap = {
+            'en': { title: 'title_en', route: 'route_en', time: 'time_en', note: 'good_to_know_en', costType: 'cost_type_en', costNote: 'cost_note_en' },
+            'es': { title: 'title_es', route: 'route_es', time: 'time_es', note: 'good_to_know_es', costType: 'cost_type_es', costNote: 'cost_note_es' }
+        };
+        
+        function t(key) { return lang[currentLang][key] || key; }
+        
+        function updateUIOnly() {
+            document.getElementById('pageTitle').textContent = t('pageTitle');
+            document.getElementById('pageSubtitle').textContent = t('pageSubtitle');
+            document.getElementById('langToggle').textContent = currentLang === 'en' ? 'Español' : 'English';
+            ['introHeading', 'introText', 'l-quick', 'l-quick-sub', 'l-paid', 'l-paid-sub', 'l-2year', 'l-2year-sub', 'l-bachelor', 'l-bachelor-sub', 'l-growth-btn', 'l-browseall-btn', 'l-browseall-text', 'l-start-here', 'footerTitle', 'footerText'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = t(id.replace('l-', ''));
+            });
+        }
+        
+        function setLanguage(l) {
+            currentLang = l;
+            localStorage.setItem('explorerLang', l);
+            document.documentElement.lang = l;
+            updateUIOnly();
+            if (selectionsHaveBeenMade) renderCareers();
+        }
+        
+        function filterByStartingPoint(filter) {
+            selectionsHaveBeenMade = true;
+            currentFilters = [filter];
+            renderCareers();
+            document.getElementById('browseAllOption').classList.remove('hidden');
+        }
+        
+        function toggleGrowthFilter() {
+            selectionsHaveBeenMade = true;
+            currentFilters = currentFilters.includes('growth10') ? currentFilters.filter(f => f !== 'growth10') : [...currentFilters, 'growth10'];
+            renderCareers();
+            document.getElementById('browseAllOption').classList.remove('hidden');
+        }
+        
+        function showAll() {
+            selectionsHaveBeenMade = true;
+            currentFilters = [];
+            renderCareers();
+            document.getElementById('browseAllOption').classList.add('hidden');
+        }
+        
+        function renderCareers() {
+            const container = document.getElementById('careersContainer');
+            const summaryEl = document.getElementById('resultsSummary');
+            
+            let filtered = careersData;
+            if (currentFilters.length > 0) {
+                filtered = careersData.filter(c => currentFilters.every(f => c.filters.includes(f)));
+            }
+            
+            if (currentFilters.length > 0) {
+                summaryEl.textContent = `${t('resultsFor')}: ${filtered.length} ${t('careersFound')}`;
+                summaryEl.classList.remove('hidden');
+            } else {
+                summaryEl.classList.add('hidden');
+            }
+            
+            container.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                document.getElementById('noResults').textContent = t('noResults');
+                document.getElementById('noResults').classList.remove('hidden');
+                container.classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('noResults').classList.add('hidden');
+            container.classList.remove('hidden');
+            
+            const fm = fieldMap[currentLang];
+            filtered.forEach(c => {
+                const detailsId = `details-${c.id}`;
+                const card = document.createElement('div');
+                card.className = 'career-card';
+                card.innerHTML = `
+                    <div class="career-header"><div class="career-title">${c[fm.title]}</div></div>
+                    <div class="career-route">${c[fm.route]}</div>
+                    <div class="career-main-facts">
+                        <div class="fact-item"><div class="fact-label">${t('trainingTime')}</div><div class="fact-value">${currentLang === 'en' ? c.time_en : c.time_es}</div></div>
+                        <div class="fact-item"><div class="fact-label">${t('houstonPay')}</div><div class="fact-value">${c.houston_median}</div></div>
+                    </div>
+                    <div class="career-main-facts">
+                        <div class="fact-item"><div class="fact-label">${t('growth')}</div><div class="fact-value">${c.growth}</div></div>
+                    </div>
+                    <div class="good-to-know">${c[fm.note]}</div>
+                    <button class="expand-btn" aria-expanded="false" aria-controls="${detailsId}" onclick="toggleDetails(this)">${t('moreDetails')}</button>
+                    <div class="career-details" id="${detailsId}">
+                        <div class="detail-section"><div class="detail-label">${t('soc')}</div><div class="detail-value">${c.soc}</div></div>
+                        <div class="detail-section"><div class="detail-label">${t('houstonSource')}</div><div class="detail-value">${c.houston_source} (${c.houston_year})</div></div>
+                        <div class="detail-section"><div class="detail-label">${t('nationalPay')}</div><div class="detail-value">${c.national_median}</div></div>
+                        <div class="detail-section"><div class="detail-label">${t('nationalSource')}</div><div class="detail-value">${c.national_source} (${c.national_year})</div></div>
+                        <div class="detail-section"><div class="detail-label">${t('costType')}</div><div class="detail-value">${c[fm.costType]}</div>${c.cost_value ? `<div class="detail-value" style="font-weight: 600; margin-top: 4px;">${c.cost_value}</div>` : ''}<div class="cost-note">${c[fm.costNote]}</div></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function toggleDetails(btn) {
+            const detailsId = btn.getAttribute('aria-controls');
+            const details = document.getElementById(detailsId);
+            const isOpen = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', !isOpen);
+            details.classList.toggle('open');
+            btn.textContent = isOpen ? t('moreDetails') : t('hideDetails');
+        }
+        
+        document.getElementById('langToggle').addEventListener('click', () => {
+            setLanguage(currentLang === 'en' ? 'es' : 'en');
+        });
+        
+        updateUIOnly();
+    </script>
+</body>
+</html>

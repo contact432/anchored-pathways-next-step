@@ -1179,8 +1179,8 @@ const RESOURCE_ITEMS = [
    descEs:'Explora el tiempo de capacitaci\u00f3n, los salarios del \u00e1rea de Houston y cosas importantes que revisar antes de inscribirte.'},
   {ic:'\u{1F4B0}', bg:'#FCEFDD', url:SCHOLARSHIPS_PAGE_URL,
    titleEn:'Scholarships & Funding', titleEs:'Becas y Financiamiento',
-   descEn:'Find college funding options and support for students starting or continuing school.',
-   descEs:'Encuentra opciones de financiamiento y apoyo para estudiantes que empiezan o contin\u00faan sus estudios.'},
+   descEn:'Find funding options and support for starting or staying in school.',
+   descEs:'Encuentra opciones de financiamiento y apoyo para comenzar o seguir estudiando.'},
   {ic:'\u{1F6E1}\uFE0F', bg:'#EEF6F5', url:IMMIGRATION_PAGE_URL,
    titleEn:'Immigration Status & College Aid', titleEs:'Estatus Migratorio y Ayuda Universitaria',
    descEn:'Understand how immigration status may affect college options, tuition, financial aid, and scholarships.',
@@ -1600,15 +1600,15 @@ function homeScreen(){
   // above), before the contextual Persist/Redefine paths. Opens the Wix
   // Resources page in the SAME tab (approved Phase 1 nav/copy patch).
   wrap.appendChild(resourcesHandoff(
-    'Looking for guides, printable checklists, or grade-by-grade planning? Visit our Resources page.',
-    '¿Buscas guías, listas imprimibles o planificación por grado escolar? Visita nuestra página de Recursos.'
+    'Need a tool, guide, or checklist? Browse Resources.',
+    '¿Necesitas una herramienta, guía o lista? Explora Recursos.'
   ));
 
   // Both lines always show both languages. A family in the middle of a bad week
   // should not have to find the language toggle first.
   const homeLines = [
-    {key:'persist',  en:'Plans change. If you fell behind or something went wrong, start here.', es:'Los planes cambian. Si te atrasaste o algo salió mal, empieza aquí.'},
-    {key:'redefine', en:'Coming back after time away? Start here.', es:'¿Regresas después de un tiempo fuera? Empieza aquí.'},
+    {key:'persist',  en:'Plans changed? Explore a new direction.', es:'¿Cambiaron tus planes? Explora una nueva dirección.'},
+    {key:'redefine', en:'Returning after time away? Plan your next step.', es:'¿Regresas después de un tiempo fuera? Planifica tu próximo paso.'},
   ];
   const linesWrap=el('div');
   linesWrap.style.marginTop='14px';

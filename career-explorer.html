@@ -179,6 +179,7 @@
       border: 1.5px solid #1A5F6E; border-radius: 12px; color: #1A5F6E;
       font-weight: 700; font-size: 14px; text-decoration: none; }
     .ap-back-resources:hover { background: #1A5F6E; color: #fff; }
+    .ap-back-resources-top { margin: 0 0 20px; }
     </style>
 </head>
 <body>
@@ -193,6 +194,7 @@
             <h1 id="pageTitle">Career Explorer</h1>
             <p id="pageSubtitle">Explore 33 training paths and earning opportunities in the Houston area</p>
         </header>
+        <a href="https://contact432.github.io/anchored-pathways-next-step/index.html#resources" class="ap-back-resources ap-back-resources-top">&larr; Back to AP Resources</a>
         
         <div id="introSection" class="intro-section">
             <h2 id="introHeading">Where do you want to start?</h2>
@@ -244,7 +246,7 @@
             <strong id="footerTitle">About these careers:</strong>
             <p id="footerText">Houston-area wages are from the Texas Workforce Commission (2025) or BLS OEWS (2025). Projected growth is from the U.S. Bureau of Labor Statistics (2025–2035). Training costs vary; ask schools for current, complete program costs. This tool shows information only; it does not determine eligibility for any program.</p>
         </div>
-            <a href="index.html#resources" class="ap-back-resources" id="apBackResources">&larr; Back to Resources</a>
+            <a href="https://contact432.github.io/anchored-pathways-next-step/index.html#resources" class="ap-back-resources">&larr; Back to AP Resources</a>
 </div>
     
     <script>
@@ -483,14 +485,15 @@
    this page defines instead of adding a second language mechanism. */
 (function(){
   var TEXT = {
-    en: { home:'Home', resources:'Resources', current:'Career Cost & Pay Explorer', back:'\u2190 Back to Resources' },
-    es: { home:'Inicio', resources:'Recursos', current:'Explorador de Costo y Salario de Carreras', back:'\u2190 Volver a Recursos' }
+    en: { home:'Home', resources:'Resources', current:'Career Cost & Pay Explorer', back:'\u2190 Back to AP Resources' },
+    es: { home:'Inicio', resources:'Recursos', current:'Explorador de Costo y Salario de Carreras', back:'\u2190 Volver a Recursos de AP' }
   };
   function apply(){
     var l = (typeof currentLang !== 'undefined' && TEXT[currentLang]) ? currentLang : 'en';
     var s = TEXT[l], set = function(id, v){ var e = document.getElementById(id); if(e) e.textContent = v; };
     set('apCrumbHome', s.home); set('apCrumbResources', s.resources);
-    set('apCrumbCurrent', s.current); set('apBackResources', s.back);
+    set('apCrumbCurrent', s.current);
+    document.querySelectorAll('.ap-back-resources').forEach(function(e){ e.textContent = s.back; });
   }
   var fn = 'setLanguage';
   if (typeof window[fn] === 'function'){

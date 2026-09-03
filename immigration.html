@@ -478,6 +478,7 @@
       border: 1.5px solid #1A5F6E; border-radius: 12px; color: #1A5F6E;
       font-weight: 700; font-size: 14px; text-decoration: none; }
     .ap-back-resources:hover { background: #1A5F6E; color: #fff; }
+    .ap-back-resources-top { margin: 0 0 20px; }
     </style>
 </head>
 <body>
@@ -495,6 +496,7 @@
             <h1 id="page-title">Immigration Status & College Aid</h1>
             <p id="intro-p1">Your immigration status can affect which colleges, financial aid forms, and scholarship opportunities may be available. This page can help you identify the right questions and connect you with trusted resources and support.</p>
         </div>
+        <a href="https://contact432.github.io/anchored-pathways-next-step/index.html#resources" class="ap-back-resources ap-back-resources-top">&larr; Back to AP Resources</a>
 
         <!-- Disclaimer -->
         <div class="disclaimer-box">
@@ -528,7 +530,7 @@
         <div class="last-reviewed">
             <p id="last-reviewed-text">Last reviewed: September 2026. College policies and legal requirements can change. Always verify current information directly with the college or legal provider.</p>
         </div>
-            <a href="index.html#resources" class="ap-back-resources" id="apBackResources">&larr; Back to Resources</a>
+            <a href="https://contact432.github.io/anchored-pathways-next-step/index.html#resources" class="ap-back-resources">&larr; Back to AP Resources</a>
 </div>
 
     <script>
@@ -945,14 +947,15 @@
    this page defines instead of adding a second language mechanism. */
 (function(){
   var TEXT = {
-    en: { home:'Home', resources:'Resources', current:'Immigration Status & College Aid', back:'\u2190 Back to Resources' },
-    es: { home:'Inicio', resources:'Recursos', current:'Estatus Migratorio y Ayuda Universitaria', back:'\u2190 Volver a Recursos' }
+    en: { home:'Home', resources:'Resources', current:'Immigration Status & College Aid', back:'\u2190 Back to AP Resources' },
+    es: { home:'Inicio', resources:'Recursos', current:'Estatus Migratorio y Ayuda Universitaria', back:'\u2190 Volver a Recursos de AP' }
   };
   function apply(){
     var l = (typeof currentLang !== 'undefined' && TEXT[currentLang]) ? currentLang : 'en';
     var s = TEXT[l], set = function(id, v){ var e = document.getElementById(id); if(e) e.textContent = v; };
     set('apCrumbHome', s.home); set('apCrumbResources', s.resources);
-    set('apCrumbCurrent', s.current); set('apBackResources', s.back);
+    set('apCrumbCurrent', s.current);
+    document.querySelectorAll('.ap-back-resources').forEach(function(e){ e.textContent = s.back; });
   }
   var fn = 'changeLanguage';
   if (typeof window[fn] === 'function'){

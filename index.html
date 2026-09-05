@@ -1249,6 +1249,12 @@ function resourcesScreen(){
     'Looking for longer guides or grade-by-grade planning? Visit our Resources page.',
     '\u00bfBuscas gu\u00edas m\u00e1s largas o planificaci\u00f3n por grado escolar? Visita nuestra p\u00e1gina de Recursos.'
   ));
+  const privacyNote=el('p','',isEn()
+    ?'We use anonymous, privacy-respecting analytics to understand which tools are useful. We do not collect personal information or your answers in these tools.'
+    :'Usamos an\u00e1lisis an\u00f3nimos que respetan la privacidad para entender qu\u00e9 herramientas son \u00fatiles. No recopilamos informaci\u00f3n personal ni tus respuestas en estas herramientas.'
+  );
+  privacyNote.style.cssText='margin:18px 20px 0; color:var(--ink-soft); font-size:12px; line-height:1.5; text-align:center;';
+  wrap.appendChild(privacyNote);
   return wrap;
 }
 
@@ -5732,5 +5738,6 @@ function familyScreen(){
 loadExploreProgress();
 render();
 </script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6ac760dbeda14f3d958fd427062fcd32"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
